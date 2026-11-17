@@ -99,7 +99,7 @@ function renderTrophies(){
   const lockedGlobal=H.globalList().filter(g=>!G.ach['hub:'+g[0]]);
   document.getElementById('trtitle').textContent=`🏆 Trophäensammlung (${got.length})`;
   document.getElementById('trophies').innerHTML=got.map(a=>`<div class="ach got"><div class="ai">${a.icon}</div><div><div class="an">${esc(a.name)}</div><div class="ad">${esc(a.desc||'')}</div><div class="from">${esc(appName(a.app))}</div></div></div>`).join('')+
-    lockedGlobal.map(g=>`<div class="ach locked"><div class="ai">🔒</div><div><div class="an">${g[2]}</div><div class="ad">${g[3]}</div><div class="from">Hub</div></div></div>`).join('')+
+    lockedGlobal.map(g=>g[5]?`<div class="ach locked"><div class="ai">❓</div><div><div class="an">???</div><div class="ad">Versteckter Erfolg. Wird später enthüllt …</div><div class="from">Hub</div></div></div>`:`<div class="ach locked"><div class="ai">🔒</div><div><div class="an">${g[2]}</div><div class="ad">${g[3]}</div><div class="from">Hub</div></div></div>`).join('')+
     (got.length?'':'<p class="muted">Noch keine Trophäen. Starte eine Lern-App!</p>');
 }
 renderProfile();renderApps();renderTrophies();

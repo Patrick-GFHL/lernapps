@@ -6,12 +6,16 @@
 (function(){
   'use strict';
   var KEY = 'lernhub_profil_v1';
+  /* Letzter Schultag je Klassenstufe (Baden-Württemberg). Ab diesem Tag kann der versteckte Erfolg
+     „Klasse X abgeschlossen“ freigeschaltet werden. Für ein neues Schuljahr einfach eine Zeile ergänzen. */
+  var SCHULJAHRESENDE = { 9: '2027-07-28' };
   function def(){ return {name:'', xp:0, xpByApp:{}, streak:{last:'',days:0}, ach:{}, apps:{}}; }
   function load(){
     try{ var r = localStorage.getItem(KEY); if(r){ var o = JSON.parse(r); var d = def(); for(var k in o) d[k] = o[k]; if(!d.apps) d.apps = {}; return d; } }catch(e){}
     return def();
   }
   var P = load();
+  ['hub:kl9','hub:fach-chemie'].forEach(function(k){ delete P.ach[k]; });
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(P)); }catch(e){} }
   function day(d){ d = d || new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
@@ -38,13 +42,28 @@
       ['ach100','👑','Trophäenkönig','100 Erfolge in allen Apps zusammen.',function(){ return appAchCount() >= 100; }],
       ['st50','🌌','Sternenhimmel','50 Sterne in allen Apps zusammen.',function(){ return starsAll() >= 50; }]
     ];
+    /* Stufen statt „alles komplett“: so bleibt ein Ziel bestehen, auch wenn später neue Apps dazukommen */
+    var KL = [[2,'🥉','Bronze'],[4,'🥈','Silber'],[6,'🥇','Gold']];
     uniq(appIds().map(function(id){ return P.apps[id].klasse; }).filter(Boolean)).sort().forEach(function(k){
       var ids = appIds().filter(function(id){ return P.apps[id].klasse === k; });
-      L.push(['kl'+k,'🎒','Klasse '+k+' komplett','Alle Erfolge in allen Lern-Apps der Klasse '+k+' gesammelt ('+ids.length+(ids.length===1?' App':' Apps')+').',function(){ return ids.every(complete); }]);
+      KL.forEach(function(t){
+        L.push(['kl'+k+'-'+t[0],t[1],'Klasse '+k+' '+t[2],t[0]+' Lern-Apps der Klasse '+k+' komplett (alle Erfolge).',function(){ return ids.filter(complete).length >= t[0]; }]);
+      });
     });
+    /* Versteckter Erfolg zum Schuljahresende: alle Apps der Klassenstufe komplett */
+    Object.keys(SCHULJAHRESENDE).forEach(function(k){
+      var end = SCHULJAHRESENDE[k];
+      var ids = appIds().filter(function(id){ return String(P.apps[id].klasse) === String(k); });
+      if(!ids.length) return;
+      L.push(['kl'+k+'-abschluss','🎓','Klasse '+k+' abgeschlossen','Zum Schuljahresende alle Lern-Apps der Klasse '+k+' komplett gesammelt.',
+        function(){ return day() >= end && ids.every(complete); }, true]);
+    });
+    var FA = [[2,'Profi'],[3,'Meister']];
     uniq(appIds().map(function(id){ return P.apps[id].fach; }).filter(Boolean)).sort().forEach(function(f){
       var ids = appIds().filter(function(id){ return P.apps[id].fach === f; });
-      L.push(['fach-'+f.toLowerCase(),'🧪',f+'-Meister','Alle Erfolge in allen '+f+'-Apps gesammelt.',function(){ return ids.every(complete); }]);
+      FA.forEach(function(t){
+        L.push(['fach-'+f.toLowerCase()+'-'+t[0],t[0]===2?'🧪':'🔬',f+'-'+t[1],t[0]+' '+f+'-Apps komplett (alle Erfolge).',function(){ return ids.filter(complete).length >= t[0]; }]);
+      });
     });
     return L;
   }

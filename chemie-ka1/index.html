@@ -809,7 +809,7 @@ function renderAch(){
   view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 27 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
   <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=H.has(APP,id);return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>
   <div class="panel" style="margin-top:22px"><h2>🌍 Meta-Erfolge (über alle Lern-Apps)</h2><p class="muted">Jede Lern-App hat ihren eigenen Rang und eigene Erfolge. Diese Meta-Erfolge sammelst du über alle Apps hinweg, im Lern-Hub steht deine ganze Trophäen-Vitrine.</p></div>
-  <div class="achs">${H.globalList().map(([id,ic,n,d])=>{const g=!!G.ach['hub:'+id];return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+  <div class="achs">${H.globalList().map(([id,ic,n,d,,hid])=>{const g=!!G.ach['hub:'+id];if(hid&&!g){ic='❓';n='???';d='Versteckter Erfolg. Wird später enthüllt …';}return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:(hid?'❓':'🔒')}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
 }
 
 /* ============ Spickzettel ============ */
