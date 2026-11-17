@@ -715,14 +715,28 @@ function renderTask(){
 }
 function parseNum(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');if(s===''||isNaN(+s))return null;return +s;}
 function numOk(v,t){if(v===null)return false;if(t.tol===0)return Math.abs(v-t.ans)<1e-9;const tol=t.tol||0.02;return Math.abs(v-t.ans)<=Math.max(Math.abs(t.ans)*tol,0.005);}
+/* Zehnerpotenz-Eingabe: getrennte Felder ODER alles in einem Feld (6,02*10^23, 6,02·10^23, 6,02x10^23, 6,02e23, 10^-24) */
+function parseSci(mStr,eStr,neg){
+  let s=String(mStr||'').trim().replace(/\s/g,'').replace(/,/g,'.').replace(/[\u2212\u2013\u2014]/g,'-').replace(/[\u00b7\u00d7\u22c5xX*]/g,'*');
+  let m=s.match(/^([-+]?\d*\.?\d+)\*?10\^\(?([-+]?\d+)\)?$/)||s.match(/^([-+]?\d*\.?\d+)[eE]([-+]?\d+)$/);
+  if(m)return (+m[1])*Math.pow(10,+m[2]);
+  m=s.match(/^10\^\(?([-+]?\d+)\)?$/);if(m)return Math.pow(10,+m[1]);
+  const mant=parseNum(s);if(mant===null)return null;
+  const e=String(eStr||'').trim().replace(/\s/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(e===''||isNaN(+e))return null;
+  let ev=+e;if(neg&&ev>0)ev=-ev;
+  return mant*Math.pow(10,ev);
+}
 const INPUT={
   num(t,el){el.innerHTML=`<div class="row"><input class="in" id="a" inputmode="decimal" autocomplete="off" placeholder="Zahl"><span class="unit">${t.unit}</span><button class="btn green" id="chk">Prüfen</button></div>`;
     const go=()=>{const v=parseNum($('#a').value);if(v===null){$('#a').focus();return;}answer(numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`);};
     $('#chk').onclick=go;$('#a').onkeydown=e=>{if(e.key==='Enter')go();};setTimeout(()=>$('#a')&&$('#a').focus(),50);},
-  sci(t,el){el.innerHTML=`<div class="row"><input class="in" id="m" inputmode="decimal" autocomplete="off" placeholder="z. B. 2,66"><span class="unit">· 10^</span><input class="in exp" id="e" inputmode="numeric" autocomplete="off" placeholder="−23"><span class="unit">${t.unit}</span><button class="btn green" id="chk">Prüfen</button></div>
-    <div class="muted" style="font-size:15px;margin-top:6px">Zahl vorne und Hochzahl getrennt eingeben. Minus nicht vergessen!</div>`;
-    const go=()=>{const m=parseNum($('#m').value);const e=parseNum(($('#e').value||'').replace('−','-'));if(m===null||e===null){(m===null?$('#m'):$('#e')).focus();return;}
-      const v=m*Math.pow(10,e);answer(Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`);};
+  sci(t,el){el.innerHTML=`<div class="row"><input class="in" id="m" inputmode="decimal" autocomplete="off" placeholder="z. B. 6,02"><span class="unit">· 10^</span><button class="btn small" id="sg" type="button" title="Vorzeichen der Hochzahl" style="min-width:46px;font-size:20px">+</button><input class="in exp" id="e" inputmode="numeric" autocomplete="off" placeholder="23"><span class="unit">${t.unit}</span><button class="btn green" id="chk">Prüfen</button></div>
+    <div class="muted" style="font-size:15px;margin-top:6px">Zahl vorne und Hochzahl getrennt eingeben. Für eine negative Hochzahl auf <b>+</b> tippen, dann wird daraus <b>−</b>. Du kannst auch alles in das erste Feld schreiben, z. B. <i>6,02*10^23</i> oder <i>2,66e-23</i>.</div><div id="scimsg" class="hintbox" style="display:none"></div>`;
+    let neg=false;const sg=$('#sg');sg.onclick=()=>{if(P.answered)return;neg=!neg;sg.textContent=neg?'−':'+';sg.classList.toggle('red',neg);};
+    const go=()=>{if(P.answered)return;const v=parseSci($('#m').value,$('#e').value,neg);
+      if(v===null){const msg=$('#scimsg');msg.style.display='block';msg.innerHTML=($('#m').value.trim()===''?'Bitte zuerst die Zahl vorne eingeben.':'Bitte die Hochzahl eingeben (rechts neben „· 10^“).')+' Beispiel: 6,02 · 10^23 → vorne <b>6,02</b>, Hochzahl <b>23</b>.';return;}
+      $('#sg').disabled=true;answer(Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`);};
     $('#chk').onclick=go;['#m','#e'].forEach(s=>$(s).onkeydown=e=>{if(e.key==='Enter')go();});setTimeout(()=>$('#m')&&$('#m').focus(),50);},
   mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
     el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
