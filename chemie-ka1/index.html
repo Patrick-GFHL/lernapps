@@ -690,8 +690,8 @@ function renderMap(){
 
 /* ============ Spiel ============ */
 let P=null;
-function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false};renderTask();}
-function startBoss(){P={world:'boss',name:'Der Molekül-Wächter',icon:'👾',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3};renderTask();}
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Der Molekül-Wächter',icon:'👾',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
 function bossSvg(hp){
   return `<svg width="120" height="104" viewBox="0 0 30 26" shape-rendering="crispEdges">
    <rect x="3" y="3" width="24" height="20" fill="#6b3fa0"/><rect x="3" y="3" width="24" height="3" fill="#8a5bc4"/><rect x="3" y="20" width="24" height="3" fill="#4a2873"/>
@@ -701,14 +701,14 @@ function bossSvg(hp){
    <rect x="5" y="23" width="4" height="3" fill="#4a2873"/><rect x="21" y="23" width="4" height="3" fill="#4a2873"/></svg>`;
 }
 function renderTask(){
-  const t=P.tasks[P.i];P.answered=false;P.usedHint=false;
+  const t=P.tasks[P.i];P.answered=false;P.usedHint=false;P.taskT=Date.now();
   let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}"></span>`;});
   view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
    ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
    ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
    <div class="panel"><div class="taskhead"><span class="pix">AUFGABE ${P.i+1} / ${P.tasks.length}</span>${t.hint?'<button class="btn small gold" id="hintb">💡 Tipp</button>':''}</div>
    <div class="q">${t.q}</div><div id="inp"></div><div id="hintbox"></div><div class="fb" id="fb"></div></div>`;
-  $('#quit').onclick=()=>{P=null;renderMap();};
+  $('#quit').onclick=()=>{logRound(false,null);P=null;renderMap();};
   if(t.hint)$('#hintb').onclick=()=>{if(P.answered)return;P.usedHint=true;P.hints++;$('#hintbox').innerHTML=`<div class="hintbox">💡 ${t.hint}<br><span class="muted" style="font-size:14px">(Mit Tipp gibt es keinen XP-Bonus.)</span></div>`;$('#hintb').disabled=true;};
   INPUT[t.kind](t,$('#inp'));
 }
@@ -762,6 +762,7 @@ const INPUT={
 };
 function answer(ok,extra){
   if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
+  P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
   if(ok){P.combo++;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
     gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();}
   else{P.combo=0;if(P.boss)P.hearts--;}
@@ -775,12 +776,15 @@ function answer(ok,extra){
   setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
   document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
 }
+function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Chemie-Miner',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
+  right:P.res.filter(Boolean).length,total:P.res.length,planned:P.tasks.length,stars:stars,secs:Math.round(P.secs),hints:P.hints,done:done});}
 function finish(){
   document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
   touchStreak();
   let h='';
   if(P.boss){
     const won=P.hearts>0;
+    logRound(true,null);
     if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
     h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Der Molekül-Wächter ist besiegt!':'Der Wächter war stärker …'}</h2>
      <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
@@ -791,6 +795,7 @@ function finish(){
     const st=right===total?3:right>=total-1?2:right>=Math.ceil(total*0.6)?1:0;
     const prev=S.stars[P.world]||0;
     S.stars[P.world]=Math.max(prev,st);S.plays[P.world]=(S.plays[P.world]||0)+1;
+    logRound(true,st);
     if(st===3&&P.hints===0)S.stats.nohint++;
     if(st)gainXP(st*10);
     h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>

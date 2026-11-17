@@ -9,9 +9,9 @@
   /* Letzter Schultag je Klassenstufe (Baden-Württemberg). Ab diesem Tag kann der versteckte Erfolg
      „Klasse X abgeschlossen“ freigeschaltet werden. Für ein neues Schuljahr einfach eine Zeile ergänzen. */
   var SCHULJAHRESENDE = { 9: '2027-07-28' };
-  function def(){ return {name:'', xp:0, xpByApp:{}, streak:{last:'',days:0}, ach:{}, apps:{}}; }
+  function def(){ return {name:'', xp:0, xpByApp:{}, streak:{last:'',days:0}, ach:{}, apps:{}, log:[]}; }
   function load(){
-    try{ var r = localStorage.getItem(KEY); if(r){ var o = JSON.parse(r); var d = def(); for(var k in o) d[k] = o[k]; if(!d.apps) d.apps = {}; return d; } }catch(e){}
+    try{ var r = localStorage.getItem(KEY); if(r){ var o = JSON.parse(r); var d = def(); for(var k in o) d[k] = o[k]; if(!d.apps) d.apps = {}; if(!d.log) d.log = []; return d; } }catch(e){}
     return def();
   }
   var P = load();
@@ -98,6 +98,9 @@
       var k = app+':'+id; if(P.ach[k]) return false;
       P.ach[k] = {t:Date.now(), app:app, icon:icon, name:name, desc:desc}; save(); checkGlobal(); return true;
     },
+    /* Lernprotokoll: eine Zeile pro Runde (auch abgebrochene). Wird nur auf diesem Gerät gespeichert. */
+    logRound: function(e){ e.t = Date.now(); P.log.push(e); if(P.log.length > 1500) P.log = P.log.slice(-1500); save(); },
+    getLog: function(){ return P.log.slice(); },
     countApp: achOf,
     checkGlobal: checkGlobal,
     exportData: function(){ return JSON.parse(JSON.stringify(P)); },

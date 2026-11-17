@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lernprotokoll – Lern-Hub</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#17171c">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#17171c;--panel:#2b2b33;--panel2:#35353f;--line:#0b0b0e;--text:#f1efe6;--muted:#a9a7a0;--green:#5fbf3a;--gold:#f2c94c;--red:#e05a47;--blue:#4fa3e0}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Atkinson Hyperlegible',system-ui,sans-serif;font-size:17px;line-height:1.45;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+h1,h2{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400}
+h1{font-size:16px;margin:0;line-height:1.5}
+h2{font-size:12px;margin:0 0 12px;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding:16px 14px 50px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.panel{background:var(--panel);border:4px solid var(--line);padding:16px;margin:16px 0}
+.muted{color:var(--muted)}
+.btn{font-family:inherit;font-size:16px;color:var(--text);background:#6d6d78;border:3px solid var(--line);padding:7px 12px;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:inset -3px -3px 0 rgba(0,0,0,.35),inset 3px 3px 0 rgba(255,255,255,.2)}
+.btn.green{background:var(--green)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--panel2);border:3px solid var(--line);padding:10px}
+.kpi .v{font-size:26px;font-weight:700}
+.kpi .l{font-size:14px;color:var(--muted)}
+.chart{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:10px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar .b{width:100%;background:var(--green);border:2px solid var(--line);min-height:2px}
+.bar .b.zero{background:#3a3a44}
+.bar .n{font-size:11px;color:var(--muted);margin-bottom:2px}
+.bar .d{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.bar.today .d{color:var(--gold);font-weight:700}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:2px solid #3a3a44;padding:6px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:700}
+.ok{color:var(--green)}.mid{color:var(--gold)}.bad{color:var(--red)}
+.tblwrap{overflow-x:auto}
+.flag{font-size:13px;background:#5a3a1e;border:2px solid var(--line);padding:0 5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.seg button{font-family:inherit;font-size:15px;color:var(--text);background:#4a4a55;border:3px solid var(--line);padding:5px 10px;cursor:pointer}
+.seg button.on{background:var(--blue)}
+#msg{margin-left:8px;color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="btn" href="./">◀ Hub</a><h1>📊 Lernprotokoll</h1></div>
+  <p class="muted" style="font-size:15px">Zeigt, wann und wie gelernt wurde. Alles wird nur auf diesem Gerät gespeichert.</p>
+  <div class="panel"><div class="seg" id="range"></div><div class="kpis" id="kpis"></div></div>
+  <div class="panel"><h2>Lernzeit pro Tag (Minuten)</h2><div class="chart" id="chart"></div></div>
+  <div class="panel"><h2>Themen</h2><div class="tblwrap" id="topics"></div></div>
+  <div class="panel"><h2>Letzte Runden</h2><div class="tblwrap" id="rounds"></div></div>
+  <div class="panel"><h2>Bericht senden</h2>
+    <p class="muted" style="margin-top:0">Erstellt eine kurze Zusammenfassung, die du per WhatsApp, Nachricht oder Mail verschicken kannst.</p>
+    <button class="btn green" id="share">📤 Bericht teilen</button><span id="msg"></span>
+    <textarea id="rep" readonly style="display:none;width:100%;min-height:160px;margin-top:10px;font-family:inherit;font-size:14px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px"></textarea>
+  </div>
+</div>
+<script src="shared/profil.js"></script>
+<script>
+const H=window.LernHub,G=H.get(),LOG=H.getLog();
+let RANGE=7;
+const pad=n=>String(n).padStart(2,'0');
+const dayKey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const fmtMin=s=>{const m=Math.round(s/60);return m<60?m+' min':Math.floor(m/60)+' h '+pad(m%60)+' min';};
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+const cls=p=>p>=80?'ok':p>=55?'mid':'bad';
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function inRange(e){if(RANGE===0)return true;const from=new Date();from.setHours(0,0,0,0);from.setDate(from.getDate()-(RANGE-1));return e.t>=from.getTime();}
+function stats(list){const r={rounds:list.length,done:list.filter(e=>e.done).length,tasks:0,right:0,secs:0,hints:0,days:new Set()};
+  list.forEach(e=>{r.tasks+=e.total;r.right+=e.right;r.secs+=e.secs||0;r.hints+=e.hints||0;r.days.add(dayKey(new Date(e.t)));});return r;}
+function render(){
+  document.getElementById('range').innerHTML=[[7,'7 Tage'],[14,'14 Tage'],[30,'30 Tage'],[0,'Alles']].map(([v,l])=>`<button data-r="${v}" class="${v===RANGE?'on':''}">${l}</button>`).join('');
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{RANGE=+b.dataset.r;render();});
+  const L=LOG.filter(inRange),s=stats(L),last=LOG.length?new Date(LOG[LOG.length-1].t):null;
+  const spt=s.tasks?Math.round(s.secs/s.tasks):0;
+  document.getElementById('kpis').innerHTML=[
+    [s.days.size,'Tage gelernt'],[fmtMin(s.secs),'Lernzeit'],[s.rounds,`Runden (${s.done} beendet)`],[s.tasks,'Aufgaben'],
+    [`<span class="${cls(pct(s.right,s.tasks))}">${pct(s.right,s.tasks)} %</span>`,'richtig'],[spt?spt+' s':'–','pro Aufgabe (Ø)'],
+    [G.streak.days||0,'Tage in Serie'],[last?`${WD[last.getDay()]} ${pad(last.getDate())}.${pad(last.getMonth()+1)}. ${pad(last.getHours())}:${pad(last.getMinutes())}`:'–','zuletzt gelernt']
+  ].map(([v,l])=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  // Chart: letzte 14 Tage
+  const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);days.push(d);}
+  const per=days.map(d=>{const k=dayKey(d);return LOG.filter(e=>dayKey(new Date(e.t))===k).reduce((a,e)=>a+(e.secs||0),0)/60;});
+  const max=Math.max(10,...per);
+  document.getElementById('chart').innerHTML=days.map((d,i)=>`<div class="bar ${i===13?'today':''}"><div class="n">${per[i]>=0.5?Math.round(per[i]):''}</div><div class="b ${per[i]<0.5?'zero':''}" style="height:${Math.max(2,per[i]/max*100)}%"></div><div class="d">${WD[d.getDay()]}<br>${pad(d.getDate())}.</div></div>`).join('');
+  // Themen
+  const by={};L.forEach(e=>{const k=e.appName+' · '+e.worldName;(by[k]=by[k]||[]).push(e);});
+  const keys=Object.keys(by).sort((a,b)=>pct(stats(by[a]).right,stats(by[a]).tasks)-pct(stats(by[b]).right,stats(by[b]).tasks));
+  document.getElementById('topics').innerHTML=keys.length?`<table><tr><th>Thema</th><th>Runden</th><th>Richtig</th><th>Zeit</th><th>Zuletzt</th></tr>${keys.map(k=>{const t=stats(by[k]);const l=new Date(Math.max(...by[k].map(e=>e.t)));const p=pct(t.right,t.tasks);
+    return `<tr><td>${esc(k)}</td><td>${t.rounds}</td><td class="${cls(p)}">${p} % <span class="muted">(${t.right}/${t.tasks})</span></td><td>${fmtMin(t.secs)}</td><td>${pad(l.getDate())}.${pad(l.getMonth()+1)}.</td></tr>`;}).join('')}</table><p class="muted" style="font-size:14px">Sortiert nach Trefferquote: die schwächsten Themen stehen oben.</p>`:'<p class="muted">In diesem Zeitraum wurde noch nichts gelernt.</p>';
+  // Runden
+  const R=L.slice(-40).reverse();
+  document.getElementById('rounds').innerHTML=R.length?`<table><tr><th>Wann</th><th>Thema</th><th>Ergebnis</th><th>Dauer</th></tr>${R.map(e=>{const d=new Date(e.t);const p=pct(e.right,e.total);const spt=e.total?(e.secs||0)/e.total:0;
+    const res=e.boss?(e.done?(e.won?'👑 Boss besiegt':'💀 Boss verloren'):''):(e.stars!=null?'★'.repeat(e.stars)+'☆'.repeat(3-e.stars):'');
+    return `<tr><td>${WD[d.getDay()]} ${pad(d.getDate())}.${pad(d.getMonth()+1)}.<br><span class="muted">${pad(d.getHours())}:${pad(d.getMinutes())}</span></td><td>${esc(e.worldName)}<br><span class="muted" style="font-size:13px">${esc(e.appName)}</span></td>
+      <td><span class="${cls(p)}">${e.right}/${e.total}</span> ${res} ${e.done?'':'<span class="flag">abgebrochen</span>'} ${e.hints?`<span class="muted">💡${e.hints}</span>`:''} ${e.total>=3&&spt<6?'<span class="flag">sehr schnell</span>':''}</td><td>${fmtMin(e.secs||0)}</td></tr>`;}).join('')}</table>
+    <p class="muted" style="font-size:14px">„sehr schnell“ = weniger als 6 Sekunden pro Aufgabe. Das kann ein Hinweis auf Raten sein.</p>`:'<p class="muted">Noch keine Runden.</p>';
+}
+function report(){
+  const L7=LOG.filter(e=>e.t>=Date.now()-7*864e5),s=stats(L7);
+  const by={};L7.forEach(e=>{(by[e.worldName]=by[e.worldName]||[]).push(e);});
+  const top=Object.keys(by).map(k=>{const t=stats(by[k]);return `• ${k}: ${t.rounds} Runde(n), ${pct(t.right,t.tasks)} % richtig`;}).join('\n');
+  return `📊 Lernbericht ${G.name||''} – letzte 7 Tage\n`+
+    `Tage gelernt: ${s.days.size} · Lernzeit: ${fmtMin(s.secs)}\nRunden: ${s.rounds} · Aufgaben: ${s.tasks} · richtig: ${pct(s.right,s.tasks)} %\nSerie: ${G.streak.days||0} Tage\n`+(top?'\nThemen:\n'+top:'\nIn den letzten 7 Tagen wurde nichts gelernt.');
+}
+document.getElementById('share').onclick=async()=>{
+  const text=report();const ta=document.getElementById('rep');
+  try{if(navigator.share){await navigator.share({text});document.getElementById('msg').textContent='Geteilt ✔';return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  ta.style.display='block';ta.value=text;
+  try{await navigator.clipboard.writeText(text);document.getElementById('msg').textContent='In die Zwischenablage kopiert ✔';}catch(e){ta.select();document.getElementById('msg').textContent='Text markiert, bitte kopieren.';}
+};
+render();
+</script>
+</body>
+</html>
