@@ -589,7 +589,7 @@ function bossBuild(){
 /* ============ Ränge & Erfolge ============ */
 const H=window.LernHub, APP='chemie-ka1';
 /* Rang gilt nur in dieser App – jede Lern-App startet wieder bei Holz */
-const RANKS=[['Holz',0,'#a0703c'],['Stein',150,'#8a8a8a'],['Kupfer',400,'#d07a45'],['Eisen',800,'#d8d8d8'],['Gold',1400,'#f2c94c'],['Diamant',2200,'#4ee6e0']];
+const RANKS=[['Holz',0,'#a0703c'],['Stein',150,'#8a8a8a'],['Kupfer',400,'#d07a45'],['Eisen',800,'#d8d8d8'],['Gold',1400,'#f2c94c'],['Diamant',2200,'#4ee6e0'],['Netherit',3000,'#4d4246']];
 function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
 const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
 const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
@@ -615,6 +615,7 @@ const ACH=[
  ['all','🗺️','Weltenbummler','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
  ['iron','🛡️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
  ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
+ ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
  ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
  ['cheat','📜','Gut vorbereitet','Den Spickzettel angeschaut.',()=>S.stats.cheat>=1],
  ['boss','👾','Wächter besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],

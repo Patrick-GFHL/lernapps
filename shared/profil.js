@@ -43,11 +43,11 @@
       ['st50','🌌','Sternenhimmel','50 Sterne in allen Apps zusammen.',function(){ return starsAll() >= 50; }]
     ];
     /* Stufen statt „alles komplett“: so bleibt ein Ziel bestehen, auch wenn später neue Apps dazukommen */
-    var KL = [[2,'🥉','Bronze'],[4,'🥈','Silber'],[6,'🥇','Gold']];
+    var KL = [[1,'🪵','Holz'],[2,'🪨','Stein'],[3,'🟠','Kupfer'],[4,'⛓️','Eisen'],[6,'🥇','Gold'],[8,'💎','Diamant'],[10,'🔱','Netherit']];
     uniq(appIds().map(function(id){ return P.apps[id].klasse; }).filter(Boolean)).sort().forEach(function(k){
       var ids = appIds().filter(function(id){ return P.apps[id].klasse === k; });
       KL.forEach(function(t){
-        L.push(['kl'+k+'-'+t[0],t[1],'Klasse '+k+' '+t[2],t[0]+' Lern-Apps der Klasse '+k+' komplett (alle Erfolge).',function(){ return ids.filter(complete).length >= t[0]; }]);
+        L.push(['kl'+k+'-'+t[2].toLowerCase(),t[1],'Klasse '+k+': '+t[2],t[0]+(t[0]===1?' Lern-App':' Lern-Apps')+' der Klasse '+k+' komplett (alle Erfolge).',function(){ return ids.filter(complete).length >= t[0]; }]);
       });
     });
     /* Versteckter Erfolg zum Schuljahresende: alle Apps der Klassenstufe komplett */
