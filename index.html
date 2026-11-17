@@ -72,32 +72,31 @@ a.app:hover{transform:translateY(-3px)}
 const APPS=[
   {id:'chemie-ka1',dir:'chemie-ka1/',name:'Chemie-Miner',icon:'⛏️',sub:'Chemie Klasse 9 · KA Nr. 1: Massengesetze, Formeln, Reaktionsgleichungen, Stoffmenge, Stöchiometrie, Wasserstoff',key:'chemieMinerKA1_v1',maxStars:27,isNew:true}
 ];
-const H=window.LernHub,G=H.get();
+const H=window.LernHub,G=H.get();H.checkGlobal();
 function read(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;}}
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function renderProfile(){
-  const r=H.rank();const pct=r.next?((G.xp-r.cur[1])/(r.next[1]-r.cur[1]))*100:100;
+  const nApps=Object.keys(G.xpByApp).filter(k=>G.xpByApp[k]>0).length;
+  const meta=Object.keys(G.ach).filter(k=>k.indexOf('hub:')===0).length,metaAll=H.globalList().length;
   document.getElementById('prof').innerHTML=`
-   <div class="prow"><span class="rankblock" style="background:${r.cur[2]}"></span>
-   <span class="pname">${G.name?esc(G.name):'<span class="muted">Noch kein Name</span>'}</span><span class="pix" style="font-size:11px">${r.cur[0]}</span>
-   <button class="mini" id="edit">✎</button></div>
-   <div class="xpbar"><div style="width:${Math.min(100,pct)}%"></div><div class="xptxt">${r.next?`${G.xp} / ${r.next[1]} XP → ${r.next[0]}`:`${G.xp} XP · Höchster Rang!`}</div></div>
-   <div class="total"><span>🔥 Serie: <b>${G.streak.days||0}</b> ${G.streak.days===1?'Tag':'Tage'}</span><span>🏆 Erfolge: <b>${Object.keys(G.ach).length}</b></span><span>📚 Apps gespielt: <b>${Object.keys(G.xpByApp).filter(k=>G.xpByApp[k]>0).length}</b></span></div>
+   <div class="prow"><span class="pname">${G.name?esc(G.name):'<span class="muted">Noch kein Name</span>'}</span><button class="mini" id="edit">✎</button></div>
+   <div class="total"><span>🔥 Serie: <b>${G.streak.days||0}</b> ${G.streak.days===1?'Tag':'Tage'}</span><span>✨ XP gesamt: <b>${G.xp}</b></span><span>🏆 Trophäen: <b>${Object.keys(G.ach).length}</b></span><span>🌍 Meta-Erfolge: <b>${meta} / ${metaAll}</b></span><span>📚 Apps: <b>${nApps}</b></span></div>
+   <p class="muted" style="font-size:15px;margin:10px 0 0">Jede Lern-App hat ihren eigenen Rang und eigene Erfolge. Die Meta-Erfolge hier sammelst du über alle Apps hinweg.</p>
    <div id="editbox"></div>`;
   document.getElementById('edit').onclick=()=>{document.getElementById('editbox').innerHTML=`<div class="row" style="margin-top:10px"><input id="nm" maxlength="16" value="${esc(G.name||'')}" placeholder="Name"><button class="mini green" id="ok">Speichern</button></div>`;
     const ok=()=>{H.setName(document.getElementById('nm').value.trim());renderProfile();};document.getElementById('ok').onclick=ok;document.getElementById('nm').onkeydown=e=>{if(e.key==='Enter')ok();};document.getElementById('nm').focus();};
 }
 function renderApps(){
   document.getElementById('apps').innerHTML=APPS.map(a=>{
-    const s=read(a.key);const st=s?Object.values(s.stars||{}).reduce((x,y)=>x+y,0):0;const xp=G.xpByApp[a.id]||0;
-    const p=(s||xp)?`★ ${st}${a.maxStars?' / '+a.maxStars:''} · ${xp} XP`:'Noch nicht gespielt';
+    const s=read(a.key);const st=s?Object.values(s.stars||{}).reduce((x,y)=>x+y,0):0;const info=G.apps[a.id];
+    const p=info?`★ ${st}${a.maxStars?' / '+a.maxStars:''} · 🏆 ${H.countApp(a.id)} / ${info.achTotal}`:'Noch nicht gespielt';
     return `<a class="app" href="${a.dir}"><div class="ic">${a.icon}</div><div><div class="nm">${a.name}</div><div class="sub">${a.sub}</div><div class="prog">${p}</div>${a.isNew?'<span class="badge">NEU</span>':''}</div></a>`;
   }).join('');
 }
 function renderTrophies(){
   const appName=id=>id==='hub'?'Hub':((APPS.find(a=>a.id===id)||{}).name||id);
   const got=Object.values(G.ach).sort((a,b)=>b.t-a.t);
-  const lockedGlobal=H.GLOBAL.filter(g=>!G.ach['hub:'+g[0]]);
+  const lockedGlobal=H.globalList().filter(g=>!G.ach['hub:'+g[0]]);
   document.getElementById('trtitle').textContent=`🏆 Trophäensammlung (${got.length})`;
   document.getElementById('trophies').innerHTML=got.map(a=>`<div class="ach got"><div class="ai">${a.icon}</div><div><div class="an">${esc(a.name)}</div><div class="ad">${esc(a.desc||'')}</div><div class="from">${esc(appName(a.app))}</div></div></div>`).join('')+
     lockedGlobal.map(g=>`<div class="ach locked"><div class="ai">🔒</div><div><div class="an">${g[2]}</div><div class="ad">${g[3]}</div><div class="from">Hub</div></div></div>`).join('')+
