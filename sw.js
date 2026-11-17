@@ -2,7 +2,7 @@
 // Jede Seite wird unter IHRER EIGENEN Adresse zwischengespeichert (kein Umleiten aller Seiten auf index.html),
 // damit sich die einzelnen Lern-Apps nicht gegenseitig überschreiben.
 // Strategie: erst Netz (aktuelle Version), bei fehlendem Netz der gespeicherte Stand.
-const CACHE = 'lernhub-v9';
+const CACHE = 'lernhub-v10';
 const FILES = [
   './', './index.html', './manifest.webmanifest',
   './icon-180.png', './icon-192.png', './icon-512.png', './shared/profil.js', './eltern.html',
