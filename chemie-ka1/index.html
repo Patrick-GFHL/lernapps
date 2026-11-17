@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chemie-Miner – KA Nr. 1</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lern-Hub">
+<meta name="theme-color" content="#17171c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17171c; --panel:#2b2b33; --panel2:#35353f; --line:#0b0b0e;
+  --text:#f1efe6; --muted:#a9a7a0; --green:#5fbf3a; --green-d:#3c8a20;
+  --gold:#f2c94c; --red:#e05a47; --blue:#4fa3e0; --dia:#4ee6e0; --stone:#7d7d7d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Pixelify Sans',ui-monospace,Menlo,Consolas,monospace;font-size:19px;line-height:1.45;
+  background-image:linear-gradient(rgba(255,255,255,.025) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.025) 2px,transparent 2px);
+  background-size:32px 32px;min-height:100vh}
+h1,h2,h3,.pix{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400;letter-spacing:.5px}
+h1{font-size:18px;margin:0;line-height:1.5}
+h2{font-size:15px;margin:0 0 14px;line-height:1.6}
+h3{font-size:12px;margin:0 0 8px;line-height:1.6}
+sub,sup{font-size:.7em;line-height:0}
+button{font-family:inherit;font-size:18px;color:var(--text);cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 14px 60px}
+
+/* ore strip */
+.ores{display:flex;overflow:hidden;height:44px;border-bottom:4px solid var(--line)}
+.ore{flex:0 0 44px;height:44px;position:relative;background:#6f6f6f;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.28),inset 4px 4px 0 rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:rgba(0,0,0,.55)}
+.ore i{position:absolute;width:8px;height:8px}
+/* header */
+header.top{background:#202027;border-bottom:4px solid var(--line)}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;background:var(--green);box-shadow:inset -4px -4px 0 var(--green-d),inset 4px 4px 0 rgba(255,255,255,.3);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px}
+.player{display:flex;align-items:center;gap:12px;flex:1;min-width:260px}
+.rank{display:flex;align-items:center;gap:8px;font-weight:700}
+.rankblock{width:22px;height:22px;border:3px solid var(--line);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.35)}
+.xpbar{flex:1;min-width:120px;height:18px;background:#111;border:3px solid var(--line);position:relative}
+.xpbar>div{height:100%;background:linear-gradient(#8ff05a,#5fbf3a);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);transition:width .5s}
+.xptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-shadow:1px 1px 0 #000}
+.streak{font-weight:700;white-space:nowrap}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;max-width:980px;margin:0 auto}
+
+/* buttons */
+.btn{background:#6d6d78;border:3px solid var(--line);padding:9px 16px;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.22);text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{box-shadow:inset 4px 4px 0 rgba(0,0,0,.35)}
+.btn:disabled{filter:grayscale(1) brightness(.7);cursor:default}
+.btn.green{background:var(--green)}
+.btn.gold{background:#c99a1e}
+.btn.red{background:#b6412f}
+.btn.blue{background:#3b7fb8}
+.btn.small{font-size:16px;padding:6px 12px}
+.btn.on{background:var(--green)}
+
+/* panels */
+.panel{background:var(--panel);border:4px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.3),inset 4px 4px 0 rgba(255,255,255,.07);padding:18px;margin:16px 0}
+.muted{color:var(--muted)}
+.intro p{margin:6px 0}
+
+/* world map */
+.worlds{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.world{background:var(--panel2);border:4px solid var(--line);padding:14px;text-align:left;display:flex;gap:12px;align-items:flex-start;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.08);transition:transform .1s}
+.world:hover{transform:translateY(-3px)}
+.world .ic{font-size:36px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line);flex:0 0 52px}
+.world .nm{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.6;margin-bottom:4px}
+.world .tp{font-size:15px;color:var(--muted);line-height:1.3}
+.stars{color:var(--gold);font-size:20px;letter-spacing:2px;margin-top:6px}
+.stars .off{color:#55545c}
+.world.boss{grid-column:1/-1;background:#3a2346}
+.world.locked{filter:grayscale(.8);opacity:.75}
+.num-badge{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted)}
+.tag{display:inline-block;font-size:13px;background:#5a4a1e;border:2px solid var(--line);padding:0 6px;margin-top:4px}
+
+/* play */
+.playtop{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.prog{flex:1;display:flex;gap:4px;min-width:180px}
+.prog span{flex:1;height:16px;background:#111;border:3px solid var(--line)}
+.prog span.ok{background:var(--green)}
+.prog span.bad{background:var(--red)}
+.prog span.cur{background:#777}
+.hearts{font-size:22px;letter-spacing:2px}
+.combo{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gold)}
+.q{font-size:21px;margin:6px 0 16px}
+.q .eq{display:inline-block;background:#1d1d23;border:3px solid var(--line);padding:6px 12px;margin:8px 0;font-size:22px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input.in{font-family:inherit;font-size:22px;width:170px;padding:8px 10px;background:#111;color:var(--text);border:3px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.6)}
+input.in.exp{width:80px}
+input.in:focus{outline:3px solid var(--blue)}
+.unit{font-size:21px}
+.choices{display:grid;gap:10px}
+.choices .btn{text-align:left;font-size:18px;padding:12px 14px;background:#4a4a55}
+.choices .btn.right{background:var(--green)}
+.choices .btn.wrong{background:var(--red)}
+.fb{margin-top:16px}
+.fb .ok,.fb .bad{font-family:'Press Start 2P',monospace;font-size:12px;padding:10px 12px;border:3px solid var(--line);margin-bottom:10px;line-height:1.6}
+.fb .ok{background:var(--green-d)}
+.fb .bad{background:#8a3328}
+.sol{background:#1d1d23;border:3px solid var(--line);padding:12px 14px;font-size:18px}
+.sol ol{margin:4px 0;padding-left:22px}
+.hintbox{margin-top:12px;background:#4a3f1c;border:3px solid var(--line);padding:10px 12px;font-size:17px}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.taskhead .pix{font-size:10px;color:var(--muted)}
+
+/* element grid */
+.elgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:14px}
+.el{height:64px;font-family:'Press Start 2P',monospace;font-size:15px;background:#5b5b66;border:3px solid var(--line);
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.2)}
+.el.sel{background:var(--blue)}
+.el.right{background:var(--green)}
+.el.wrong{background:var(--red)}
+.el.miss{outline:4px dashed var(--gold);outline-offset:-8px}
+
+/* balance */
+.bal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:24px;margin:6px 0 14px}
+.sp{display:flex;align-items:center;gap:6px;background:#1d1d23;border:3px solid var(--line);padding:6px 8px}
+.sp .co{font-family:'Press Start 2P',monospace;font-size:16px;min-width:26px;text-align:center;color:var(--gold)}
+.sp .st{display:flex;flex-direction:column;gap:3px}
+.sp .st button{width:34px;height:26px;padding:0;font-size:16px;line-height:1;background:#5b5b66;border:2px solid var(--line)}
+.op{font-size:26px;color:var(--muted)}
+table.atoms{border-collapse:collapse;width:100%;font-size:17px;margin-bottom:12px}
+table.atoms td,table.atoms th{border:3px solid var(--line);padding:5px 8px;text-align:left;vertical-align:middle}
+table.atoms th{background:#1d1d23;font-weight:600}
+.blk{display:inline-block;width:13px;height:13px;margin:1px;border:2px solid rgba(0,0,0,.6)}
+.cnt{font-weight:700;margin-right:6px}
+td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
+
+/* order */
+.orderpool,.orderlist{display:grid;gap:8px;margin-bottom:12px}
+.orderlist .item{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.orderlist .item b{color:var(--gold);margin-right:8px}
+
+/* result */
+.result{text-align:center}
+.bigstars{font-size:58px;color:var(--gold);letter-spacing:6px;margin:10px 0}
+.bigstars .off{color:#4d4c55}
+.bigstars span{display:inline-block;animation:pop .45s both}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.boss-art{display:flex;justify-content:center;margin:6px 0 4px}
+
+/* achievements */
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ach{display:flex;gap:12px;align-items:center;background:var(--panel2);border:4px solid var(--line);padding:10px 12px}
+.ach .ai{font-size:30px;width:50px;height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line)}
+.ach .an{font-weight:700;font-size:18px}
+.ach .ad{font-size:15px;color:var(--muted);line-height:1.3}
+.ach.locked .ai{filter:grayscale(1) brightness(.5)}
+.ach.locked .an{color:var(--muted)}
+.ach.got{background:#2f3a28}
+
+/* cheat sheet */
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:#f3ead2;color:#2a2418;border:4px solid var(--line);padding:14px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.12)}
+.card h3{color:#5a3d12}
+.card .f{font-size:21px;margin:4px 0}
+.card table{border-collapse:collapse;width:100%;font-size:16px}
+.card td{border:2px solid #b9a77a;padding:2px 6px}
+
+/* toast */
+#toasts{position:fixed;top:12px;right:12px;display:flex;flex-direction:column;gap:10px;z-index:50;pointer-events:none}
+.toast{background:#212126;border:4px solid var(--line);box-shadow:0 0 0 3px #6d6d78;padding:10px 14px;display:flex;gap:12px;align-items:center;min-width:260px;max-width:340px;animation:tin .4s both}
+.toast .ti{font-size:30px}
+.toast .tt{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);line-height:1.6}
+.toast .tn{font-weight:700}
+.toast.out{animation:tout .4s both}
+@keyframes tin{from{transform:translateX(120%)}to{transform:none}}
+@keyframes tout{to{transform:translateX(130%)}}
+.confetti{position:fixed;top:-20px;width:12px;height:12px;z-index:40;pointer-events:none;border:2px solid rgba(0,0,0,.5);animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+
+textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
+.inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
+@media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="ores" id="ores"></div>
+<header class="top">
+  <div class="hrow">
+    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">⛏</div><h1>Chemie-Miner</h1></div>
+    <div class="player">
+      <div class="rank" id="rank"></div>
+      <div class="xpbar"><div id="xpfill" style="width:0"></div><div class="xptxt" id="xptxt"></div></div>
+      <div class="streak" id="streak"></div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="btn small" data-nav="map">🗺 Karte</button>
+    <button class="btn small" data-nav="ach" id="navach">🏆 Erfolge</button>
+    <button class="btn small" data-nav="sheet">📜 Spickzettel</button>
+    <button class="btn small" data-nav="save">💾 Spielstand</button>
+  </nav>
+</header>
+<main class="wrap" id="view"></main>
+<div id="toasts"></div>
+
+<script>
+"use strict";
+/* ============ Daten ============ */
+const KEY='chemieMinerKA1_v1';
+const A={H:1,C:12,N:14,O:16,Na:23,Mg:24,Al:27,S:32,Cl:35.5,Ca:40,Fe:56,Cu:63.5,Zn:65};
+const EN={H:'Wasserstoff',C:'Kohlenstoff',N:'Stickstoff',O:'Sauerstoff',Na:'Natrium',Mg:'Magnesium',Al:'Aluminium',S:'Schwefel',Cl:'Chlor',Ca:'Calcium',Fe:'Eisen',Cu:'Kupfer',Zn:'Zink'};
+const NAMES={H2O:'Wasser',CO2:'Kohlenstoffdioxid',O2:'Sauerstoff',H2:'Wasserstoff',N2:'Stickstoff',Cl2:'Chlor',NaCl:'Natriumchlorid',CH4:'Methan',NH3:'Ammoniak',MgO:'Magnesiumoxid',FeS:'Eisensulfid',HCl:'Chlorwasserstoff',H2SO4:'Schwefelsäure',CaCO3:'Calciumcarbonat',Al2O3:'Aluminiumoxid',Fe2O3:'Eisenoxid',CuO:'Kupferoxid',C2H6O:'Ethanol',ZnCl2:'Zinkchlorid',Cu2S:'Kupfersulfid',C3H8:'Propan',AlCl3:'Aluminiumchlorid',FeCl3:'Eisenchlorid',MgCl2:'Magnesiumchlorid',NaOH:'Natriumhydroxid',CO:'Kohlenstoffmonooxid',Cu2O:'rotes Kupferoxid',Na2O:'Natriumoxid',CaCl2:'Calciumchlorid',Fe:'Eisen',Mg:'Magnesium',C:'Kohlenstoff',Cu:'Kupfer',Al:'Aluminium',S:'Schwefel',Zn:'Zink',Na:'Natrium'};
+const ECOL={H:'#f4f4f4',O:'#e0473a',C:'#3a3a3a',N:'#3f7be0',Cl:'#56c24a',Na:'#9b59d0',Mg:'#c9c9d6',Al:'#a9b4bf',S:'#f2d23c',Ca:'#e8e2c8',Fe:'#b8693a',Cu:'#d9813f',Zn:'#7f97a8'};
+const NA=6.022e23, U=1.66e-24;
+
+/* ============ Helfer ============ */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const r2=x=>Math.round(x*100)/100;
+function fmt(x,d=2){const p=Math.pow(10,d);return (Math.round(x*p)/p).toLocaleString('de-DE',{maximumFractionDigits:d});}
+function sci(x){let e=Math.floor(Math.log10(Math.abs(x)));let m=x/Math.pow(10,e);m=Math.round(m*100)/100;if(m>=10){m=m/10;e++;}return fmt(m,2)+' · 10<sup>'+e+'</sup>';}
+const fx=f=>f.replace(/(\d+)/g,'<sub>$1</sub>');
+const nm=f=>NAMES[f]||f;
+function parseF(f){const c={};f.replace(/([A-Z][a-z]?)(\d*)/g,(_,e,n)=>{c[e]=(c[e]||0)+(n?+n:1);return '';});return c;}
+function molar(f){const c=parseF(f);let s=0;for(const e in c)s+=A[e]*c[e];return Math.round(s*10)/10;}
+function breakdown(f){const c=parseF(f);return Object.keys(c).map(e=>(c[e]>1?c[e]+' · ':'')+fmt(A[e],1)+' u').join(' + ');}
+function coefHtml(c,f){return (c>1?c+' ':'')+fx(f);}
+function eqHtml(sp,nr){const l=sp.slice(0,nr).map(s=>coefHtml(s[1],s[0])).join(' + ');const r=sp.slice(nr).map(s=>coefHtml(s[1],s[0])).join(' + ');return l+' → '+r;}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+
+/* ============ Aufgaben-Bausteine ============ */
+function num(q,ans,unit,sol,hint,o){return Object.assign({kind:'num',q,ans,unit,sol,hint},o||{});}
+function sciT(q,ans,unit,sol,hint,o){return Object.assign({kind:'sci',q,ans,unit,sol,hint},o||{});}
+function mc(q,choices,e,o){const idx=shuffle(choices.map((_,i)=>i));return Object.assign({kind:'mc',q,choices:idx.map(i=>choices[i]),correct:idx.indexOf(0),sol:e},o||{});}
+const poolMC=p=>mc(p.q,p.c,p.e);
+
+/* ---------- Welt 1: Basislager ---------- */
+function gHonc(){
+  const yes=['H','O','N','Cl','Br','I','F'];
+  const no=pickN(['He','Na','C','S','Fe','Ne','Mg','Cu','Ar','K','Ca','Zn'],7);
+  return {kind:'grid',q:'Tippe <b>alle</b> Elemente an, die als <b>zweiatomige Moleküle</b> vorkommen (so wie H<sub>2</sub>).',
+    items:shuffle(yes.concat(no)),ans:yes,
+    sol:'Merkwort <b>HONClBrIF</b>: H<sub>2</sub>, O<sub>2</sub>, N<sub>2</sub>, Cl<sub>2</sub>, Br<sub>2</sub>, I<sub>2</sub>, F<sub>2</sub>. In Reaktionsgleichungen schreibst du diese Elemente <b>immer mit der 2</b>.',
+    hint:'Das Merkwort steht ganz oben auf deinem Themenzettel: H – O – N – Cl – Br – I – F.',
+    onOk:()=>{S.stats.honcPerfect++;}};
+}
+const MC_BASIS=[
+ {q:'Woran erkennt man eine chemische Reaktion?',c:['Neue Stoffe entstehen und Energie wird umgesetzt','Ein Stoff ändert nur seinen Aggregatzustand','Ein Stoff wird zerkleinert','Zwei Stoffe werden nur vermischt'],e:'Chemische Reaktion = <b>Stoffumwandlung + Energieumsatz</b>. Schmelzen, Zerkleinern oder Mischen erzeugen keine neuen Stoffe.'},
+ {q:'Was bedeutet „exotherm“?',c:['Bei der Reaktion wird Energie abgegeben','Bei der Reaktion wird Energie aufgenommen','Die Reaktion läuft nur in der Kälte ab','Es entsteht immer ein Gas'],e:'Exotherm: Energie wird <b>abgegeben</b> (z. B. Wärme, Licht). Endotherm: Energie wird aufgenommen.'},
+ {q:'Bei einer endothermen Reaktion …',c:['wird Energie aufgenommen (muss zugeführt werden)','wird Energie frei','entsteht immer Licht','ändert sich nichts an der Energie'],e:'Endotherm = Energie wird <b>aufgenommen</b>.'},
+ {q:'Was ist die Aktivierungsenergie?',c:['Die Energie, die nötig ist, um eine Reaktion zu starten','Die Energie, die am Ende frei wird','Die Energie in einer Batterie','Die Masse der Ausgangsstoffe'],e:'Auch exotherme Reaktionen brauchen einen „Anstoß“ – die <b>Aktivierungsenergie</b>.'},
+ {q:'Was macht ein Katalysator?',c:['Er senkt die Aktivierungsenergie und wird dabei nicht verbraucht','Er erhöht die Masse der Produkte','Er wird bei der Reaktion verbraucht','Er verhindert jede Reaktion'],e:'Ein Katalysator <b>senkt die Aktivierungsenergie</b> und liegt nach der Reaktion unverändert vor.'},
+ {q:'Welcher Stoff ist eine Verbindung?',c:['Wasser','Sauerstoff','Eisen','Schwefel'],e:'Wasser lässt sich in Wasserstoff und Sauerstoff zerlegen, ist also eine <b>Verbindung</b>. Die anderen drei sind Elemente.'},
+ {q:'Welcher Stoff ist ein Gemisch?',c:['Luft','Wasser','Kupfer','Kohlenstoffdioxid'],e:'Luft ist ein <b>Gemisch</b> aus vielen Gasen (v. a. Stickstoff und Sauerstoff).'},
+ {q:'Wie nennt man die Bildung einer Verbindung aus den Elementen?',c:['Synthese','Analyse','Destillation','Filtration'],e:'<b>Synthese</b> = Aufbau einer Verbindung. <b>Analyse</b> = Zerlegung einer Verbindung.'},
+ {q:'Mit welchem Nachweis erkennt man Sauerstoff?',c:['Glimmspanprobe (Span glüht hell auf)','Knallgasprobe','Kalkwasserprobe','Geruchsprobe'],e:'Sauerstoff → <b>Glimmspanprobe</b>. Wasserstoff → Knallgasprobe. Kohlenstoffdioxid → Kalkwasser.'},
+ {q:'Mit welchem Nachweis erkennt man Kohlenstoffdioxid?',c:['Kalkwasser wird trüb','Glimmspan glüht auf','Es gibt ein „Plopp“','Es riecht nach faulen Eiern'],e:'CO<sub>2</sub> trübt <b>Kalkwasser</b>.'},
+ {q:'Wie nennt man die Reaktion eines Stoffes mit Sauerstoff?',c:['Oxidation','Analyse','Kondensation','Sublimation'],e:'Reaktion mit Sauerstoff = <b>Oxidation</b>, das Produkt heißt <b>Oxid</b>.'},
+ {q:'Welche Formel beschreibt Sauerstoff als Gas?',c:['O<sub>2</sub>','O','O<sub>3</sub>','2 O'],e:'Sauerstoff gehört zu <b>HONClBrIF</b> und kommt als Molekül O<sub>2</sub> vor.'},
+ {q:'Wie schreibt man Chlorgas in einer Reaktionsgleichung?',c:['Cl<sub>2</sub>','Cl','Cl<sub>3</sub>','2 Cl'],e:'Chlor gehört zu HONClBrIF → <b>Cl<sub>2</sub></b>.'},
+ {q:'Welches Element kommt NICHT als zweiatomiges Molekül vor?',c:['Kohlenstoff (C)','Stickstoff (N)','Wasserstoff (H)','Brom (Br)'],e:'HONClBrIF: H, O, N, Cl, Br, I, F. Kohlenstoff gehört nicht dazu.'},
+ {q:'Wie groß ist der Anteil von Sauerstoff in der Luft ungefähr?',c:['21 %','78 %','1 %','50 %'],e:'Luft: ca. <b>78 % Stickstoff</b>, ca. <b>21 % Sauerstoff</b>, Rest v. a. Argon und CO<sub>2</sub>.'}
+];
+
+/* ---------- Welt 2: Massen-Mine ---------- */
+const MR=[
+ {a:'Eisen',b:'Schwefel',p:'Eisensulfid',ra:7,rb:4},
+ {a:'Magnesium',b:'Sauerstoff',p:'Magnesiumoxid',ra:3,rb:2},
+ {a:'Kupfer',b:'Schwefel',p:'Kupfersulfid',ra:4,rb:1},
+ {a:'Kohlenstoff',b:'Sauerstoff',p:'Kohlenstoffdioxid',ra:3,rb:8},
+ {a:'Wasserstoff',b:'Sauerstoff',p:'Wasser',ra:1,rb:8}
+];
+const eqW=r=>`<span class="eq">${r.a} + ${r.b} → ${r.p}</span>`;
+function gCons(){
+  const r=pick(MR),k=pick([0.5,1,1.5,2,2.5,3,4,5]);
+  const ma=r.ra*k,mb=r.rb*k,mp=ma+mb;
+  const hint='Gesetz von der Erhaltung der Masse: Masse aller Ausgangsstoffe = Masse aller Produkte.';
+  if(Math.random()<.5)
+    return num(`${eqW(r)}<br>${fmt(ma)} g ${r.a} reagieren vollständig mit ${fmt(mb)} g ${r.b}.<br>Wie viel g ${r.p} entstehen?`,mp,'g',
+      `m(${r.p}) = ${fmt(ma)} g + ${fmt(mb)} g = <b>${fmt(mp)} g</b>. Bei einer Reaktion geht keine Masse verloren.`,hint);
+  return num(`${eqW(r)}<br>Es entstehen ${fmt(mp)} g ${r.p}. Eingesetzt wurden ${fmt(ma)} g ${r.a}.<br>Wie viel g ${r.b} haben reagiert?`,mb,'g',
+    `m(${r.b}) = ${fmt(mp)} g − ${fmt(ma)} g = <b>${fmt(mb)} g</b>.`,hint);
+}
+function gRatio(){
+  const r=pick(MR),k=pick([0.5,1.5,2,3,4,5,6]);
+  const ma=r.ra*k,mb=r.rb*k;
+  const hint=`Konstantes Massenverhältnis: m(${r.a}) : m(${r.b}) = ${r.ra} : ${r.rb}. Mit Dreisatz oder Verhältnis rechnen.`;
+  if(Math.random()<.5)
+    return num(`${r.a} und ${r.b} reagieren immer im <b>Massenverhältnis ${r.ra} : ${r.rb}</b>.<br>Wie viel g ${r.b} brauchst du für ${fmt(ma)} g ${r.a}?`,mb,'g',
+      `m(${r.b}) = ${fmt(ma)} g · ${r.rb}/${r.ra} = <b>${fmt(mb)} g</b>`,hint);
+  return num(`${r.a} und ${r.b} reagieren immer im <b>Massenverhältnis ${r.ra} : ${r.rb}</b>.<br>Wie viel g ${r.a} reagieren mit ${fmt(mb)} g ${r.b}?`,ma,'g',
+    `m(${r.a}) = ${fmt(mb)} g · ${r.ra}/${r.rb} = <b>${fmt(ma)} g</b>`,hint);
+}
+function gLeft(){
+  const r=pick(MR),k=pick([1,2,3,4]),ex=pick([1,2,3,4,5]);
+  const hint=`Rechne zuerst aus, wie viel vom einen Stoff zum anderen passt (Verhältnis ${r.ra} : ${r.rb}). Der Rest bleibt übrig.`;
+  if(Math.random()<.5){
+    const ma=r.ra*k,need=r.rb*k,have=need+ex;
+    return num(`${r.a} und ${r.b} reagieren im <b>Massenverhältnis ${r.ra} : ${r.rb}</b>.<br>Du gibst ${fmt(ma)} g ${r.a} und ${fmt(have)} g ${r.b} zusammen.<br>Wie viel g bleiben <b>übrig</b>?`,ex,'g',
+      `Für ${fmt(ma)} g ${r.a} braucht man ${fmt(ma)} · ${r.rb}/${r.ra} = ${fmt(need)} g ${r.b}.<br>Übrig: ${fmt(have)} g − ${fmt(need)} g = <b>${fmt(ex)} g ${r.b}</b>.`,hint);
+  }
+  const mb=r.rb*k,need=r.ra*k,have=need+ex;
+  return num(`${r.a} und ${r.b} reagieren im <b>Massenverhältnis ${r.ra} : ${r.rb}</b>.<br>Du gibst ${fmt(have)} g ${r.a} und ${fmt(mb)} g ${r.b} zusammen.<br>Wie viel g ${r.p} entstehen höchstens?`,need+mb,'g',
+    `${fmt(mb)} g ${r.b} reichen für ${fmt(mb)} · ${r.ra}/${r.rb} = ${fmt(need)} g ${r.a} (${fmt(ex)} g ${r.a} bleiben übrig).<br>m(${r.p}) = ${fmt(need)} g + ${fmt(mb)} g = <b>${fmt(need+mb)} g</b>.`,hint);
+}
+const MC_DALTON=[
+ {q:'Wer hatte schon um 400 v. Chr. die Idee von kleinsten, unteilbaren Teilchen?',c:['Demokrit','Dalton','Avogadro','Lavoisier'],e:'Der griechische Philosoph <b>Demokrit</b>. Er kam rein durch Nachdenken darauf, ohne Experimente.'},
+ {q:'Was bedeutet das griechische Wort „átomos“?',c:['unteilbar','winzig','Baustein','Element'],e:'átomos = <b>unteilbar</b>.'},
+ {q:'Was unterscheidet Daltons Atommodell (um 1800) von Demokrits Idee?',c:['Dalton stützte sich auf Experimente und die Massengesetze','Dalton glaubte nicht an Atome','Dalton entdeckte Protonen und Elektronen','Es gibt keinen Unterschied'],e:'<b>Dalton</b> erklärte mit seiner Atomhypothese die gemessenen Massengesetze, also auf Grundlage von Experimenten.'},
+ {q:'Welche Aussage gehört zu Daltons Atomhypothese?',c:['Atome eines Elements sind untereinander gleich (gleiche Masse und Größe)','Atome bestehen aus Kern und Hülle','Atome können bei Reaktionen vernichtet werden','Alle Atome aller Elemente haben die gleiche Masse'],e:'Dalton: Atome eines Elements sind <b>gleich</b>, Atome verschiedener Elemente unterscheiden sich in Masse und Größe.'},
+ {q:'Welche Aussage gehört NICHT zu Daltons Atomhypothese?',c:['Atome bestehen aus Protonen, Neutronen und Elektronen','Alle Stoffe bestehen aus Atomen','Atome sind weder erzeugbar noch zerstörbar','Bei Reaktionen werden Atome neu angeordnet'],e:'Den Aufbau aus Protonen, Neutronen und Elektronen kannte Dalton noch nicht. Für ihn waren Atome <b>unteilbare</b> Kugeln.'},
+ {q:'Wie erklärt Dalton das Gesetz von der Erhaltung der Masse?',c:['Bei Reaktionen werden Atome nur neu angeordnet, keines entsteht oder verschwindet','Atome werden bei Reaktionen leichter','Die Masse wird in Wärme umgewandelt','Atome verdampfen bei der Reaktion'],e:'Die Atome werden nur <b>umgruppiert</b>, deshalb bleibt die Gesamtmasse gleich.'},
+ {q:'Warum reagieren Elemente immer im gleichen Massenverhältnis?',c:['Atome verbinden sich in festen Anzahlverhältnissen, und jede Atomsorte hat eine bestimmte Masse','Weil man immer gleich viel abwiegt','Weil Atome beliebig teilbar sind','Das ist reiner Zufall'],e:'Feste <b>Anzahlverhältnisse</b> × feste <b>Atommassen</b> = festes Massenverhältnis.'},
+ {q:'Eisenwolle wird in einem <b>geschlossenen</b> Kolben auf der Waage verbrannt. Was zeigt die Waage danach?',c:['Die Masse bleibt gleich','Die Masse nimmt zu','Die Masse nimmt ab','Die Anzeige springt auf null'],e:'Im geschlossenen Gefäß kann nichts hinein oder hinaus, deshalb <b>bleibt die Masse gleich</b>.'},
+ {q:'Eisenwolle wird an der <b>offenen</b> Luft auf einer Waage verbrannt. Was passiert mit der Masse?',c:['Sie nimmt zu, weil Sauerstoff aus der Luft gebunden wird','Sie nimmt ab, weil Eisen verbrennt','Sie bleibt gleich','Sie wird null'],e:'Eisen verbindet sich mit Sauerstoff aus der Luft zu Eisenoxid. Der Sauerstoff kommt hinzu, deshalb <b>nimmt die Masse zu</b>.'}
+];
+
+/* ---------- Welt 3: Atomschmiede ---------- */
+const FU=['H2O','CO2','NH3','CH4','NaCl','H2SO4','HCl','MgO','Fe2O3','CaCO3','Al2O3','C2H6O','N2','Cl2','CuO','C3H8'];
+function gMassU(){
+  const f=pick(FU),m=molar(f);
+  return num(`Wie groß ist die Masse eines Teilchens <b>${fx(f)}</b> (${nm(f)}) in u?`,m,'u',
+    `m(${fx(f)}) = ${breakdown(f)} = <b>${fmt(m,1)} u</b>`,'Atommassen aus der Tabelle (Spickzettel) nehmen und mit der Anzahl der Atome malnehmen. Die kleine Zahl gilt nur für das Atom direkt davor.');
+}
+function gU2G(){
+  let label,mu;
+  if(Math.random()<.5){const e=pick(['H','C','O','Na','Mg','Al','S','Ca','Fe','Cu']);mu=A[e];label=`ein ${EN[e]}-Atom (${fmt(mu,1)} u)`;}
+  else{const f=pick(['H2O','CO2','O2','CH4','NH3','NaCl']);mu=molar(f);label=`ein ${fx(f)}-Teilchen (${fmt(mu,1)} u)`;}
+  const g=mu*U;
+  return sciT(`Wie schwer ist ${label} in <b>Gramm</b>?<br><span class="muted">1 u = 1,66 · 10<sup>−24</sup> g</span>`,g,'g',
+    `m = ${fmt(mu,1)} · 1,66 · 10<sup>−24</sup> g = <b>${sci(g)} g</b>`,'Masse in u mal 1,66 · 10⁻²⁴ g. Beispiel: 2 u = 3,32 · 10⁻²⁴ g. Wenn die Zahl vorne größer als 10 wird, Komma verschieben und Hochzahl anpassen (oder einfach so eingeben).',
+    {onOk:()=>{S.stats.u2g++;}});
+}
+function gG2El(){
+  const els=['C','O','Na','Mg','Al','S','Ca','Fe','Cu','Zn'];
+  const e=pick(els),g=A[e]*U;
+  const wrong=pickN(els.filter(x=>x!==e),3);
+  return mc(`Ein einzelnes Atom wiegt <b>${sci(g)} g</b>. Um welches Element handelt es sich?<br><span class="muted">1 u = 1,66 · 10<sup>−24</sup> g</span>`,
+    [e].concat(wrong).map(x=>`${EN[x]} (${x})`),
+    `${sci(g)} g : 1,66 · 10<sup>−24</sup> g = ${fmt(A[e],1)} u → <b>${EN[e]}</b>`);
+}
+const MC_U=[
+ {q:'1 u entspricht ungefähr der Masse …',c:['eines Wasserstoffatoms','eines Sauerstoffatoms','von 1 Gramm','eines Sandkorns'],e:'Ein H-Atom wiegt ≈ <b>1 u</b>. (Genau: 1 u = ein Zwölftel der Masse eines C-12-Atoms.)'},
+ {q:'Wie viel Gramm sind 1 u?',c:['1,66 · 10<sup>−24</sup> g','6,022 · 10<sup>23</sup> g','1 g','1,66 · 10<sup>24</sup> g'],e:'<b>1 u = 1,66 · 10<sup>−24</sup> g</b>. 6,022 · 10<sup>23</sup> ist die Avogadro-Konstante, also eine Teilchenzahl pro mol.'},
+ {q:'Warum gibt man Atommassen in u statt in g an?',c:['In Gramm wären die Zahlen unpraktisch winzig','Gramm ist keine Masseneinheit','Atome haben keine Masse in Gramm','Weil die Waage nur u anzeigt'],e:'Atome sind so leicht, dass die Werte in Gramm unhandlich wären (z. B. 2,66 · 10<sup>−23</sup> g für O).'},
+ {q:'Ein Sauerstoffatom hat 16 u, ein Wasserstoffatom 1 u. Wie viel-mal schwerer ist das O-Atom?',c:['16-mal','8-mal','2-mal','32-mal'],e:'16 u : 1 u = <b>16</b>.'}
+];
+
+/* ---------- Welt 4: Formel-Werkbank ---------- */
+const VF=[['MgO',[['Mg',1],['O',1]]],['FeS',[['Fe',1],['S',1]]],['CuO',[['Cu',1],['O',1]]],['Cu2O',[['Cu',2],['O',1]]],['Al2O3',[['Al',2],['O',3]]],['Fe2O3',[['Fe',2],['O',3]]],['Na2O',[['Na',2],['O',1]]],['NaCl',[['Na',1],['Cl',1]]],['MgCl2',[['Mg',1],['Cl',2]]],['CaCl2',[['Ca',1],['Cl',2]]],['FeCl3',[['Fe',1],['Cl',3]]],['Cu2S',[['Cu',2],['S',1]]]];
+function vfStr(e1,n1,e2,n2){return e1+(n1>1?n1:'')+e2+(n2>1?n2:'');}
+function gVerh(){
+  const [f,els]=pick(VF);const [[e1,n1],[e2,n2]]=els;
+  const k=pick([0.05,0.1,0.2,0.25,0.5]);
+  const m1=r2(k*n1*A[e1]),m2=r2(k*n2*A[e2]);
+  const opts=[[n1,n2],[1,1],[1,2],[2,1],[2,3],[3,2],[1,3],[3,1]];
+  const seen=new Set(),ch=[];
+  for(const [a,b] of opts){const s=vfStr(e1,a,e2,b);if(!seen.has(s)){seen.add(s);ch.push(s);}}
+  const choices=[ch[0]].concat(pickN(ch.slice(1),3)).map(fx);
+  const x1=m1/A[e1],x2=m2/A[e2];
+  return mc(`${fmt(m1)} g ${EN[e1]} reagieren vollständig mit ${fmt(m2)} g ${EN[e2]}.<br>Welche <b>Verhältnisformel</b> hat das Produkt?`,choices,
+    `Vom Massenverhältnis zum Teilchenzahlverhältnis:<br>N(${e1}) : N(${e2}) = ${fmt(m1)}/${fmt(A[e1],1)} : ${fmt(m2)}/${fmt(A[e2],1)} = ${fmt(x1,3)} : ${fmt(x2,3)} = <b>${n1} : ${n2}</b> → <b>${fx(f)}</b> (${nm(f)})`,
+    {hint:`Teile jede Masse durch die Atommasse (${e1} = ${fmt(A[e1],1)} u, ${e2} = ${fmt(A[e2],1)} u). Das Verhältnis der Ergebnisse ergibt die kleinen Zahlen in der Formel.`});
+}
+function gCount(){
+  const f=pick(['H2O','CO2','H2SO4','CaCO3','NH3','CH4','Al2O3','Fe2O3','C3H8','C2H6O','NaOH','MgCl2']);
+  const c=pick([2,3,4,5]);const cnt=parseF(f);
+  if(Math.random()<.65){
+    const e=pick(Object.keys(cnt));
+    return num(`Wie viele <b>${EN[e]}-Atome</b> stecken in <b>${c} ${fx(f)}</b>?`,c*cnt[e],'Atome',
+      `${c} ${fx(f)}: ${c} · ${cnt[e]} = <b>${c*cnt[e]} ${e}-Atome</b>. Die große Zahl vorne (Koeffizient) gilt für das ganze Teilchen, die kleine Zahl nur für das Atom davor.`,'Große Zahl vorne × kleine Zahl hinter dem Atom.',{tol:0});
+  }
+  const tot=Object.values(cnt).reduce((a,b)=>a+b,0);
+  return num(`Wie viele Atome <b>insgesamt</b> stecken in <b>${c} ${fx(f)}</b>?`,c*tot,'Atome',
+    `Ein ${fx(f)} hat ${Object.keys(cnt).map(e=>cnt[e]+' '+e).join(' + ')} = ${tot} Atome → ${c} · ${tot} = <b>${c*tot}</b>`,'Erst die Atome in einem Teilchen zählen, dann mal den Koeffizienten.',{tol:0});
+}
+function gFType(){
+  const salts=['NaCl','MgO','FeS','Al2O3','CaCl2','CuO'],mols=['H2O','CO2','NH3','CH4','HCl','O2','N2','C2H6O'];
+  if(Math.random()<.5){const s=pick(salts);return mc('Welche Formel ist eine <b>Verhältnisformel</b> (Salz bzw. Metall-Nichtmetall-Verbindung, keine Moleküle)?',[fx(s)].concat(pickN(mols,3).map(fx)),
+    `${fx(s)} (${nm(s)}) besteht nicht aus einzelnen Molekülen. Die Formel gibt nur das <b>Anzahlverhältnis</b> der Teilchen an.`);}
+  const m=pick(mols);return mc('Welche Formel ist eine <b>Molekülformel</b>?',[fx(m)].concat(pickN(salts,3).map(fx)),
+    `${fx(m)} (${nm(m)}) besteht aus <b>Molekülen</b>. Die Formel zeigt genau, welche Atome ein Molekül bilden. Die anderen sind Salze bzw. Metalloxide → Verhältnisformeln.`);
+}
+const PT=[['Eisen','Atome'],['Kupfer','Atome'],['Magnesium','Atome'],['Helium','Atome'],['Wasser','Moleküle'],['Sauerstoff','Moleküle'],['Kohlenstoffdioxid','Moleküle'],['Wasserstoff','Moleküle'],['Natriumchlorid (Kochsalz)','Ionen'],['Magnesiumoxid','Ionen']];
+const PTL={Atome:'Atome (Metall bzw. Edelgas)',Moleküle:'Moleküle',Ionen:'Ionen (Ionengruppen, Salz)'};
+const PTE={Atome:'Metalle bestehen aus Atomen (Atomverband), Edelgase aus einzelnen Atomen.',Moleküle:'Nichtmetalle (wie H<sub>2</sub>, O<sub>2</sub>) und Nichtmetall-Verbindungen (wie H<sub>2</sub>O, CO<sub>2</sub>) bestehen aus Molekülen.',Ionen:'Salze bzw. Metall-Nichtmetall-Verbindungen bestehen aus Ionen. Die Formel ist eine Verhältnisformel.'};
+function gPType(){
+  const [s,t]=pick(PT);const others=Object.keys(PTL).filter(x=>x!==t);
+  return mc(`Aus welchen Teilchen besteht <b>${s}</b>? (Stoffdiagramm)`,[PTL[t]].concat(others.map(o=>PTL[o])),`<b>${s} → ${PTL[t]}</b>. ${PTE[t]}`);
+}
+
+/* ---------- Welt 5: Gleichungs-Crafting ---------- */
+const EQ=[
+ {r:['H2','O2'],p:['H2O'],c:[2,1,2],w:'Wasserstoff + Sauerstoff → Wasser'},
+ {r:['N2','H2'],p:['NH3'],c:[1,3,2],w:'Stickstoff + Wasserstoff → Ammoniak'},
+ {r:['Mg','O2'],p:['MgO'],c:[2,1,2],w:'Magnesium + Sauerstoff → Magnesiumoxid'},
+ {r:['Na','Cl2'],p:['NaCl'],c:[2,1,2],w:'Natrium + Chlor → Natriumchlorid'},
+ {r:['Fe','Cl2'],p:['FeCl3'],c:[2,3,2],w:'Eisen + Chlor → Eisenchlorid'},
+ {r:['Al','O2'],p:['Al2O3'],c:[4,3,2],w:'Aluminium + Sauerstoff → Aluminiumoxid'},
+ {r:['CH4','O2'],p:['CO2','H2O'],c:[1,2,1,2],w:'Methan + Sauerstoff → Kohlenstoffdioxid + Wasser'},
+ {r:['H2','Cl2'],p:['HCl'],c:[1,1,2],w:'Wasserstoff + Chlor → Chlorwasserstoff'},
+ {r:['Cu','O2'],p:['CuO'],c:[2,1,2],w:'Kupfer + Sauerstoff → Kupferoxid'},
+ {r:['Fe','O2'],p:['Fe2O3'],c:[4,3,2],w:'Eisen + Sauerstoff → Eisenoxid'},
+ {r:['C','O2'],p:['CO'],c:[2,1,2],w:'Kohlenstoff + Sauerstoff → Kohlenstoffmonooxid'},
+ {r:['H2O'],p:['H2','O2'],c:[2,2,1],w:'Wasser → Wasserstoff + Sauerstoff (Elektrolyse)'},
+ {r:['Zn','HCl'],p:['ZnCl2','H2'],c:[1,2,1,1],w:'Zink + Salzsäure (HCl) → Zinkchlorid + Wasserstoff'},
+ {r:['Mg','HCl'],p:['MgCl2','H2'],c:[1,2,1,1],w:'Magnesium + Salzsäure (HCl) → Magnesiumchlorid + Wasserstoff'},
+ {r:['Fe2O3','H2'],p:['Fe','H2O'],c:[1,3,2,3],w:'Eisenoxid + Wasserstoff → Eisen + Wasser'},
+ {r:['C3H8','O2'],p:['CO2','H2O'],c:[1,5,3,4],w:'Propan + Sauerstoff → Kohlenstoffdioxid + Wasser'},
+ {r:['Al','Cl2'],p:['AlCl3'],c:[2,3,2],w:'Aluminium + Chlor → Aluminiumchlorid'},
+ {r:['Na','H2O'],p:['NaOH','H2'],c:[2,2,2,1],w:'Natrium + Wasser → Natriumhydroxid + Wasserstoff'},
+ {r:['CuO','C'],p:['Cu','CO2'],c:[2,1,2,1],w:'Kupferoxid + Kohlenstoff → Kupfer + Kohlenstoffdioxid'},
+ {r:['N2','O2'],p:['NO2'],c:[1,2,2],w:'Stickstoff + Sauerstoff → Stickstoffdioxid'}
+];
+function gBal(noColor){
+  const i=Math.floor(Math.random()*EQ.length),e=EQ[i];
+  return {kind:'bal',eqi:i,r:e.r,p:e.p,c:e.c,w:e.w,noColor:!!noColor,
+    q:`Reaktionsschema: <b>${e.w}</b><br>Stelle die Koeffizienten so ein, dass links und rechts gleich viele Atome jeder Sorte stehen.${noColor?' <span class="muted">(Boss-Modus: ohne Farbhilfe)</span>':''}`,
+    sol:`Richtig ausgeglichen: <span class="eq">${eqHtml(e.r.concat(e.p).map((f,k)=>[f,e.c[k]]),e.r.length)}</span><br>Tipp: Fang mit dem Atom an, das am häufigsten vorkommt. Sauerstoff oder Wasserstoff kommen oft zum Schluss. Nur die großen Zahlen vorne darfst du ändern, nie die kleinen in der Formel!`,
+    hint:'Zähle links und rechts jede Atomsorte. Steht z. B. rechts O<sub>3</sub> und links O<sub>2</sub>: kleinstes gemeinsames Vielfaches ist 6 → links 3 O<sub>2</sub>, rechts 2 …O<sub>3</sub>.',
+    onOk:()=>{S.stats.balanced++;if(!S.stats.balancedSet.includes(i))S.stats.balancedSet.push(i);}};
+}
+
+/* ---------- Welt 6: Mol-Portal ---------- */
+const SUBS=['H2O','CO2','O2','H2','NaCl','CH4','Fe','NH3','Mg','C','Cu','Al','S','N2','CaCO3'];
+const NICE=[0.1,0.2,0.25,0.5,1,1.5,2,2.5,3,4,5];
+function subLabel(f){return `${nm(f)} (${fx(f)})`;}
+function gMn(){
+  const f=pick(SUBS),M=molar(f),n=pick(NICE),m=r2(n*M),ans=m/M;
+  const give=Math.random()<.5;
+  return num(`Wie viel <b>mol</b> sind ${fmt(m)} g ${subLabel(f)}?${give?`<br><span class="muted">M = ${fmt(M,1)} g/mol</span>`:''}`,ans,'mol',
+    `M(${fx(f)}) = ${give?'':breakdown(f).replace(/ u/g,'')+' = '}${fmt(M,1)} g/mol<br>n = m / M = ${fmt(m)} g : ${fmt(M,1)} g/mol = <b>${fmt(ans,3)} mol</b>`,
+    'n = m / M. Die molare Masse M in g/mol hat denselben Zahlenwert wie die Teilchenmasse in u.');
+}
+function gNm(){
+  const f=pick(SUBS),M=molar(f),n=pick(NICE),m=n*M;
+  return num(`Wie viel <b>Gramm</b> sind ${fmt(n)} mol ${subLabel(f)}?`,m,'g',
+    `M(${fx(f)}) = ${fmt(M,1)} g/mol<br>m = n · M = ${fmt(n)} mol · ${fmt(M,1)} g/mol = <b>${fmt(m)} g</b>`,'m = n · M');
+}
+function gNN(){
+  const f=pick(SUBS),n=pick(NICE),N=n*NA;
+  return sciT(`Wie viele <b>Teilchen</b> (N) sind in ${fmt(n)} mol ${subLabel(f)}?<br><span class="muted">N<sub>A</sub> = 6,022 · 10<sup>23</sup> 1/mol</span>`,N,'Teilchen',
+    `N = n · N<sub>A</sub> = ${fmt(n)} mol · 6,022 · 10<sup>23</sup> 1/mol = <b>${sci(N)}</b>`,'N = n · N_A. Rechne zuerst die Zahl vorne (n · 6,022), die Hochzahl bleibt 23 (außer die Zahl wird ≥ 10 oder < 1).',
+    {onOk:()=>{}});
+}
+function gNfromN(){
+  const f=pick(SUBS),n=pick(NICE),N=n*NA;
+  return num(`Du hast <b>${sci(N)}</b> Teilchen ${subLabel(f)}. Wie viel <b>mol</b> sind das?<br><span class="muted">N<sub>A</sub> = 6,022 · 10<sup>23</sup> 1/mol</span>`,n,'mol',
+    `n = N / N<sub>A</sub> = ${sci(N)} : 6,022 · 10<sup>23</sup> 1/mol = <b>${fmt(n,3)} mol</b>`,'n = N / N_A. Zahlen vorne teilen, Hochzahlen voneinander abziehen.');
+}
+function gMN(){
+  const f=pick(SUBS),M=molar(f),n=pick([0.1,0.5,1,2,0.25]),m=r2(n*M),N=(m/M)*NA;
+  return sciT(`Wie viele <b>Teilchen</b> stecken in ${fmt(m)} g ${subLabel(f)}?`,N,'Teilchen',
+    `1) n = m / M = ${fmt(m)} g : ${fmt(M,1)} g/mol = ${fmt(m/M,3)} mol<br>2) N = n · N<sub>A</sub> = ${fmt(m/M,3)} mol · 6,022 · 10<sup>23</sup> 1/mol = <b>${sci(N)}</b>`,
+    'Zwei Schritte: erst n = m / M, dann N = n · N_A.');
+}
+function gMolar(){
+  const f=pick(['H2O','CO2','NH3','CH4','NaCl','H2SO4','HCl','CaCO3','C2H6O','O2','MgO','Fe2O3']),M=molar(f);
+  return num(`Wie groß ist die <b>molare Masse M</b> von ${subLabel(f)}?`,M,'g/mol',
+    `M(${fx(f)}) = ${breakdown(f).replace(/ u/g,'')} = <b>${fmt(M,1)} g/mol</b> (gleicher Zahlenwert wie die Teilchenmasse in u)`,'Wie die Masse in u ausrechnen, nur mit der Einheit g/mol.');
+}
+
+/* ---------- Welt 7: Stöchio-Turm ---------- */
+const ST=[
+ {s:[['H2',2],['O2',1],['H2O',2]],r:2},
+ {s:[['Mg',2],['O2',1],['MgO',2]],r:2},
+ {s:[['Fe',1],['S',1],['FeS',1]],r:2},
+ {s:[['C',1],['O2',1],['CO2',1]],r:2},
+ {s:[['CH4',1],['O2',2],['CO2',1],['H2O',2]],r:2},
+ {s:[['Zn',1],['HCl',2],['ZnCl2',1],['H2',1]],r:2},
+ {s:[['Fe2O3',1],['H2',3],['Fe',2],['H2O',3]],r:2},
+ {s:[['CuO',1],['H2',1],['Cu',1],['H2O',1]],r:2},
+ {s:[['Na',2],['Cl2',1],['NaCl',2]],r:2}
+];
+const STHINT='Schema: ① Reaktionsgleichung aufstellen ② n(gegeben) = m / M ③ Stoffmengenverhältnis aus den Koeffizienten ④ m(gesucht) = n · M';
+function gStoich(){
+  const R=pick(ST);const idx=[...R.s.keys()];
+  const i=pick(idx),j=pick(idx.filter(x=>x!==i));
+  const [fi,ci]=R.s[i],[fj,cj]=R.s[j];
+  const Mi=molar(fi),Mj=molar(fj);
+  const ni0=pick([0.1,0.2,0.25,0.5,1,2])*ci;
+  const mi=r2(ni0*Mi),ni=mi/Mi,nj=ni*cj/ci,mj=nj*Mj;
+  const iProd=i>=R.r,jProd=j>=R.r;
+  const ask=jProd?(iProd?'entstehen dabei außerdem':'entstehen'):'werden dafür benötigt';
+  return num(`<span class="eq">${eqHtml(R.s,R.r)}</span><br>Es ${iProd?'entstehen':'reagieren'} ${fmt(mi)} g ${subLabel(fi)}.<br>Wie viel g ${subLabel(fj)} ${ask}?`,mj,'g',
+    `<ol><li>Gleichung: ${eqHtml(R.s,R.r)}</li><li>n(${fx(fi)}) = ${fmt(mi)} g : ${fmt(Mi,1)} g/mol = ${fmt(ni,3)} mol</li><li>n(${fx(fj)}) : n(${fx(fi)}) = ${cj} : ${ci} → n(${fx(fj)}) = ${fmt(ni,3)} mol · ${cj}/${ci} = ${fmt(nj,3)} mol</li><li>m(${fx(fj)}) = ${fmt(nj,3)} mol · ${fmt(Mj,1)} g/mol = <b>${fmt(mj)} g</b></li></ol>`,
+    STHINT);
+}
+const MC_ST=[
+ {q:'Woher bekommst du das Stoffmengenverhältnis der Stoffe?',c:['Aus den Koeffizienten der ausgeglichenen Reaktionsgleichung','Aus dem Massenverhältnis','Aus den kleinen Zahlen in den Formeln','Aus der Dichte'],e:'Die <b>Koeffizienten</b> (große Zahlen vorne) geben das Teilchen- bzw. Stoffmengenverhältnis an.'},
+ {q:'Warum darf man Massen NICHT direkt mit den Koeffizienten umrechnen?',c:['Koeffizienten geben Stoffmengen- bzw. Teilchenverhältnisse an, keine Massenverhältnisse','Weil sich Massen bei Reaktionen ändern','Weil Koeffizienten immer 1 sind','Doch, das darf man'],e:'Teilchen verschiedener Stoffe sind unterschiedlich schwer. Deshalb immer den Umweg über die <b>Stoffmenge n</b> gehen.'},
+ {q:'2 H<sub>2</sub> + O<sub>2</sub> → 2 H<sub>2</sub>O. Wie viel mol Wasser entstehen aus 3 mol Wasserstoff?',c:['3 mol','1,5 mol','6 mol','2 mol'],e:'n(H<sub>2</sub>O) : n(H<sub>2</sub>) = 2 : 2 = 1 : 1 → <b>3 mol</b>.'},
+ {q:'2 H<sub>2</sub> + O<sub>2</sub> → 2 H<sub>2</sub>O. Wie viel mol Sauerstoff brauchst du für 4 mol Wasserstoff?',c:['2 mol','4 mol','8 mol','1 mol'],e:'n(O<sub>2</sub>) : n(H<sub>2</sub>) = 1 : 2 → 4 mol : 2 = <b>2 mol</b>.'},
+ {q:'In welcher Reihenfolge rechnest du beim stöchiometrischen Rechnen?',c:['m → n → Verhältnis → n → m','m → m → n → n','Verhältnis → m → ρ → N','n → ρ → m → V'],e:'Masse → Stoffmenge → mit Koeffizienten umrechnen → Stoffmenge → Masse.'}
+];
+
+/* ---------- Welt 8: Dichte-See ---------- */
+const DS=[['Wasser',1.0],['Ethanol',0.79],['Eisen',7.87],['Aluminium',2.70],['Kupfer',8.96],['Gold',19.3]];
+const DG=[['Wasserstoff',0.09],['Sauerstoff',1.43],['Kohlenstoffdioxid',1.98],['Luft',1.29]];
+function gDens(){
+  const gas=Math.random()<.35;const [s,rho]=pick(gas?DG:DS);
+  const uV=gas?'L':'cm³',uR=gas?'g/L':'g/cm³';
+  const V=pick(gas?[2,5,10,20,50]:[10,20,25,50,100,250]);const m=r2(rho*V);
+  const hint='ρ = m / V  →  m = ρ · V  →  V = m / ρ. (1 cm³ = 1 mL)';
+  if(Math.random()<.5)
+    return num(`${s} hat die Dichte ρ = ${fmt(rho,2)} ${uR}.<br>Welche <b>Masse</b> haben ${fmt(V)} ${uV} ${s}?`,rho*V,'g',`m = ρ · V = ${fmt(rho,2)} ${uR} · ${fmt(V)} ${uV} = <b>${fmt(rho*V)} g</b>`,hint);
+  return num(`${s} hat die Dichte ρ = ${fmt(rho,2)} ${uR}.<br>Welches <b>Volumen</b> haben ${fmt(m)} g ${s}?`,m/rho,uV,`V = m / ρ = ${fmt(m)} g : ${fmt(rho,2)} ${uR} = <b>${fmt(m/rho)} ${uV}</b>`,hint);
+}
+function gDensId(){
+  const [s,rho]=pick(DS);const V=pick([10,20,50,100]);const m=r2(rho*V);
+  const others=pickN(DS.filter(d=>d[0]!==s),3);
+  return mc(`Ein Gegenstand hat die Masse ${fmt(m)} g und das Volumen ${fmt(V)} cm³. Aus welchem Stoff besteht er?`,
+    [[s,rho]].concat(others).map(d=>`${d[0]} (ρ = ${fmt(d[1],2)} g/cm³)`),
+    `ρ = m / V = ${fmt(m)} g : ${fmt(V)} cm³ = ${fmt(m/V,2)} g/cm³ → <b>${s}</b>`);
+}
+function gDensMol(){
+  if(Math.random()<.6){
+    const V=pick([9,18,36,45,90,180,27]);const n=V/18;
+    return num(`Wie viel <b>mol</b> Wasser (H<sub>2</sub>O) sind ${V} mL Wasser?<br><span class="muted">ρ(Wasser) = 1,0 g/mL</span>`,n,'mol',
+      `1) m = ρ · V = 1,0 g/mL · ${V} mL = ${V} g<br>2) M(H<sub>2</sub>O) = 18 g/mol → n = ${V} g : 18 g/mol = <b>${fmt(n,3)} mol</b>`,'Erst mit der Dichte die Masse ausrechnen, dann n = m / M.');
+  }
+  const V=pick([10,25,50,100]);const m=0.79*V,n=m/46;
+  return num(`Wie viel <b>mol</b> Ethanol (C<sub>2</sub>H<sub>6</sub>O) sind ${V} mL Ethanol?<br><span class="muted">ρ(Ethanol) = 0,79 g/mL</span>`,n,'mol',
+    `1) m = 0,79 g/mL · ${V} mL = ${fmt(m)} g<br>2) M(C<sub>2</sub>H<sub>6</sub>O) = 2·12 + 6·1 + 16 = 46 g/mol → n = ${fmt(m)} g : 46 g/mol = <b>${fmt(n,3)} mol</b>`,'Erst m = ρ · V, dann n = m / M.');
+}
+function gDensGas(){
+  const opt=pick([['Zn',65,'ZnCl2','Zink'],['Mg',24,'MgCl2','Magnesium']]);
+  const n=pick([0.02,0.05,0.1,0.2]);const m=r2(n*opt[1]);const mH=n*2;const V=mH/0.09;
+  return num(`<span class="eq">${fx(opt[0])} + 2 HCl → ${fx(opt[2])} + H<sub>2</sub></span><br>${fmt(m)} g ${opt[3]} reagieren mit Salzsäure. Wie viel <b>Liter Wasserstoff</b> entstehen?<br><span class="muted">ρ(Wasserstoff) = 0,09 g/L</span>`,V,'L',
+    `<ol><li>n(${opt[0]}) = ${fmt(m)} g : ${opt[1]} g/mol = ${fmt(n,3)} mol</li><li>n(H<sub>2</sub>) : n(${opt[0]}) = 1 : 1 → ${fmt(n,3)} mol</li><li>m(H<sub>2</sub>) = ${fmt(n,3)} mol · 2 g/mol = ${fmt(mH,3)} g</li><li>V = m / ρ = ${fmt(mH,3)} g : 0,09 g/L = <b>${fmt(V)} L</b></li></ol>`,
+    'Stöchiometrie-Schema bis zur Masse m(H₂), dann mit der Dichte: V = m / ρ.',{tol:0.03});
+}
+
+/* ---------- Welt 9: Wasserstoff-Höhle ---------- */
+const TF_H2=[
+ ['Wasserstoff ist das leichteste aller Gase.',true,'Richtig: ρ ≈ 0,09 g/L, etwa 14-mal leichter als Luft.'],
+ ['Wasserstoff ist farblos und geruchlos.',true,'Richtig, man sieht und riecht ihn nicht.'],
+ ['Wasserstoff fördert die Verbrennung, so wie Sauerstoff.',false,'Falsch: Wasserstoff ist <b>brennbar</b>, unterhält aber selbst keine Verbrennung. Das macht Sauerstoff.'],
+ ['Bei der Verbrennung von Wasserstoff entsteht Wasser.',true,'Richtig: 2 H<sub>2</sub> + O<sub>2</sub> → 2 H<sub>2</sub>O.'],
+ ['Wasserstoff ist schwerer als Luft.',false,'Falsch: Er ist viel leichter als Luft und steigt nach oben.'],
+ ['Ein Gemisch aus Wasserstoff und Sauerstoff (oder Luft) heißt Knallgas und ist explosiv.',true,'Richtig, deshalb macht man vor dem Entzünden immer die Knallgasprobe.'],
+ ['Wasserstoff löst sich sehr gut in Wasser.',false,'Falsch: Wasserstoff ist in Wasser kaum löslich.'],
+ ['Man kann Wasserstoff herstellen, indem man Zink mit Salzsäure reagieren lässt.',true,'Richtig: Zn + 2 HCl → ZnCl<sub>2</sub> + H<sub>2</sub>.'],
+ ['Wasserstoff kann durch Elektrolyse von Wasser gewonnen werden.',true,'Richtig: 2 H<sub>2</sub>O → 2 H<sub>2</sub> + O<sub>2</sub> (mit elektrischer Energie).'],
+ ['Wasserstoff ist giftig.',false,'Falsch: Wasserstoff ist nicht giftig. Die Gefahr ist die Explosion (Knallgas).'],
+ ['Wasserstoff kommt als Molekül H<sub>2</sub> vor.',true,'Richtig, H steht vorne in HONClBrIF.'],
+ ['Mit der Glimmspanprobe weist man Wasserstoff nach.',false,'Falsch: Glimmspan → Sauerstoff. Wasserstoff → <b>Knallgasprobe</b>.'],
+ ['Wasserstoff fängt man im Reagenzglas mit der Öffnung nach oben auf.',false,'Falsch: Er ist leichter als Luft, deshalb wird die Öffnung <b>nach unten</b> gehalten.'],
+ ['Reiner Wasserstoff verbrennt mit einer kaum sichtbaren, schwach bläulichen Flamme.',true,'Richtig.']
+];
+function gTF(){const [q,a,e]=pick(TF_H2);return {kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e};}
+const KNALL=['Reagenzglas mit der Öffnung nach unten über die Gasquelle halten und das Gas auffangen','Reagenzglas mit dem Daumen verschließen (Öffnung bleibt unten)','Öffnung an die Brennerflamme halten und den Daumen wegnehmen','Geräusch beurteilen: lautes Pfeifen = Knallgas, leises „Plopp“ = reiner Wasserstoff'];
+function gOrder(){
+  return {kind:'order',q:'<b>Knallgasprobe:</b> Tippe die Schritte in der richtigen Reihenfolge an.',steps:KNALL,
+    sol:'<ol>'+KNALL.map(s=>'<li>'+s+'</li>').join('')+'</ol>',onOk:()=>{S.stats.orderCorrect++;}};
+}
+const MC_H2=[
+ {q:'Wie stellt man im Labor Wasserstoff her?',c:['Ein unedles Metall (z. B. Zink) reagiert mit Salzsäure','Man erhitzt Wasser auf 100 °C','Man filtert Luft','Man verbrennt Kohle'],e:'Unedles Metall + Säure → Salz + <b>Wasserstoff</b>.'},
+ {q:'Was zeigt ein leises „Plopp“ bei der Knallgasprobe?',c:['Reiner Wasserstoff','Knallgas (Wasserstoff-Luft-Gemisch)','Sauerstoff','Kohlenstoffdioxid'],e:'Leises Plopp = <b>reiner Wasserstoff</b>. Pfeifen bzw. Knall = Knallgas.'},
+ {q:'Warum hält man das Reagenzglas beim Auffangen von Wasserstoff mit der Öffnung nach unten?',c:['Wasserstoff ist leichter als Luft und steigt nach oben','Wasserstoff ist schwerer als Luft','Damit er nicht brennt','Wegen des Geruchs'],e:'Wasserstoff ist viel <b>leichter als Luft</b>.'},
+ {q:'Was entsteht bei der Verbrennung von Wasserstoff?',c:['Wasser','Kohlenstoffdioxid','Ruß','Sauerstoff'],e:'2 H<sub>2</sub> + O<sub>2</sub> → 2 <b>H<sub>2</sub>O</b>. Deshalb gilt Wasserstoff als sauberer Energieträger.'},
+ {q:'CuO + H<sub>2</sub> → Cu + H<sub>2</sub>O. Welche Rolle spielt der Wasserstoff?',c:['Er entzieht dem Kupferoxid den Sauerstoff (Reduktionsmittel)','Er wird selbst zu Kupfer','Er ist ein Katalysator','Er bleibt unverändert'],e:'Wasserstoff nimmt den Sauerstoff auf → <b>Reduktionsmittel</b>.'},
+ {q:'Ungefähr wie viel-mal leichter als Luft ist Wasserstoff?',c:['ca. 14-mal','ca. 2-mal','ca. 100-mal','gleich schwer'],e:'1,29 g/L : 0,09 g/L ≈ <b>14</b>.'}
+];
+
+/* ============ Welten ============ */
+const W=[
+ {id:'basis',name:'Basislager',icon:'🏕️',topic:'Grundlagen aus Klasse 8 · HONClBrIF',build:()=>[gHonc()].concat(pickN(MC_BASIS,5).map(poolMC))},
+ {id:'masse',name:'Massen-Mine',icon:'⛏️',topic:'Erhaltung der Masse · konstante Massenverhältnisse · Dalton & Demokrit',build:()=>shuffle([gCons(),gCons(),gRatio(),gLeft()].concat(pickN(MC_DALTON,2).map(poolMC)))},
+ {id:'atom',name:'Atomschmiede',icon:'⚒️',topic:'atomare Masseneinheit u · Umrechnung u → g',build:()=>shuffle([gMassU(),gMassU(),gU2G(),gU2G(),gG2El(),poolMC(pick(MC_U))])},
+ {id:'formel',name:'Formel-Werkbank',icon:'🧱',topic:'Verhältnisformeln · Molekülformeln · Atome zählen · Stoffdiagramm',build:()=>shuffle([gVerh(),gVerh(),gCount(),gCount(),gFType(),gPType()])},
+ {id:'gleichung',name:'Gleichungs-Crafting',icon:'⚗️',topic:'Vom Reaktionsschema zur Reaktionsgleichung',build:()=>{const out=[],used=new Set();while(out.length<5){const t=gBal();if(!used.has(t.eqi)){used.add(t.eqi);out.push(t);}}return out;}},
+ {id:'mol',name:'Mol-Portal',icon:'🌀',topic:'Teilchenzahl N · Stoffmenge n · molare Masse M · Avogadro-Konstante',build:()=>shuffle([gMolar(),gMn(),gNm(),gNN(),gNfromN(),gMN()])},
+ {id:'stoich',name:'Stöchio-Turm',icon:'🗼',topic:'Rechnen mit Reaktionsgleichungen (Schema)',build:()=>shuffle([gStoich(),gStoich(),gStoich(),gStoich(),poolMC(pick(MC_ST))])},
+ {id:'dichte',name:'Dichte-See',icon:'💧',topic:'Rechnen mit der Dichte · Masse ↔ Volumen ↔ Stoffmenge',build:()=>shuffle([gDens(),gDens(),gDensId(),gDensMol(),gDensGas()])},
+ {id:'h2',name:'Wasserstoff-Höhle',icon:'🎈',topic:'Eigenschaften von Wasserstoff · Knallgasprobe',note:'Genaue Abgrenzung kommt noch vom Lehrer',build:()=>{const tfs=[];const pool=shuffle(TF_H2).slice(0,3);pool.forEach(([q,a,e])=>tfs.push({kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e}));return shuffle(tfs.concat([gOrder()].concat(pickN(MC_H2,2).map(poolMC))));}}
+];
+function bossBuild(){
+  const g=[[gCons,'masse'],[pick([gRatio,gLeft]),'masse'],[pick([gMassU,gU2G]),'atom'],[gVerh,'formel'],[()=>gBal(true),'gleichung'],[()=>gBal(true),'gleichung'],[pick([gMn,gNm]),'mol'],[pick([gNN,gMN]),'mol'],[gStoich,'stoich'],[gStoich,'stoich'],[pick([gDensGas,gDensMol]),'dichte']];
+  return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
+}
+
+/* ============ Ränge & Erfolge ============ */
+const RANKS=[['Holz',0,'#a0703c'],['Stein',150,'#8a8a8a'],['Kupfer',400,'#d07a45'],['Eisen',800,'#d8d8d8'],['Gold',1400,'#f2c94c'],['Diamant',2200,'#4ee6e0']];
+function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
+const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
+const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
+const ACH=[
+ ['first','⛏️','Erster Block','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
+ ['honc','👯','Zweiatomig','HONClBrIF-Raster komplett richtig.',()=>S.stats.honcPerfect>=1],
+ ['mass','⚖️','Nichts geht verloren','5 Aufgaben in der Massen-Mine richtig.',()=>(S.stats.byWorld.masse||0)>=5],
+ ['u2g','🔬','Atomwaage','Zum ersten Mal u in Gramm umgerechnet.',()=>S.stats.u2g>=1],
+ ['werk','🧱','Meister der Werkbank','Formel-Werkbank mit 3 Sternen.',()=>(S.stars.formel||0)>=3],
+ ['bal5','⚗️','Ausgleicher','5 Reaktionsgleichungen ausgeglichen.',()=>S.stats.balanced>=5],
+ ['bal15','📐','Gleichungs-Legende','15 verschiedene Gleichungen ausgeglichen.',()=>S.stats.balancedSet.length>=15],
+ ['mol10','🌀','Avogadros Kumpel','10 Aufgaben im Mol-Portal richtig.',()=>(S.stats.byWorld.mol||0)>=10],
+ ['stoich','🗼','Turm erklommen','Stöchio-Turm geschafft (mind. 1 Stern).',()=>(S.stars.stoich||0)>=1],
+ ['dichte','🤿','Tiefseetaucher','Dichte-See geschafft (mind. 1 Stern).',()=>(S.stars.dichte||0)>=1],
+ ['plopp','🎈','Plopp!','Knallgasprobe richtig sortiert.',()=>S.stats.orderCorrect>=1],
+ ['h2','💨','Wasserstoff-Profi','Wasserstoff-Höhle mit 3 Sternen.',()=>(S.stars.h2||0)>=3],
+ ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
+ ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
+ ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
+ ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
+ ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
+ ['s27','🌟','Alle Sterne','Alle 27 Sterne gesammelt.',()=>starsTotal()>=27],
+ ['all','🗺️','Weltenbummler','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
+ ['iron','🛡️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
+ ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
+ ['str3','📅','Dranbleiber','3 Tage hintereinander gelernt.',()=>S.streak.days>=3],
+ ['str5','🗓️','Durchzieher','5 Tage hintereinander gelernt.',()=>S.streak.days>=5],
+ ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
+ ['cheat','📜','Gut vorbereitet','Den Spickzettel angeschaut.',()=>S.stats.cheat>=1],
+ ['boss','👾','Wächter besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
+ ['bossp','👑','Unbesiegbar','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
+];
+
+/* ============ Spielstand ============ */
+function defState(){return {name:'',xp:0,stars:{},plays:{},ach:{},stats:{correct:0,byWorld:{},u2g:0,balanced:0,balancedSet:[],bestCombo:0,orderCorrect:0,honcPerfect:0,cheat:0,nohint:0,bossWins:0,bossPerfect:0},streak:{last:'',days:0}};}
+function merge(d,o){for(const k in o){if(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k])&&d[k]&&typeof d[k]==='object')merge(d[k],o[k]);else d[k]=o[k];}return d;}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return merge(defState(),JSON.parse(r));}catch(e){}return defState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function touchStreak(){const t=todayStr();if(S.streak.last===t)return;const y=new Date();y.setDate(y.getDate()-1);S.streak.days=(S.streak.last===todayStr(y))?S.streak.days+1:1;S.streak.last=t;}
+
+/* ============ UI-Grundgerüst ============ */
+const $=s=>document.querySelector(s);
+const view=$('#view');
+function oreStrip(){
+  const cols=['#f4f4f4','#e0473a','#3a3a3a','#3f7be0','#56c24a','#f2d23c','#b8693a','#4ee6e0','#d9813f','#9b59d0'];
+  const sym=['H','O','C','N','Cl','S','Fe','','Cu','Na'];
+  let h='';for(let i=0;i<40;i++){const k=i%10;const c=cols[(i*7)%10];
+    const dots=[[6,8],[26,6],[14,26],[30,28],[8,32]].slice(0,2+(i%3)).map(([x,y])=>`<i style="left:${x}px;top:${y}px;background:${c};box-shadow:4px 4px 0 rgba(0,0,0,.35)"></i>`).join('');
+    h+=`<div class="ore" style="background:${i%4===3?'#5d5d5d':'#6f6f6f'}">${dots}<span style="position:relative">${i%3===0?sym[k]:''}</span></div>`;}
+  $('#ores').innerHTML=h;
+}
+function updateHeader(){
+  const r=rankIdx(S.xp),cur=RANKS[r],nxt=RANKS[r+1];
+  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${S.name?S.name+' · ':''}${cur[0]}</span>`;
+  const pct=nxt?((S.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
+  $('#xpfill').style.width=Math.min(100,pct)+'%';
+  $('#xptxt').textContent=nxt?`${S.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${S.xp} XP · Höchster Rang!`;
+  $('#streak').textContent=`🔥 ${S.streak.days||0} ${S.streak.days===1?'Tag':'Tage'}`;
+  $('#navach').textContent=`🏆 Erfolge ${Object.keys(S.ach).length}/${ACH.length}`;
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{P=null;go(b.dataset.nav);}));
+function go(v){window.scrollTo(0,0);({map:renderMap,ach:renderAch,sheet:renderSheet,save:renderSave})[v]();}
+
+/* Toasts & Konfetti */
+const tq=[];let tBusy=0;
+function toast(icon,title,name){tq.push([icon,title,name]);if(!tBusy)nextToast();}
+function nextToast(){const t=tq.shift();if(!t){tBusy=0;return;}tBusy=1;const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<div class="ti">${t[0]}</div><div><div class="tt">${t[1]}</div><div class="tn">${t[2]}</div></div>`;$('#toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();nextToast();},400);},2600);}
+function confetti(n){const cols=['#5fbf3a','#f2c94c','#4ee6e0','#e0473a','#3f7be0','#d9813f'];
+  for(let i=0;i<(n||40);i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3800);}}
+function checkAch(){let any=false;ACH.forEach(([id,ic,name,,fn])=>{if(!S.ach[id]&&fn()){S.ach[id]=Date.now();toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any){confetti(30);save();}updateHeader();}
+let lastRank=rankIdx(S.xp);
+function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}}
+
+/* ============ Karte ============ */
+function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
+function renderMap(){
+  const unlocked=worldsDone()>=6;
+  let h='';
+  if(!S.name){
+    h+=`<div class="panel"><h2>Willkommen, Miner!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
+  }
+  h+=`<div class="panel intro"><h2>Klassenarbeit Nr. 1 · Chemie Kl. 9</h2>
+  <p>Jede Welt ist ein Thema aus deinem Themenzettel. Eine Runde hat 5–6 Aufgaben und dauert ein paar Minuten. Für jede Runde gibt es bis zu <b style="color:var(--gold)">3 Sterne</b>, dazu XP für neue Ränge und Erfolge.</p>
+  <p class="muted">Tipp: Spiel die Welten ungefähr der Reihe nach. Wenn du in 6 Welten mindestens einen Stern hast, öffnet sich der Endboss.</p></div>
+  <div class="worlds">`;
+  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">WELT ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">👾</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Molekül-Wächter</div><div class="tp">${unlocked?'11 gemischte Aufgaben, 3 Herzen. Schaffst du es?':`🔒 Noch ${6-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  view.innerHTML=h;
+  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
+  $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
+  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
+}
+
+/* ============ Spiel ============ */
+let P=null;
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false};renderTask();}
+function startBoss(){P={world:'boss',name:'Der Molekül-Wächter',icon:'👾',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3};renderTask();}
+function bossSvg(hp){
+  return `<svg width="120" height="104" viewBox="0 0 30 26" shape-rendering="crispEdges">
+   <rect x="3" y="3" width="24" height="20" fill="#6b3fa0"/><rect x="3" y="3" width="24" height="3" fill="#8a5bc4"/><rect x="3" y="20" width="24" height="3" fill="#4a2873"/>
+   <rect x="9" y="8" width="12" height="8" fill="#f2f2f2"/><rect x="13" y="10" width="4" height="4" fill="${hp>1?'#e0473a':'#f2c94c'}"/>
+   <rect x="7" y="18" width="2" height="2" fill="#2a1540"/><rect x="11" y="18" width="2" height="2" fill="#2a1540"/><rect x="15" y="18" width="2" height="2" fill="#2a1540"/><rect x="19" y="18" width="2" height="2" fill="#2a1540"/>
+   <rect x="0" y="9" width="3" height="3" fill="#4ee6e0"/><rect x="27" y="9" width="3" height="3" fill="#4ee6e0"/><rect x="6" y="0" width="3" height="3" fill="#f2d23c"/><rect x="21" y="0" width="3" height="3" fill="#e0473a"/>
+   <rect x="5" y="23" width="4" height="3" fill="#4a2873"/><rect x="21" y="23" width="4" height="3" fill="#4a2873"/></svg>`;
+}
+function renderTask(){
+  const t=P.tasks[P.i];P.answered=false;P.usedHint=false;
+  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}"></span>`;});
+  view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
+   ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
+   ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
+   <div class="panel"><div class="taskhead"><span class="pix">AUFGABE ${P.i+1} / ${P.tasks.length}</span>${t.hint?'<button class="btn small gold" id="hintb">💡 Tipp</button>':''}</div>
+   <div class="q">${t.q}</div><div id="inp"></div><div id="hintbox"></div><div class="fb" id="fb"></div></div>`;
+  $('#quit').onclick=()=>{P=null;renderMap();};
+  if(t.hint)$('#hintb').onclick=()=>{if(P.answered)return;P.usedHint=true;P.hints++;$('#hintbox').innerHTML=`<div class="hintbox">💡 ${t.hint}<br><span class="muted" style="font-size:14px">(Mit Tipp gibt es keinen XP-Bonus.)</span></div>`;$('#hintb').disabled=true;};
+  INPUT[t.kind](t,$('#inp'));
+}
+function parseNum(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');if(s===''||isNaN(+s))return null;return +s;}
+function numOk(v,t){if(v===null)return false;if(t.tol===0)return Math.abs(v-t.ans)<1e-9;const tol=t.tol||0.02;return Math.abs(v-t.ans)<=Math.max(Math.abs(t.ans)*tol,0.005);}
+const INPUT={
+  num(t,el){el.innerHTML=`<div class="row"><input class="in" id="a" inputmode="decimal" autocomplete="off" placeholder="Zahl"><span class="unit">${t.unit}</span><button class="btn green" id="chk">Prüfen</button></div>`;
+    const go=()=>{const v=parseNum($('#a').value);if(v===null){$('#a').focus();return;}answer(numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`);};
+    $('#chk').onclick=go;$('#a').onkeydown=e=>{if(e.key==='Enter')go();};setTimeout(()=>$('#a')&&$('#a').focus(),50);},
+  sci(t,el){el.innerHTML=`<div class="row"><input class="in" id="m" inputmode="decimal" autocomplete="off" placeholder="z. B. 2,66"><span class="unit">· 10^</span><input class="in exp" id="e" inputmode="numeric" autocomplete="off" placeholder="−23"><span class="unit">${t.unit}</span><button class="btn green" id="chk">Prüfen</button></div>
+    <div class="muted" style="font-size:15px;margin-top:6px">Zahl vorne und Hochzahl getrennt eingeben. Minus nicht vergessen!</div>`;
+    const go=()=>{const m=parseNum($('#m').value);const e=parseNum(($('#e').value||'').replace('−','-'));if(m===null||e===null){(m===null?$('#m'):$('#e')).focus();return;}
+      const v=m*Math.pow(10,e);answer(Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`);};
+    $('#chk').onclick=go;['#m','#e'].forEach(s=>$(s).onkeydown=e=>{if(e.key==='Enter')go();});setTimeout(()=>$('#m')&&$('#m').focus(),50);},
+  mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
+    el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
+      el.querySelectorAll('[data-i]').forEach(x=>{x.disabled=true;if(+x.dataset.i===t.correct)x.classList.add('right');});if(!ok)b.classList.add('wrong');answer(ok,'');});},
+  tf(t,el){el.innerHTML=`<div class="row"><button class="btn green" data-v="1" style="min-width:140px">✔ Wahr</button><button class="btn red" data-v="0" style="min-width:140px">✘ Falsch</button></div>`;
+    el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(P.answered)return;const v=b.dataset.v==='1';el.querySelectorAll('[data-v]').forEach(x=>x.disabled=true);answer(v===t.ans,`Richtig ist: <b>${t.ans?'Wahr':'Falsch'}</b>`);});},
+  grid(t,el){const sel=new Set();
+    el.innerHTML=`<div class="elgrid">${t.items.map(s=>`<button class="el" data-s="${s}">${s}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{if(P.answered)return;const s=b.dataset.s;sel.has(s)?sel.delete(s):sel.add(s);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=sel.size===t.ans.length&&t.ans.every(s=>sel.has(s));
+      el.querySelectorAll('[data-s]').forEach(b=>{const s=b.dataset.s,inA=t.ans.includes(s);b.classList.remove('sel');if(sel.has(s))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = vergessen, rot = falsch ausgewählt.');};},
+  bal(t,el){const sp=t.r.concat(t.p);const co=sp.map(()=>1);const nr=t.r.length;
+    const elems=[];sp.forEach(f=>Object.keys(parseF(f)).forEach(e=>{if(!elems.includes(e))elems.push(e);}));
+    function counts(side){const c={};sp.forEach((f,k)=>{if((k<nr)!==(side==='L'))return;const p=parseF(f);for(const e in p)c[e]=(c[e]||0)+p[e]*co[k];});return c;}
+    function blocks(e,n){if(n>24)return `<span class="cnt">${n}</span>`;return `<span class="cnt">${n}</span>`+`<span class="blk" style="background:${ECOL[e]||'#888'}"></span>`.repeat(n);}
+    function draw(){
+      let h='<div class="bal">';sp.forEach((f,k)=>{if(k===nr)h+='<span class="op">→</span>';else if(k>0)h+='<span class="op">+</span>';
+        h+=`<div class="sp"><div class="st"><button data-k="${k}" data-d="1">▲</button><button data-k="${k}" data-d="-1">▼</button></div><span class="co">${co[k]}</span><span>${fx(f)}</span></div>`;});
+      h+='</div>';const L=counts('L'),R=counts('R');
+      h+=`<table class="atoms"><tr><th>Atom</th><th>links</th><th>rechts</th></tr>${elems.map(e=>{const ok=L[e]===R[e];const cls=t.noColor?'':(ok?'okc':'badc');return `<tr><td><b>${e}</b> <span class="muted">${EN[e]||''}</span></td><td class="${cls}">${blocks(e,L[e]||0)}</td><td class="${cls}">${blocks(e,R[e]||0)}</td></tr>`;}).join('')}</table>
+      <button class="btn green" id="chk">Prüfen</button>`;
+      el.innerHTML=h;
+      el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(P.answered)return;const k=+b.dataset.k;co[k]=Math.max(1,Math.min(9,co[k]+(+b.dataset.d)));draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;const L=counts('L'),R=counts('R');const bal=elems.every(e=>L[e]===R[e]);const g=co.reduce((a,b)=>gcd(a,b));
+        el.querySelectorAll('[data-k]').forEach(b=>b.disabled=true);$('#chk').disabled=true;
+        answer(bal&&g===1,bal&&g!==1?'Ausgeglichen, aber nicht mit den <b>kleinstmöglichen</b> Zahlen. Alle Koeffizienten lassen sich noch kürzen!':(bal?'':'Noch nicht ausgeglichen. Vergleiche links und rechts in der Tabelle.'));};
+    }
+    draw();},
+  order(t,el){const pool=shuffle(t.steps.map((s,i)=>i));const chosen=[];
+    function draw(){el.innerHTML=`<div class="orderlist">${chosen.map((i,k)=>`<div class="item"><b>${k+1}.</b>${t.steps[i]}</div>`).join('')}</div>
+      <div class="orderpool">${pool.filter(i=>!chosen.includes(i)).map(i=>`<button class="btn" style="text-align:left;background:#4a4a55" data-i="${i}">${t.steps[i]}</button>`).join('')}</div>
+      <div class="row"><button class="btn small" id="rs">↺ Zurücksetzen</button>${chosen.length===t.steps.length?'<button class="btn green" id="chk">Prüfen</button>':''}</div>`;
+      el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;chosen.push(+b.dataset.i);draw();});
+      $('#rs').onclick=()=>{if(P.answered)return;chosen.length=0;draw();};
+      const c=$('#chk');if(c)c.onclick=()=>{if(P.answered)return;const ok=chosen.every((v,k)=>v===k);c.disabled=true;$('#rs').disabled=true;answer(ok,'');};}
+    draw();}
+};
+function answer(ok,extra){
+  if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
+  if(ok){P.combo++;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+    gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();}
+  else{P.combo=0;if(P.boss)P.hearts--;}
+  P.res.push(ok);if(gain)gainXP(gain);
+  const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
+  $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
+    `<div class="sol">${!ok&&extra?extra+'<br>':''}${t.sol||''}</div><div class="row" style="margin-top:12px"><button class="btn ${ok?'green':'blue'}" id="next">${last?'Ergebnis ▶':'Weiter ▶'}</button></div>`;
+  const hb=$('#hintb');if(hb)hb.disabled=true;
+  save();checkAch();
+  const n=$('#next');n.onclick=()=>{if(last)finish();else{P.i++;renderTask();}};
+  setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
+  document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
+}
+function finish(){
+  document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
+  touchStreak();
+  let h='';
+  if(P.boss){
+    const won=P.hearts>0;
+    if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
+    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Der Molekül-Wächter ist besiegt!':'Der Wächter war stärker …'}</h2>
+     <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
+     <p class="muted">${won?'Stark! Das war fast schon Klassenarbeits-Niveau.':'Schau dir die Lösungswege nochmal an und trainiere die Welten, in denen es gehakt hat. Dann nochmal!'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Nochmal kämpfen</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(won)confetti(90);
+  }else{
+    const st=right===total?3:right>=total-1?2:right>=Math.ceil(total*0.6)?1:0;
+    const prev=S.stars[P.world]||0;
+    S.stars[P.world]=Math.max(prev,st);S.plays[P.world]=(S.plays[P.world]||0)+1;
+    if(st===3&&P.hints===0)S.stats.nohint++;
+    if(st)gainXP(st*10);
+    h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>
+     <p>${right} von ${total} richtig${st?` · <b style="color:var(--gold)">+${st*10} XP</b> Sternbonus`:''}${st>prev&&prev>0?' · neuer Rekord!':''}</p>
+     <p class="muted">${st===3?'Perfekt! Diese Welt hast du im Griff.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Neue Runde</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(st===3)confetti(70);
+  }
+  const wid=P.world;save();checkAch();view.innerHTML=h;window.scrollTo(0,0);
+  $('#again').onclick=()=>{wid==='boss'?startBoss():startWorld(wid);};$('#tomap').onclick=()=>{P=null;renderMap();};
+}
+
+/* ============ Erfolge ============ */
+function renderAch(){
+  const got=Object.keys(S.ach).length;
+  view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 27 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
+  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=S.ach[id];return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+}
+
+/* ============ Spickzettel ============ */
+function renderSheet(){
+  if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
+  const els=['H','C','N','O','Na','Mg','Al','S','Cl','Ca','Fe','Cu','Zn'];
+  view.innerHTML=`<div class="panel"><h2>📜 Formelspickzettel</h2><p>Du darfst in der Klassenarbeit einen Formelspickzettel benutzen. <b>Schreib ihn selbst ab</b>, beim Abschreiben lernst du schon. Was dein Lehrer genau erlaubt, gilt natürlich vor diesem Zettel.</p></div>
+  <div class="sheet">
+   <div class="card"><h3>Stoffmenge n</h3><div class="f">n = m / M</div><div class="f">m = n · M</div><div class="f">M = m / n</div><p>m in g · M in g/mol · n in mol</p></div>
+   <div class="card"><h3>Teilchenzahl N</h3><div class="f">N = n · N<sub>A</sub></div><div class="f">n = N / N<sub>A</sub></div><p>N<sub>A</sub> = 6,022 · 10<sup>23</sup> 1/mol<br>(Avogadro-Konstante = Teilchen pro mol)</p></div>
+   <div class="card"><h3>Dichte ρ</h3><div class="f">ρ = m / V</div><div class="f">m = ρ · V</div><div class="f">V = m / ρ</div><p>1 cm³ = 1 mL · Gase meist in g/L</p></div>
+   <div class="card"><h3>Atomare Masseneinheit</h3><div class="f">1 u = 1,66 · 10<sup>−24</sup> g</div><p>m(Teilchen) in g = Masse in u · 1,66 · 10<sup>−24</sup> g</p><p><b>Merke:</b> M in g/mol hat denselben Zahlenwert wie die Teilchenmasse in u (H<sub>2</sub>O: 18 u → 18 g/mol).</p></div>
+   <div class="card"><h3>Stöchiometrie-Schema</h3><p>① Reaktionsgleichung aufstellen und ausgleichen<br>② n(gegeben) = m / M<br>③ Stoffmengenverhältnis aus den Koeffizienten<br>④ m(gesucht) = n · M</p></div>
+   <div class="card"><h3>Verhältnisformel</h3><p>N(A) : N(B) = m(A)/m<sub>A</sub> : m(B)/m<sub>B</sub><br>(Masse ÷ Atommasse, dann auf ganze Zahlen bringen)</p><p><b>HONClBrIF</b> → H<sub>2</sub> O<sub>2</sub> N<sub>2</sub> Cl<sub>2</sub> Br<sub>2</sub> I<sub>2</sub> F<sub>2</sub></p></div>
+   <div class="card"><h3>Atommassen (gerundet)</h3><table>${els.map(e=>`<tr><td><b>${e}</b></td><td>${EN[e]}</td><td>${fmt(A[e],1)} u</td></tr>`).join('')}</table><p style="font-size:14px">Manche Bücher nehmen für Cu 64 u, das ist auch in Ordnung.</p></div>
+   <div class="card"><h3>Massengesetze</h3><p><b>Erhaltung der Masse:</b> m(Ausgangsstoffe) = m(Produkte)</p><p><b>Konstante Massenverhältnisse:</b> Elemente reagieren immer im gleichen Massenverhältnis (z. B. Fe : S = 7 : 4).</p></div>
+  </div>`;
+}
+
+/* ============ Spielstand ============ */
+function renderSave(){
+  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));}catch(e){}
+  view.innerHTML=`<div class="panel"><h2>💾 Spielstand</h2>
+   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(S.name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
+   <p class="muted">Dein Fortschritt wird automatisch in diesem Browser gespeichert. Für ein anderes Gerät oder zur Sicherheit kopierst du den Speichercode und fügst ihn dort unter „Laden“ ein.</p>
+   <h3>Speichercode</h3><textarea class="code" id="code" readonly>${code}</textarea>
+   <div class="row" style="margin-top:8px"><button class="btn blue small" id="copy">📋 Kopieren</button><span id="copymsg" class="muted"></span></div>
+   <h3 style="margin-top:20px">Laden</h3><textarea class="code" id="imp" placeholder="Speichercode hier einfügen"></textarea>
+   <div class="row" style="margin-top:8px"><button class="btn green small" id="load">Laden</button><span id="loadmsg"></span></div>
+   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Alles zurücksetzen</button><div id="rsbox"></div></div>`;
+  $('#nmsave').onclick=()=>{S.name=$('#nm2').value.trim();save();updateHeader();};
+  $('#copy').onclick=()=>{const ta=$('#code');try{navigator.clipboard.writeText(ta.value).then(()=>$('#copymsg').textContent='Kopiert!',()=>{ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';});}catch(e){ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';}};
+  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(typeof o.xp!=='number')throw 0;S=merge(defState(),o);lastRank=rankIdx(S.xp);save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
+  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Wirklich alles löschen (XP, Sterne, Erfolge)? <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
+    $('#rsyes').onclick=()=>{S=defState();lastRank=0;save();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
+}
+
+/* ============ Start ============ */
+oreStrip();updateHeader();renderMap();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
+</script>
+</body>
+</html>
