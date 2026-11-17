@@ -2,10 +2,10 @@
 // Jede Seite wird unter IHRER EIGENEN Adresse zwischengespeichert (kein Umleiten aller Seiten auf index.html),
 // damit sich die einzelnen Lern-Apps nicht gegenseitig überschreiben.
 // Strategie: erst Netz (aktuelle Version), bei fehlendem Netz der gespeicherte Stand.
-const CACHE = 'lernhub-v1';
+const CACHE = 'lernhub-v2';
 const FILES = [
   './', './index.html', './manifest.webmanifest',
-  './icon-180.png', './icon-192.png', './icon-512.png',
+  './icon-180.png', './icon-192.png', './icon-512.png', './shared/profil.js',
   './chemie-ka1/', './chemie-ka1/index.html'
 ];
 self.addEventListener('install', e => {

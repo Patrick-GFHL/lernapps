@@ -207,6 +207,7 @@ textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font
 <main class="wrap" id="view"></main>
 <div id="toasts"></div>
 
+<script src="../shared/profil.js"></script>
 <script>
 "use strict";
 /* ============ Daten ============ */
@@ -586,8 +587,8 @@ function bossBuild(){
 }
 
 /* ============ Ränge & Erfolge ============ */
-const RANKS=[['Holz',0,'#a0703c'],['Stein',150,'#8a8a8a'],['Kupfer',400,'#d07a45'],['Eisen',800,'#d8d8d8'],['Gold',1400,'#f2c94c'],['Diamant',2200,'#4ee6e0']];
-function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
+const H=window.LernHub, APP='chemie-ka1';
+const RANKS=H.RANKS, rankIdx=H.rankIdx;
 const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
 const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
 const ACH=[
@@ -610,10 +611,6 @@ const ACH=[
  ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
  ['s27','🌟','Alle Sterne','Alle 27 Sterne gesammelt.',()=>starsTotal()>=27],
  ['all','🗺️','Weltenbummler','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
- ['iron','🛡️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
- ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
- ['str3','📅','Dranbleiber','3 Tage hintereinander gelernt.',()=>S.streak.days>=3],
- ['str5','🗓️','Durchzieher','5 Tage hintereinander gelernt.',()=>S.streak.days>=5],
  ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
  ['cheat','📜','Gut vorbereitet','Den Spickzettel angeschaut.',()=>S.stats.cheat>=1],
  ['boss','👾','Wächter besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
@@ -627,7 +624,7 @@ function load(){try{const r=localStorage.getItem(KEY);if(r)return merge(defState
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 let S=load();
 function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function touchStreak(){const t=todayStr();if(S.streak.last===t)return;const y=new Date();y.setDate(y.getDate()-1);S.streak.days=(S.streak.last===todayStr(y))?S.streak.days+1:1;S.streak.last=t;}
+function touchStreak(){H.touchStreak();}
 
 /* ============ UI-Grundgerüst ============ */
 const $=s=>document.querySelector(s);
@@ -641,13 +638,13 @@ function oreStrip(){
   $('#ores').innerHTML=h;
 }
 function updateHeader(){
-  const r=rankIdx(S.xp),cur=RANKS[r],nxt=RANKS[r+1];
-  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${S.name?S.name+' · ':''}${cur[0]}</span>`;
-  const pct=nxt?((S.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
+  const G=H.get(),r=rankIdx(G.xp),cur=RANKS[r],nxt=RANKS[r+1];
+  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${G.name?G.name+' · ':''}${cur[0]}</span>`;
+  const pct=nxt?((G.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
   $('#xpfill').style.width=Math.min(100,pct)+'%';
-  $('#xptxt').textContent=nxt?`${S.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${S.xp} XP · Höchster Rang!`;
-  $('#streak').textContent=`🔥 ${S.streak.days||0} ${S.streak.days===1?'Tag':'Tage'}`;
-  $('#navach').textContent=`🏆 Erfolge ${Object.keys(S.ach).length}/${ACH.length}`;
+  $('#xptxt').textContent=nxt?`${G.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${G.xp} XP · Höchster Rang!`;
+  $('#streak').textContent=`🔥 ${G.streak.days||0} ${G.streak.days===1?'Tag':'Tage'}`;
+  $('#navach').textContent=`🏆 Erfolge ${H.countApp(APP)}/${ACH.length}`;
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{P=null;go(b.dataset.nav);}));
 function go(v){window.scrollTo(0,0);({map:renderMap,ach:renderAch,sheet:renderSheet,save:renderSave})[v]();}
@@ -661,16 +658,16 @@ function nextToast(){const t=tq.shift();if(!t){tBusy=0;return;}tBusy=1;const el=
 function confetti(n){const cols=['#5fbf3a','#f2c94c','#4ee6e0','#e0473a','#3f7be0','#d9813f'];
   for(let i=0;i<(n||40);i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);
     c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3800);}}
-function checkAch(){let any=false;ACH.forEach(([id,ic,name,,fn])=>{if(!S.ach[id]&&fn()){S.ach[id]=Date.now();toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any){confetti(30);save();}updateHeader();}
-let lastRank=rankIdx(S.xp);
-function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}}
+function checkAch(){let any=false;ACH.forEach(([id,ic,name,desc,fn])=>{if(!H.has(APP,id)&&fn()){H.unlock(APP,id,ic,name,desc);toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any)confetti(30);updateHeader();}
+H.on(ev=>{if(ev.type==='rank'){toast('⬆️','Neuer Rang!',ev.rank[0]);confetti(60);}else if(ev.type==='ach'){toast(ev.ach.icon,'Hub-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
+function gainXP(n){S.xp+=n;H.addXP(APP,n);}
 
 /* ============ Karte ============ */
 function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
 function renderMap(){
   const unlocked=worldsDone()>=6;
   let h='';
-  if(!S.name){
+  if(!H.get().name){
     h+=`<div class="panel"><h2>Willkommen, Miner!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
   }
   h+=`<div class="panel intro"><h2>Klassenarbeit Nr. 1 · Chemie Kl. 9</h2>
@@ -682,7 +679,7 @@ function renderMap(){
   view.innerHTML=h;
   view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
   $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
-  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
+  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){H.setName(v);updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
 }
 
 /* ============ Spiel ============ */
@@ -802,9 +799,11 @@ function finish(){
 
 /* ============ Erfolge ============ */
 function renderAch(){
-  const got=Object.keys(S.ach).length;
+  const got=H.countApp(APP),G=H.get();
   view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 27 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
-  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=S.ach[id];return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=H.has(APP,id);return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>
+  <div class="panel" style="margin-top:22px"><h2>🌍 Hub-Erfolge (gelten für alle Lern-Apps)</h2><p class="muted">XP, Rang, Lern-Serie und diese Erfolge nimmst du in jede neue Lern-App mit.</p></div>
+  <div class="achs">${H.GLOBAL.map(([id,ic,n,d])=>{const g=!!G.ach['hub:'+id];return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
 }
 
 /* ============ Spickzettel ============ */
@@ -826,24 +825,32 @@ function renderSheet(){
 
 /* ============ Spielstand ============ */
 function renderSave(){
-  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));}catch(e){}
+  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,app:APP,state:S,profil:H.exportData()}))));}catch(e){}
   view.innerHTML=`<div class="panel"><h2>💾 Spielstand</h2>
-   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(S.name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
-   <p class="muted">Dein Fortschritt wird automatisch in diesem Browser gespeichert. Für ein anderes Gerät oder zur Sicherheit kopierst du den Speichercode und fügst ihn dort unter „Laden“ ein.</p>
+   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(H.get().name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
+   <p class="muted">Dein Fortschritt wird automatisch auf diesem Gerät gespeichert. Der Speichercode enthält diese App <b>und</b> dein gemeinsames Profil (XP, Rang, alle Erfolge). Für ein anderes Gerät oder zur Sicherheit kopierst du ihn und fügst ihn dort unter „Laden“ ein.</p>
    <h3>Speichercode</h3><textarea class="code" id="code" readonly>${code}</textarea>
    <div class="row" style="margin-top:8px"><button class="btn blue small" id="copy">📋 Kopieren</button><span id="copymsg" class="muted"></span></div>
    <h3 style="margin-top:20px">Laden</h3><textarea class="code" id="imp" placeholder="Speichercode hier einfügen"></textarea>
    <div class="row" style="margin-top:8px"><button class="btn green small" id="load">Laden</button><span id="loadmsg"></span></div>
-   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Alles zurücksetzen</button><div id="rsbox"></div></div>`;
-  $('#nmsave').onclick=()=>{S.name=$('#nm2').value.trim();save();updateHeader();};
+   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Diese App zurücksetzen</button><div id="rsbox"></div></div>`;
+  $('#nmsave').onclick=()=>{H.setName($('#nm2').value.trim());updateHeader();};
   $('#copy').onclick=()=>{const ta=$('#code');try{navigator.clipboard.writeText(ta.value).then(()=>$('#copymsg').textContent='Kopiert!',()=>{ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';});}catch(e){ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';}};
-  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(typeof o.xp!=='number')throw 0;S=merge(defState(),o);lastRank=rankIdx(S.xp);save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
-  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Wirklich alles löschen (XP, Sterne, Erfolge)? <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
-    $('#rsyes').onclick=()=>{S=defState();lastRank=0;save();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
+  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(o.v===2){H.importData(o.profil);S=merge(defState(),o.state);}else if(typeof o.xp==='number'){S=merge(defState(),o);migrate(true);}else throw 0;save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
+  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Sterne und Erfolge dieser App löschen? (Deine gesammelten XP und dein Rang bleiben erhalten.) <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
+    $('#rsyes').onclick=()=>{S=defState();const G=H.get();Object.keys(G.ach).forEach(k=>{if(k.indexOf(APP+':')===0)delete G.ach[k];});H.importData(G);save();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
 }
 
 /* ============ Start ============ */
-oreStrip();updateHeader();renderMap();
+/* Alten Spielstand (vor dem gemeinsamen Profil) einmalig übernehmen */
+function migrate(force){const G=H.get();if(!force&&(S.migrated||!(S.xp>0)))return;
+  if(force||!G.xpByApp[APP]){G.xp+=S.xp;G.xpByApp[APP]=(G.xpByApp[APP]||0)+S.xp;}
+  if(S.name&&!G.name)G.name=S.name;
+  if(S.streak&&S.streak.days>(G.streak.days||0))G.streak=S.streak;
+  if(S.ach)ACH.forEach(([id,ic,n,d])=>{if(S.ach[id]&&!G.ach[APP+':'+id])G.ach[APP+':'+id]={t:S.ach[id],app:APP,icon:ic,name:n,desc:d};});
+  H.importData(G);S.migrated=true;save();}
+migrate(false);
+oreStrip();updateHeader();renderMap();checkAch();H.checkGlobal();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
 </script>
 </body>

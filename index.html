@@ -39,28 +39,71 @@ a.app:hover{transform:translateY(-3px)}
 .badge{display:inline-block;font-size:13px;background:#3c8a20;border:2px solid var(--line);padding:0 6px;margin-top:4px}
 .total{display:flex;gap:18px;flex-wrap:wrap;font-size:18px}
 .total b{color:var(--gold)}
+.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.pname{font-weight:700;font-size:22px}
+.rankblock{width:26px;height:26px;border:3px solid var(--line);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.35)}
+.xpbar{height:22px;background:#111;border:3px solid var(--line);position:relative;margin-bottom:12px}
+.xpbar>div{height:100%;background:linear-gradient(#8ff05a,#5fbf3a);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
+.xptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;text-shadow:1px 1px 0 #000}
+.mini{font-family:inherit;font-size:16px;color:var(--text);background:#6d6d78;border:3px solid var(--line);padding:4px 10px;cursor:pointer}
+.mini.green{background:var(--green)}
+.row{display:flex;gap:8px;align-items:center}
+#nm{font-family:inherit;font-size:20px;padding:6px 8px;background:#111;color:var(--text);border:3px solid var(--line);width:200px}
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.ach{display:flex;gap:10px;align-items:center;background:var(--panel2);border:4px solid var(--line);padding:8px 10px}
+.ach .ai{font-size:26px;width:44px;height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line)}
+.ach .an{font-weight:700;font-size:17px}.ach .ad{font-size:14px;color:var(--muted);line-height:1.3}
+.ach .from{font-size:12px;color:var(--gold)}
+.ach.got{background:#2f3a28}.ach.locked .an{color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><img class="logo" src="icon-192.png" alt=""><h1>Lern-Hub</h1></div>
-  <div class="panel"><h2>Dein Fortschritt</h2><div class="total" id="total"></div></div>
+  <div class="panel" id="prof"></div>
+  <h2 style="margin-top:22px">📚 Lern-Apps</h2>
   <div class="apps" id="apps"></div>
+  <div class="panel" style="margin-top:22px"><h2 id="trtitle">🏆 Trophäensammlung</h2><div class="achs" id="trophies"></div></div>
   <p class="muted" style="font-size:15px;margin-top:24px">Tipp: Über „Teilen → Zum Home-Bildschirm“ (iPhone) oder „⋮ → App installieren“ (Android) wird der Lern-Hub zur App mit eigenem Icon und funktioniert auch offline.</p>
 </div>
+<script src="shared/profil.js"></script>
 <script>
-/* Neue Lern-Apps hier eintragen: Ordner, Name, Icon, Beschreibung, localStorage-Schlüssel der App */
+/* Neue Lern-Apps hier eintragen: Ordner, Name, Icon, Beschreibung, localStorage-Schlüssel der App (für die Sterne) */
 const APPS=[
-  {dir:'chemie-ka1/',name:'Chemie-Miner',icon:'⛏️',sub:'Chemie Klasse 9 · Klassenarbeit Nr. 1: Massengesetze, Formeln, Reaktionsgleichungen, Stoffmenge, Stöchiometrie, Wasserstoff',key:'chemieMinerKA1_v1',maxStars:27,isNew:true}
+  {id:'chemie-ka1',dir:'chemie-ka1/',name:'Chemie-Miner',icon:'⛏️',sub:'Chemie Klasse 9 · KA Nr. 1: Massengesetze, Formeln, Reaktionsgleichungen, Stoffmenge, Stöchiometrie, Wasserstoff',key:'chemieMinerKA1_v1',maxStars:27,isNew:true}
 ];
+const H=window.LernHub,G=H.get();
 function read(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;}}
-let xp=0,stars=0,ach=0;
-document.getElementById('apps').innerHTML=APPS.map(a=>{
-  const s=read(a.key);let p='Noch nicht gespielt';
-  if(s){const st=Object.values(s.stars||{}).reduce((x,y)=>x+y,0);xp+=s.xp||0;stars+=st;ach+=Object.keys(s.ach||{}).length;p=`★ ${st}${a.maxStars?' / '+a.maxStars:''} · ${s.xp||0} XP`;}
-  return `<a class="app" href="${a.dir}"><div class="ic">${a.icon}</div><div><div class="nm">${a.name}</div><div class="sub">${a.sub}</div><div class="prog">${p}</div>${a.isNew?'<span class="badge">NEU</span>':''}</div></a>`;
-}).join('');
-document.getElementById('total').innerHTML=`<span>⭐ Sterne: <b>${stars}</b></span><span>✨ XP: <b>${xp}</b></span><span>🏆 Erfolge: <b>${ach}</b></span>`;
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function renderProfile(){
+  const r=H.rank();const pct=r.next?((G.xp-r.cur[1])/(r.next[1]-r.cur[1]))*100:100;
+  document.getElementById('prof').innerHTML=`
+   <div class="prow"><span class="rankblock" style="background:${r.cur[2]}"></span>
+   <span class="pname">${G.name?esc(G.name):'<span class="muted">Noch kein Name</span>'}</span><span class="pix" style="font-size:11px">${r.cur[0]}</span>
+   <button class="mini" id="edit">✎</button></div>
+   <div class="xpbar"><div style="width:${Math.min(100,pct)}%"></div><div class="xptxt">${r.next?`${G.xp} / ${r.next[1]} XP → ${r.next[0]}`:`${G.xp} XP · Höchster Rang!`}</div></div>
+   <div class="total"><span>🔥 Serie: <b>${G.streak.days||0}</b> ${G.streak.days===1?'Tag':'Tage'}</span><span>🏆 Erfolge: <b>${Object.keys(G.ach).length}</b></span><span>📚 Apps gespielt: <b>${Object.keys(G.xpByApp).filter(k=>G.xpByApp[k]>0).length}</b></span></div>
+   <div id="editbox"></div>`;
+  document.getElementById('edit').onclick=()=>{document.getElementById('editbox').innerHTML=`<div class="row" style="margin-top:10px"><input id="nm" maxlength="16" value="${esc(G.name||'')}" placeholder="Name"><button class="mini green" id="ok">Speichern</button></div>`;
+    const ok=()=>{H.setName(document.getElementById('nm').value.trim());renderProfile();};document.getElementById('ok').onclick=ok;document.getElementById('nm').onkeydown=e=>{if(e.key==='Enter')ok();};document.getElementById('nm').focus();};
+}
+function renderApps(){
+  document.getElementById('apps').innerHTML=APPS.map(a=>{
+    const s=read(a.key);const st=s?Object.values(s.stars||{}).reduce((x,y)=>x+y,0):0;const xp=G.xpByApp[a.id]||0;
+    const p=(s||xp)?`★ ${st}${a.maxStars?' / '+a.maxStars:''} · ${xp} XP`:'Noch nicht gespielt';
+    return `<a class="app" href="${a.dir}"><div class="ic">${a.icon}</div><div><div class="nm">${a.name}</div><div class="sub">${a.sub}</div><div class="prog">${p}</div>${a.isNew?'<span class="badge">NEU</span>':''}</div></a>`;
+  }).join('');
+}
+function renderTrophies(){
+  const appName=id=>id==='hub'?'Hub':((APPS.find(a=>a.id===id)||{}).name||id);
+  const got=Object.values(G.ach).sort((a,b)=>b.t-a.t);
+  const lockedGlobal=H.GLOBAL.filter(g=>!G.ach['hub:'+g[0]]);
+  document.getElementById('trtitle').textContent=`🏆 Trophäensammlung (${got.length})`;
+  document.getElementById('trophies').innerHTML=got.map(a=>`<div class="ach got"><div class="ai">${a.icon}</div><div><div class="an">${esc(a.name)}</div><div class="ad">${esc(a.desc||'')}</div><div class="from">${esc(appName(a.app))}</div></div></div>`).join('')+
+    lockedGlobal.map(g=>`<div class="ach locked"><div class="ai">🔒</div><div><div class="an">${g[2]}</div><div class="ad">${g[3]}</div><div class="from">Hub</div></div></div>`).join('')+
+    (got.length?'':'<p class="muted">Noch keine Trophäen. Starte eine Lern-App!</p>');
+}
+renderProfile();renderApps();renderTrophies();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
 </script>
 </body>
