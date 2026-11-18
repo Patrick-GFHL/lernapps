@@ -182,19 +182,19 @@ td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 
 .calc{max-width:420px}
-.cdisp{background:#c9d6b8;color:#1e2a14;border:4px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.25);padding:10px 14px;min-height:62px;font-size:30px;text-align:right;font-family:'Atkinson Hyperlegible',ui-monospace,monospace;margin-bottom:10px;word-break:break-all}
-.cdisp sup{font-size:.62em;line-height:0;vertical-align:.9em}
-.cdisp .cx{margin-left:6px}
-.cdisp .cunit{font-size:.6em;margin-left:10px;color:#3d4d2c}
-.cdisp .cur{display:inline-block;width:.45em;height:.9em;margin-left:3px;background:#4d5d3c;vertical-align:-.08em;animation:blink 1s steps(1) infinite}
+.cdisp{background:#a9b89c;color:#14180f;border:6px solid #1c1c1f;border-radius:6px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.22);padding:8px 12px;min-height:76px;font-size:30px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;margin-bottom:12px;word-break:break-all;display:flex;flex-direction:column;justify-content:space-between}
+.cdisp .cline{text-align:left;min-height:1.2em;letter-spacing:.5px}
+.cdisp .ce{font-size:.78em;margin:0 1px}
+.cdisp .cneg{font-size:.8em;position:relative;top:-.12em;margin-right:1px}
+.cdisp .cunit{text-align:right;font-size:.55em;color:#3b4630}
+.cdisp .cur{display:inline-block;width:.5em;height:.95em;margin-left:2px;background:#2a3320;vertical-align:-.1em;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.ck{font-family:'Atkinson Hyperlegible',ui-monospace,monospace;font-size:24px;font-weight:700;height:56px;color:var(--text);background:#4a4a55;border:3px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.18);cursor:pointer;touch-action:manipulation}
-.ck:active{box-shadow:inset 4px 4px 0 rgba(0,0,0,.35)}
-.ck.fn{background:#b6412f;font-size:20px}
-.ck.op{background:#3b7fb8;font-size:20px}
-.ck.op sup{font-size:.65em}
-.ck.ok{background:var(--green);font-size:18px}
+.calc .ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;background:#141416;border:4px solid var(--line);border-radius:10px;padding:12px}
+.ck{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:600;height:54px;color:#fff;background:#2a2a2e;border:none;border-radius:9px;box-shadow:0 4px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);cursor:pointer;touch-action:manipulation}
+.ck:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+.ck.dg{background:#e9e9ec;color:#111}
+.ck.fn{background:#1f1f22;font-size:19px}
+.ck.ok{background:#6f8796;font-size:19px}
 .ck:disabled{filter:grayscale(1) brightness(.7)}
 textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
 .inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
@@ -742,21 +742,22 @@ function parseSci(mStr,eStr,neg){
   let ev=+e;if(neg&&ev>0)ev=-ev;
   return mant*Math.pow(10,ev);
 }
-/* Eingabe wie am Schul-Taschenrechner: Ziffern, Komma, (−), ×10ˣ, DEL, AC – für alle Zahlenaufgaben */
+/* Eingabe wie am TI-30X Pro (Schul-Taschenrechner): Ziffern, Punkt, (–), EE, delete, clear, enter – für alle Zahlenaufgaben */
 function calcPad(t,el,isSci,check){
   const st={m:'',mNeg:false,e:null,eNeg:false};let mode='m';
-  const ex=isSci?'z. B. <b>6,022 ×10<sup>x</sup> 23</b> oder <b>2,66 ×10<sup>x</sup> (−) 23</b>':'z. B. <b>12,5</b>. Für Zehnerpotenzen gibt es die Taste ×10<sup>x</sup>';
+  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 &nbsp;·&nbsp; <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>12.5</b>. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>';
   el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
-    <div class="ckeys">${[['7'],['8'],['9'],['del','DEL','fn'],['4'],['5'],['6'],['ac','AC','fn'],['1'],['2'],['3'],['exp','×10<sup>x</sup>','op'],['0'],[',' ,','],['neg','(−)','op'],['ok','Prüfen','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
-    <div class="muted" style="font-size:15px;margin-top:8px">Wie am Taschenrechner: ${ex}. Am PC gehen auch die Tasten (E = ×10<sup>x</sup>, Minus = (−), Enter = Prüfen).</div>
+    <div class="ckeys">${[['7','','dg'],['8','','dg'],['9','','dg'],['del','delete','fn'],['4','','dg'],['5','','dg'],['6','','dg'],['ac','clear','fn'],['1','','dg'],['2','','dg'],['3','','dg'],['exp','EE','fn'],['0','','dg'],[',','.','dg'],['neg','(–)','dg'],['ok','enter','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Wie auf deinem TI-30X Pro: ${ex}. <b>enter</b> = Prüfen. Am PC gehen auch die Tasten (E = EE, Minus = (–)).</div>
     <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
   const cd=$('#cd');
   function draw(){
-    const m=(st.mNeg?'−':'')+(st.m||(st.e===null?'':'1'));
-    let h=m||'<span class="muted">0</span>';
-    if(st.e!==null)h+=`<span class="cx">×10</span><sup class="cexp">${st.eNeg?'−':''}${st.e||'<span class="cur"></span>'}</sup>`;
-    else h+='<span class="cur"></span>';
-    cd.innerHTML=h+`<span class="cunit">${t.unit}</span>`;
+    const NEG='<span class="cneg">-</span>';
+    const m=(st.mNeg?NEG:'')+(st.m||(st.e===null?'':'1')).replace(',','.');
+    let h=m;
+    if(st.e!==null)h+=`<span class="ce">E</span>${st.eNeg?NEG:''}${st.e}`;
+    h+='<span class="cur"></span>';
+    cd.innerHTML=`<div class="cline">${h}</div><div class="cunit">${t.unit}</div>`;
   }
   function value(){
     const mStr=(st.m||(st.e!==null?'1':'')).replace(',','.');if(mStr===''||mStr==='.'||isNaN(+mStr))return null;
