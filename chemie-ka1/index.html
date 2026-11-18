@@ -186,7 +186,7 @@ td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
 .cdisp sup{font-size:.62em;line-height:0;vertical-align:.9em}
 .cdisp .cx{margin-left:6px}
 .cdisp .cunit{font-size:.6em;margin-left:10px;color:#3d4d2c}
-.cdisp .cur{animation:blink 1s steps(1) infinite;color:#4d5d3c}
+.cdisp .cur{display:inline-block;width:.45em;height:.9em;margin-left:3px;background:#4d5d3c;vertical-align:-.08em;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .ck{font-family:'Atkinson Hyperlegible',ui-monospace,monospace;font-size:24px;font-weight:700;height:56px;color:var(--text);background:#4a4a55;border:3px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.18);cursor:pointer;touch-action:manipulation}
@@ -742,49 +742,50 @@ function parseSci(mStr,eStr,neg){
   let ev=+e;if(neg&&ev>0)ev=-ev;
   return mant*Math.pow(10,ev);
 }
+/* Eingabe wie am Schul-Taschenrechner: Ziffern, Komma, (−), ×10ˣ, DEL, AC – für alle Zahlenaufgaben */
+function calcPad(t,el,isSci,check){
+  const st={m:'',mNeg:false,e:null,eNeg:false};let mode='m';
+  const ex=isSci?'z. B. <b>6,022 ×10<sup>x</sup> 23</b> oder <b>2,66 ×10<sup>x</sup> (−) 23</b>':'z. B. <b>12,5</b>. Für Zehnerpotenzen gibt es die Taste ×10<sup>x</sup>';
+  el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
+    <div class="ckeys">${[['7'],['8'],['9'],['del','DEL','fn'],['4'],['5'],['6'],['ac','AC','fn'],['1'],['2'],['3'],['exp','×10<sup>x</sup>','op'],['0'],[',' ,','],['neg','(−)','op'],['ok','Prüfen','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Wie am Taschenrechner: ${ex}. Am PC gehen auch die Tasten (E = ×10<sup>x</sup>, Minus = (−), Enter = Prüfen).</div>
+    <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
+  const cd=$('#cd');
+  function draw(){
+    const m=(st.mNeg?'−':'')+(st.m||(st.e===null?'':'1'));
+    let h=m||'<span class="muted">0</span>';
+    if(st.e!==null)h+=`<span class="cx">×10</span><sup class="cexp">${st.eNeg?'−':''}${st.e||'<span class="cur"></span>'}</sup>`;
+    else h+='<span class="cur"></span>';
+    cd.innerHTML=h+`<span class="cunit">${t.unit}</span>`;
+  }
+  function value(){
+    const mStr=(st.m||(st.e!==null?'1':'')).replace(',','.');if(mStr===''||mStr==='.'||isNaN(+mStr))return null;
+    let v=+mStr*(st.mNeg?-1:1);if(st.e!==null){if(st.e==='')return null;v*=Math.pow(10,(st.eNeg?-1:1)*(+st.e));}return v;
+  }
+  function press(k){
+    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
+    if(/^[0-9]$/.test(k)){if(mode==='e'){if(st.e.length<3)st.e+=k;}else if(st.m.replace(',','').length<9)st.m+=k;}
+    else if(k===','){if(mode==='m'&&!st.m.includes(','))st.m+=(st.m===''?'0,':',');}
+    else if(k==='neg'){if(mode==='e')st.eNeg=!st.eNeg;else st.mNeg=!st.mNeg;}
+    else if(k==='exp'){if(st.e===null){st.e='';mode='e';}}
+    else if(k==='del'){if(mode==='e'){if(st.e!=='')st.e=st.e.slice(0,-1);else if(st.eNeg)st.eNeg=false;else{st.e=null;mode='m';}}else if(st.m!=='')st.m=st.m.slice(0,-1);else st.mNeg=false;}
+    else if(k==='ac'){st.m='';st.mNeg=false;st.e=null;st.eNeg=false;mode='m';}
+    else if(k==='ok'){const v=value();
+      if(v===null){const msg=$('#scimsg');msg.style.display='block';msg.innerHTML=st.e===''?'Hinter ×10<sup>x</sup> fehlt noch die Hochzahl.':'Bitte zuerst eine Zahl eintippen.';return;}
+      document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);
+      const [ok,extra]=check(v);answer(ok,extra);return;}
+    draw();
+  }
+  el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
+  document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='-'||k==='−')m='neg';else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='ok';
+    if(m){e.preventDefault();press(m);}};
+  draw();
+}
 const INPUT={
-  num(t,el){el.innerHTML=`<div class="row"><input class="in" id="a" inputmode="decimal" autocomplete="off" placeholder="Zahl"><span class="unit">${t.unit}</span><button class="btn green" id="chk">Prüfen</button></div>`;
-    const go=()=>{const v=parseNum($('#a').value);if(v===null){$('#a').focus();return;}answer(numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`);};
-    $('#chk').onclick=go;$('#a').onkeydown=e=>{if(e.key==='Enter')go();};setTimeout(()=>$('#a')&&$('#a').focus(),50);},
-  sci(t,el){
-    /* Eingabe wie am Schul-Taschenrechner: Ziffern, Komma, (−), ×10ˣ, Löschen */
-    const st={m:'',mNeg:false,e:null,eNeg:false};let mode='m';
-    el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
-      <div class="ckeys">${[['7'],['8'],['9'],['del','DEL','fn'],['4'],['5'],['6'],['ac','AC','fn'],['1'],['2'],['3'],['exp','×10<sup>x</sup>','op'],['0'],[',' ,','],['neg','(−)','op'],['ok','Prüfen','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
-      <div class="muted" style="font-size:15px;margin-top:8px">Wie am Taschenrechner: z. B. <b>6,022 ×10<sup>x</sup> 23</b> oder <b>2,66 ×10<sup>x</sup> (−) 23</b>. Am PC gehen auch die Tasten (E = ×10<sup>x</sup>, Minus = (−)).</div>
-      <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
-    const cd=$('#cd');
-    function draw(){
-      const m=(st.mNeg?'−':'')+(st.m||(st.e===null?'':'1')||'');
-      let h=m||'<span class="muted">0</span>';
-      if(st.e!==null)h+=`<span class="cx">×10</span><sup class="cexp">${st.eNeg?'−':''}${st.e||(mode==='e'?'<span class="cur">▯</span>':'')}</sup>`;
-      else h+='<span class="cur">▯</span>';
-      cd.innerHTML=h+`<span class="cunit">${t.unit}</span>`;
-    }
-    function value(){
-      const mStr=(st.m||(st.e!==null?'1':'')).replace(',','.');if(mStr===''||mStr==='.'||isNaN(+mStr))return null;
-      let v=+mStr*(st.mNeg?-1:1);if(st.e!==null){if(st.e==='')return null;v*=Math.pow(10,(st.eNeg?-1:1)*(+st.e));}return v;
-    }
-    function press(k){
-      if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
-      if(/^[0-9]$/.test(k)){if(mode==='e'){if(st.e.length<3)st.e+=k;}else if(st.m.replace(',','').length<8)st.m+=k;}
-      else if(k===','){if(mode==='m'&&!st.m.includes(','))st.m+=(st.m===''?'0,':',');}
-      else if(k==='neg'){if(mode==='e')st.eNeg=!st.eNeg;else st.mNeg=!st.mNeg;}
-      else if(k==='exp'){if(st.e===null){st.e='';mode='e';}}
-      else if(k==='del'){if(mode==='e'){if(st.e!=='')st.e=st.e.slice(0,-1);else if(st.eNeg)st.eNeg=false;else{st.e=null;mode='m';}}else if(st.m!=='')st.m=st.m.slice(0,-1);else st.mNeg=false;}
-      else if(k==='ac'){st.m='';st.mNeg=false;st.e=null;st.eNeg=false;mode='m';}
-      else if(k==='ok'){const v=value();
-        if(v===null){const msg=$('#scimsg');msg.style.display='block';msg.innerHTML=st.e===''?'Hinter ×10<sup>x</sup> fehlt noch die Hochzahl.':'Bitte zuerst eine Zahl eintippen.';return;}
-        document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);
-        answer(Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`);return;}
-      draw();
-    }
-    el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
-    document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
-      if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='-'||k==='−')m='neg';else if(k==='e'||k==='E'||k==='^')m='exp';
-      else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='ok';
-      if(m){e.preventDefault();press(m);}};
-    draw();},
+  num(t,el){calcPad(t,el,false,v=>[numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`]);},
+  sci(t,el){calcPad(t,el,true,v=>[Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`]);},
   mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
     el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
       el.querySelectorAll('[data-i]').forEach(x=>{x.disabled=true;if(+x.dataset.i===t.correct)x.classList.add('right');});if(!ok)b.classList.add('wrong');answer(ok,'');});},
