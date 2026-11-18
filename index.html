@@ -71,7 +71,8 @@ a.app:hover{transform:translateY(-3px)}
 <script>
 /* Neue Lern-Apps hier eintragen: Ordner, Name, Icon, Beschreibung, localStorage-Schlüssel der App (für die Sterne) */
 const APPS=[
-  {id:'chemie-ka1',dir:'chemie-ka1/',name:'Chemie-Miner',icon:'⛏️',sub:'Chemie Klasse 9 · KA Nr. 1: Massengesetze, Formeln, Reaktionsgleichungen, Stoffmenge, Stöchiometrie, Wasserstoff',key:'chemieMinerKA1_v1',maxStars:27,isNew:true}
+  {id:'chemie-ka1',dir:'chemie-ka1/',name:'Chemie-Miner',icon:'⛏️',sub:'Chemie Klasse 9 · KA Nr. 1: Massengesetze, Formeln, Reaktionsgleichungen, Stoffmenge, Stöchiometrie, Wasserstoff',key:'chemieMinerKA1_v1',maxStars:27,isNew:false},
+  {id:'bio-immun-evo',dir:'bio-immun-evo/',name:'Immun-Festung',icon:'🛡️',sub:'Biologie Klasse 9 · Infektionsverlauf, aktive/passive Immunisierung, Immunantwort, Lamarck &amp; Darwin, Weismann, Urteilsbildung Masernimpfpflicht',key:'bioImmunEvo_v1',maxStars:21,isNew:true}
 ];
 const H=window.LernHub,G=H.get();H.checkGlobal();
 function read(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;}}

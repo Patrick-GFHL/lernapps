@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immun-Festung – Bio KA</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lern-Hub">
+<meta name="theme-color" content="#17171c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17171c; --panel:#2b2b33; --panel2:#35353f; --line:#0b0b0e;
+  --text:#f1efe6; --muted:#a9a7a0; --green:#5fbf3a; --green-d:#3c8a20;
+  --gold:#f2c94c; --red:#e05a47; --blue:#4fa3e0; --dia:#4ee6e0; --stone:#7d7d7d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Atkinson Hyperlegible',ui-monospace,Menlo,Consolas,monospace;font-size:19px;line-height:1.45;
+  background-image:linear-gradient(rgba(255,255,255,.025) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.025) 2px,transparent 2px);
+  background-size:32px 32px;min-height:100vh}
+h1,h2,h3,.pix{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400;letter-spacing:.5px}
+h1{font-size:18px;margin:0;line-height:1.5}
+h2{font-size:15px;margin:0 0 14px;line-height:1.6}
+h3{font-size:12px;margin:0 0 8px;line-height:1.6}
+sub,sup{font-size:.7em;line-height:0}
+button{font-family:inherit;font-size:18px;color:var(--text);cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 14px 60px}
+
+/* ore strip */
+.ores{display:flex;overflow:hidden;height:44px;border-bottom:4px solid var(--line)}
+.ore{flex:0 0 44px;height:44px;position:relative;background:#6f6f6f;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.28),inset 4px 4px 0 rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:rgba(0,0,0,.55)}
+.ore i{position:absolute;width:8px;height:8px}
+/* header */
+header.top{background:#202027;border-bottom:4px solid var(--line)}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;background:var(--green);box-shadow:inset -4px -4px 0 var(--green-d),inset 4px 4px 0 rgba(255,255,255,.3);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px}
+.player{display:flex;align-items:center;gap:12px;flex:1;min-width:260px}
+.rank{display:flex;align-items:center;gap:8px;font-weight:700}
+.rankblock{width:22px;height:22px;border:3px solid var(--line);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.35)}
+.xpbar{flex:1;min-width:120px;height:18px;background:#111;border:3px solid var(--line);position:relative}
+.xpbar>div{height:100%;background:linear-gradient(#8ff05a,#5fbf3a);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);transition:width .5s}
+.xptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-shadow:1px 1px 0 #000}
+.streak{font-weight:700;white-space:nowrap}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;max-width:980px;margin:0 auto}
+
+/* buttons */
+.btn{background:#6d6d78;border:3px solid var(--line);padding:9px 16px;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.22);text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{box-shadow:inset 4px 4px 0 rgba(0,0,0,.35)}
+.btn:disabled{filter:grayscale(1) brightness(.7);cursor:default}
+.btn.green{background:var(--green)}
+.btn.gold{background:#c99a1e}
+.btn.red{background:#b6412f}
+.btn.blue{background:#3b7fb8}
+.btn.small{font-size:16px;padding:6px 12px}
+.btn.on{background:var(--green)}
+
+/* panels */
+.panel{background:var(--panel);border:4px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.3),inset 4px 4px 0 rgba(255,255,255,.07);padding:18px;margin:16px 0}
+.muted{color:var(--muted)}
+.intro p{margin:6px 0}
+
+/* world map */
+.worlds{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.world{background:var(--panel2);border:4px solid var(--line);padding:14px;text-align:left;display:flex;gap:12px;align-items:flex-start;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.08);transition:transform .1s}
+.world:hover{transform:translateY(-3px)}
+.world .ic{font-size:36px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line);flex:0 0 52px}
+.world .nm{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.6;margin-bottom:4px}
+.world .tp{font-size:15px;color:var(--muted);line-height:1.3}
+.stars{color:var(--gold);font-size:20px;letter-spacing:2px;margin-top:6px}
+.stars .off{color:#55545c}
+.world.boss{grid-column:1/-1;background:#3a2346}
+.world.locked{filter:grayscale(.8);opacity:.75}
+.num-badge{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted)}
+.tag{display:inline-block;font-size:13px;background:#5a4a1e;border:2px solid var(--line);padding:0 6px;margin-top:4px}
+
+/* play */
+.playtop{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.prog{flex:1;display:flex;gap:4px;min-width:180px}
+.prog span{flex:1;height:16px;background:#111;border:3px solid var(--line)}
+.prog span.ok{background:var(--green)}
+.prog span.bad{background:var(--red)}
+.prog span.cur{background:#777}
+.hearts{font-size:22px;letter-spacing:2px}
+.combo{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gold)}
+.q{font-size:21px;margin:6px 0 16px}
+.q .eq{display:inline-block;background:#1d1d23;border:3px solid var(--line);padding:6px 12px;margin:8px 0;font-size:22px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input.in{font-family:inherit;font-size:22px;width:170px;padding:8px 10px;background:#111;color:var(--text);border:3px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.6)}
+input.in.exp{width:80px}
+input.in:focus{outline:3px solid var(--blue)}
+.unit{font-size:21px}
+.choices{display:grid;gap:10px}
+.choices .btn{text-align:left;font-size:18px;padding:12px 14px;background:#4a4a55}
+.choices .btn.right{background:var(--green)}
+.choices .btn.wrong{background:var(--red)}
+.fb{margin-top:16px}
+.fb .ok,.fb .bad{font-family:'Press Start 2P',monospace;font-size:12px;padding:10px 12px;border:3px solid var(--line);margin-bottom:10px;line-height:1.6}
+.fb .ok{background:var(--green-d)}
+.fb .bad{background:#8a3328}
+.sol{background:#1d1d23;border:3px solid var(--line);padding:12px 14px;font-size:18px}
+.sol ol{margin:4px 0;padding-left:22px}
+.hintbox{margin-top:12px;background:#4a3f1c;border:3px solid var(--line);padding:10px 12px;font-size:17px}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.taskhead .pix{font-size:10px;color:var(--muted)}
+
+/* element grid */
+.elgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:14px}
+.el{height:64px;font-family:'Press Start 2P',monospace;font-size:15px;background:#5b5b66;border:3px solid var(--line);
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.2)}
+.el.sel{background:var(--blue)}
+.el.right{background:var(--green)}
+.el.wrong{background:var(--red)}
+.el.miss{outline:4px dashed var(--gold);outline-offset:-8px}
+
+/* balance */
+.bal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:24px;margin:6px 0 14px}
+.sp{display:flex;align-items:center;gap:6px;background:#1d1d23;border:3px solid var(--line);padding:6px 8px}
+.sp .co{font-family:'Press Start 2P',monospace;font-size:16px;min-width:26px;text-align:center;color:var(--gold)}
+.sp .st{display:flex;flex-direction:column;gap:3px}
+.sp .st button{width:34px;height:26px;padding:0;font-size:16px;line-height:1;background:#5b5b66;border:2px solid var(--line)}
+.op{font-size:26px;color:var(--muted)}
+table.atoms{border-collapse:collapse;width:100%;font-size:17px;margin-bottom:12px}
+table.atoms td,table.atoms th{border:3px solid var(--line);padding:5px 8px;text-align:left;vertical-align:middle}
+table.atoms th{background:#1d1d23;font-weight:600}
+.blk{display:inline-block;width:13px;height:13px;margin:1px;border:2px solid rgba(0,0,0,.6)}
+.cnt{font-weight:700;margin-right:6px}
+td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
+
+/* order */
+.orderpool,.orderlist{display:grid;gap:8px;margin-bottom:12px}
+.orderlist .item{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.orderlist .item b{color:var(--gold);margin-right:8px}
+
+/* result */
+.result{text-align:center}
+.bigstars{font-size:58px;color:var(--gold);letter-spacing:6px;margin:10px 0}
+.bigstars .off{color:#4d4c55}
+.bigstars span{display:inline-block;animation:pop .45s both}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.boss-art{display:flex;justify-content:center;margin:6px 0 4px}
+
+/* achievements */
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ach{display:flex;gap:12px;align-items:center;background:var(--panel2);border:4px solid var(--line);padding:10px 12px}
+.ach .ai{font-size:30px;width:50px;height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line)}
+.ach .an{font-weight:700;font-size:18px}
+.ach .ad{font-size:15px;color:var(--muted);line-height:1.3}
+.ach.locked .ai{filter:grayscale(1) brightness(.5)}
+.ach.locked .an{color:var(--muted)}
+.ach.got{background:#2f3a28}
+
+/* cheat sheet */
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:#f3ead2;color:#2a2418;border:4px solid var(--line);padding:14px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.12)}
+.card h3{color:#5a3d12}
+.card .f{font-size:21px;margin:4px 0}
+.card table{border-collapse:collapse;width:100%;font-size:16px}
+.card td{border:2px solid #b9a77a;padding:2px 6px}
+
+/* toast */
+#toasts{position:fixed;top:12px;right:12px;display:flex;flex-direction:column;gap:10px;z-index:50;pointer-events:none}
+.toast{background:#212126;border:4px solid var(--line);box-shadow:0 0 0 3px #6d6d78;padding:10px 14px;display:flex;gap:12px;align-items:center;min-width:260px;max-width:340px;animation:tin .4s both}
+.toast .ti{font-size:30px}
+.toast .tt{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);line-height:1.6}
+.toast .tn{font-weight:700}
+.toast.out{animation:tout .4s both}
+@keyframes tin{from{transform:translateX(120%)}to{transform:none}}
+@keyframes tout{to{transform:translateX(130%)}}
+.confetti{position:fixed;top:-20px;width:12px;height:12px;z-index:40;pointer-events:none;border:2px solid rgba(0,0,0,.5);animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+
+.calc{max-width:420px}
+.cdisp{background:#a9b89c;color:#14180f;border:6px solid #1c1c1f;border-radius:6px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.22);padding:8px 12px;min-height:76px;font-size:30px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;margin-bottom:12px;word-break:break-all;display:flex;flex-direction:column;justify-content:space-between}
+.cdisp .cline{text-align:left;min-height:1.2em;letter-spacing:.5px}
+.cdisp .ce{font-size:.78em;margin:0 1px}
+.cdisp .cneg{font-size:.8em;position:relative;top:-.12em;margin-right:1px}
+.cdisp .cunit{text-align:right;font-size:.55em;color:#3b4630}
+.cdisp .cur{display:inline-block;width:.5em;height:.95em;margin-left:2px;background:#2a3320;vertical-align:-.1em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.calc .ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;background:#141416;border:4px solid var(--line);border-radius:10px;padding:12px}
+.ck{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:600;height:54px;color:#fff;background:#2a2a2e;border:none;border-radius:9px;box-shadow:0 4px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);cursor:pointer;touch-action:manipulation}
+.ck:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+.ck.dg{background:#e9e9ec;color:#111}
+.ck.fn{background:#1f1f22;font-size:19px}
+.ck.ok{background:#6f8796;font-size:19px}
+.ck:disabled{filter:grayscale(1) brightness(.7)}
+
+.curvebox{background:#1d1d23;border:3px solid var(--line);padding:6px;margin:8px 0;max-width:520px}
+.curvebox svg{width:100%;height:auto;display:block}
+.mrows{display:grid;gap:10px;margin-bottom:12px}
+.mrow{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.mrow.right{border-color:var(--green)}.mrow.wrong{border-color:var(--red)}
+.ml{font-size:18px;margin-bottom:6px}
+.mopts{display:flex;flex-wrap:wrap;gap:6px}
+.mo,.cw,.chip{font-family:inherit;font-size:16px;color:var(--text);background:#4a4a55;border:3px solid var(--line);padding:6px 10px;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.12);text-align:left}
+.mo.sel,.chip.sel{background:var(--blue)}
+.mo.corr{outline:3px solid var(--green);outline-offset:-3px}
+.mo:disabled,.cw:disabled{cursor:default}
+.cw:disabled{opacity:.35}
+.ctext{font-size:20px;line-height:2.1;background:#1d1d23;border:3px solid var(--line);padding:10px 12px;margin-bottom:12px}
+.slot{font-family:inherit;font-size:17px;min-width:110px;color:var(--text);background:#2b2b33;border:2px dashed #8a8a96;padding:2px 8px;margin:0 2px;cursor:pointer;vertical-align:middle}
+.slot.full{border-style:solid;background:#3b5e86}
+.slot.right{background:var(--green-d);border-color:var(--green)}.slot.wrong{background:#8a3328;border-color:var(--red)}
+.cpool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip.right{background:var(--green)}.chip.wrong{background:var(--red)}.chip.miss{outline:3px dashed var(--gold);outline-offset:-5px}
+.wt{width:100%;min-height:130px;font-family:inherit;font-size:18px;background:#111;color:var(--text);border:3px solid var(--line);padding:10px}
+.checkbox-panel{background:#1d1d23;border:3px solid var(--line);padding:12px;margin-top:12px}
+label.chk{display:flex;gap:10px;align-items:flex-start;font-size:17px;padding:5px 0;cursor:pointer}
+label.chk input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
+.prog span.ok,.prog span.bad{background:#2b2b33}
+textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
+.inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
+@media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="ores" id="ores"></div>
+<header class="top">
+  <div class="hrow">
+    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">🛡</div><h1>Immun-Festung</h1></div>
+    <div class="player">
+      <div class="rank" id="rank"></div>
+      <div class="xpbar"><div id="xpfill" style="width:0"></div><div class="xptxt" id="xptxt"></div></div>
+      <div class="streak" id="streak"></div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="btn small" data-nav="map">🗺 Karte</button>
+    <button class="btn small" data-nav="ach" id="navach">🏆 Erfolge</button>
+    <button class="btn small" data-nav="sheet">📜 Lernzettel</button>
+    <button class="btn small" data-nav="save">💾 Spielstand</button>
+  </nav>
+</header>
+<main class="wrap" id="view"></main>
+<div id="toasts"></div>
+
+<script src="../shared/profil.js"></script>
+<script>
+"use strict";
+/* ============ Daten ============ */
+const KEY='bioImmunEvo_v1';
+const A={H:1,C:12,N:14,O:16,Na:23,Mg:24,Al:27,S:32,Cl:35.5,Ca:40,Fe:56,Cu:63.5,Zn:65};
+const EN={H:'Wasserstoff',C:'Kohlenstoff',N:'Stickstoff',O:'Sauerstoff',Na:'Natrium',Mg:'Magnesium',Al:'Aluminium',S:'Schwefel',Cl:'Chlor',Ca:'Calcium',Fe:'Eisen',Cu:'Kupfer',Zn:'Zink'};
+const NAMES={H2O:'Wasser',CO2:'Kohlenstoffdioxid',O2:'Sauerstoff',H2:'Wasserstoff',N2:'Stickstoff',Cl2:'Chlor',NaCl:'Natriumchlorid',CH4:'Methan',NH3:'Ammoniak',MgO:'Magnesiumoxid',FeS:'Eisensulfid',HCl:'Chlorwasserstoff',H2SO4:'Schwefelsäure',CaCO3:'Calciumcarbonat',Al2O3:'Aluminiumoxid',Fe2O3:'Eisenoxid',CuO:'Kupferoxid',C2H6O:'Ethanol',ZnCl2:'Zinkchlorid',Cu2S:'Kupfersulfid',C3H8:'Propan',AlCl3:'Aluminiumchlorid',FeCl3:'Eisenchlorid',MgCl2:'Magnesiumchlorid',NaOH:'Natriumhydroxid',CO:'Kohlenstoffmonooxid',Cu2O:'rotes Kupferoxid',Na2O:'Natriumoxid',CaCl2:'Calciumchlorid',Fe:'Eisen',Mg:'Magnesium',C:'Kohlenstoff',Cu:'Kupfer',Al:'Aluminium',S:'Schwefel',Zn:'Zink',Na:'Natrium'};
+const ECOL={H:'#f4f4f4',O:'#e0473a',C:'#3a3a3a',N:'#3f7be0',Cl:'#56c24a',Na:'#9b59d0',Mg:'#c9c9d6',Al:'#a9b4bf',S:'#f2d23c',Ca:'#e8e2c8',Fe:'#b8693a',Cu:'#d9813f',Zn:'#7f97a8'};
+const NA=6.022e23, U=1.66e-24;
+
+/* ============ Helfer ============ */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const r2=x=>Math.round(x*100)/100;
+function fmt(x,d=2){const p=Math.pow(10,d);return (Math.round(x*p)/p).toLocaleString('de-DE',{maximumFractionDigits:d});}
+function sci(x){let e=Math.floor(Math.log10(Math.abs(x)));let m=x/Math.pow(10,e);m=Math.round(m*100)/100;if(m>=10){m=m/10;e++;}return fmt(m,2)+' · 10<sup>'+e+'</sup>';}
+const fx=f=>f.replace(/(\d+)/g,'<sub>$1</sub>');
+const nm=f=>NAMES[f]||f;
+function parseF(f){const c={};f.replace(/([A-Z][a-z]?)(\d*)/g,(_,e,n)=>{c[e]=(c[e]||0)+(n?+n:1);return '';});return c;}
+function molar(f){const c=parseF(f);let s=0;for(const e in c)s+=A[e]*c[e];return Math.round(s*10)/10;}
+function breakdown(f){const c=parseF(f);return Object.keys(c).map(e=>(c[e]>1?c[e]+' · ':'')+fmt(A[e],1)+' u').join(' + ');}
+function coefHtml(c,f){return (c>1?c+' ':'')+fx(f);}
+function eqHtml(sp,nr){const l=sp.slice(0,nr).map(s=>coefHtml(s[1],s[0])).join(' + ');const r=sp.slice(nr).map(s=>coefHtml(s[1],s[0])).join(' + ');return l+' → '+r;}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+
+/* ============ Aufgaben-Bausteine ============ */
+function num(q,ans,unit,sol,hint,o){return Object.assign({kind:'num',q,ans,unit,sol,hint},o||{});}
+function sciT(q,ans,unit,sol,hint,o){return Object.assign({kind:'sci',q,ans,unit,sol,hint},o||{});}
+function mc(q,choices,e,o){const idx=shuffle(choices.map((_,i)=>i));return Object.assign({kind:'mc',q,choices:idx.map(i=>choices[i]),correct:idx.indexOf(0),sol:e},o||{});}
+const poolMC=p=>mc(p.q,p.c,p.e);
+
+/* ============ Biologie-Inhalte: Immunbiologie & Evolution ============ */
+const norm=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function tfT(q,a,e){return {kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e};}
+function matchT(q,rows,opts,sol,o){return Object.assign({kind:'match',q,rows,opts,sol},o||{});}
+function sortT(q,pool,n,opts,sol){const rows=pickN(pool,n).map(([l,a])=>({l,a}));return matchT(q,rows,opts,sol);}
+function pairT(q,pairs,n,sol){const sel=pickN(pairs,n);const opts=shuffle(sel.map(p=>p[1]));return matchT(q,sel.map(p=>({l:p[0],a:opts.indexOf(p[1])})),opts,sol);}
+function clozeT(q,text,distract,sol,o){const ans=[];text.replace(/\[([^\]]+)\]/g,(_,w)=>{ans.push(w);return '';});return Object.assign({kind:'cloze',q,text,ans,pool:shuffle(ans.concat(distract)),sol},o||{});}
+function orderT(q,steps,sol){return {kind:'order',q,steps,sol:sol||'<ol>'+steps.map(s=>'<li>'+s+'</li>').join('')+'</ol>'};}
+function writeT(q,keys,model,hint,need){return {kind:'write',q,keys,model,hint,need:need||Math.ceil(keys.length*0.6),sol:''};}
+function multiT(q,opts,ans,sol){const idx=shuffle(opts.map((_,i)=>i));return {kind:'multi',q,opts:idx.map(i=>opts[i]),ans:ans.map(a=>idx.indexOf(a)),sol};}
+
+/* ---------- Fieberkurve ---------- */
+const CURVE=[[0,36.8],[1,36.8],[2,36.8],[3,36.8],[4,40],[5,39.47],[6,38.93],[7,38.4],[8,37.87],[9,37.33],[10,36.8]];
+const ZONES={a:[0,3],b:[3,4],c:[4,10]};
+function curveSvg(st,clickable){
+  const X=d=>40+d*28.5,Y=T=>162-(T-36)*30;
+  let s=`<svg viewBox="0 0 340 196" class="curve" xmlns="http://www.w3.org/2000/svg">`;
+  for(let T=37;T<=40;T++)s+=`<line x1="40" x2="325" y1="${Y(T)}" y2="${Y(T)}" stroke="#3a3a44" stroke-width="1"/><text x="34" y="${Y(T)+4}" fill="#a9a7a0" font-size="11" text-anchor="end">${T}</text>`;
+  for(let d=0;d<=10;d++)s+=`<text x="${X(d)}" y="178" fill="#a9a7a0" font-size="11" text-anchor="middle">${d}</text>`;
+  s+=`<text x="182" y="193" fill="#a9a7a0" font-size="10" text-anchor="middle">Tag</text><text x="6" y="12" fill="#a9a7a0" font-size="10">°C</text>`;
+  s+=`<line x1="40" y1="10" x2="40" y2="162" stroke="#a9a7a0"/><line x1="40" y1="162" x2="325" y2="162" stroke="#a9a7a0"/>`;
+  Object.keys(ZONES).forEach(z=>{const [a,b]=ZONES[z];let fill='rgba(255,255,255,0)';
+    if(st){if(z===st.corr)fill='rgba(95,191,58,.35)';else if(z===st.sel)fill='rgba(224,90,71,.35)';}
+    s+=`<rect data-z="${z}" x="${X(a)}" y="10" width="${X(b)-X(a)}" height="152" fill="${fill}" stroke="${clickable?'rgba(255,255,255,.25)':'none'}" stroke-dasharray="4 3" style="${clickable?'cursor:pointer':''}"/>`;});
+  s+=`<polyline points="${CURVE.map(([d,T])=>X(d)+','+Y(T)).join(' ')}" fill="none" stroke="#e05a47" stroke-width="3.5" stroke-linejoin="round" style="pointer-events:none"/>`;
+  CURVE.forEach(([d,T])=>{s+=`<rect x="${X(d)-3}" y="${Y(T)-3}" width="6" height="6" fill="#f2c94c" style="pointer-events:none"/>`;});
+  return s+'</svg>';
+}
+const ZNAME={a:'Gesund / Inkubationszeit',b:'Krankheitsphase',c:'Genesung'};
+const ZEXP={a:'Tag 0 bis 3: Die Temperatur ist normal (ca. 36,8 °C). Die Erreger vermehren sich unbemerkt, das ist die <b>Inkubationszeit</b>.',
+  b:'Tag 3 bis 4: Die Temperatur steigt steil auf 40 °C, das ist die <b>Krankheitsphase</b> mit hohem Fieber.',
+  c:'Tag 4 bis 10: Die Temperatur sinkt langsam wieder auf den Normalwert, das ist die <b>Genesung</b>.'};
+function gCurveZone(){const z=pick(['a','b','c']);const label={a:'Inkubationszeit',b:'Krankheitsphase',c:'Genesung'}[z];
+  return {kind:'curve',zone:z,q:`Fieberkurve einer Grippe: Tippe auf den Abschnitt der <b>${label}</b>.`,sol:ZEXP[z]};}
+function gCurveNum(){
+  const [q,a,u,e]=pick([
+    ['Ab welchem Tag steigt die Temperatur steil an?',3,'Tag','Ab <b>Tag 3</b> steigt die Kurve steil an.'],
+    ['Wie hoch ist das Fieber auf seinem Höhepunkt?',40,'°C','Der Höhepunkt liegt bei <b>40 °C</b> (Tag 4).'],
+    ['An welchem Tag ist die Temperatur wieder normal?',10,'Tag','An <b>Tag 10</b> ist wieder der Normalwert (ca. 36,8 °C) erreicht.'],
+    ['Wie viele Tage dauert der langsame Temperaturabfall?',6,'Tage','Von Tag 4 bis Tag 10 sind es <b>6 Tage</b>.'],
+    ['Um wie viel Grad steigt die Temperatur vom Normalwert (36,8 °C) bis zum Höhepunkt?',3.2,'°C','40 °C − 36,8 °C = <b>3,2 °C</b>.']]);
+  return num(`<div class="curvebox">${curveSvg(null,false)}</div>${q}`,a,u,e,'Lies den Wert an der Kurve ab: unten die Tage, links die Temperatur.',{tol:Number.isInteger(a)?0:0.02});
+}
+function gPhaseMatch(){return matchT('Ordne den drei Phasen im Kurvenverlauf den passenden Fachbegriff zu.',
+  [{l:'a) Anfangszustand (Tag 0 bis 3, konstante Temperatur)',a:0},{l:'b) Steiler Temperaturanstieg / hohes Fieber (Tag 3 bis 4)',a:1},{l:'c) Langsamer Temperaturabfall / Erholung (Tag 4 bis 10)',a:2}],
+  ['Gesund / Inkubationszeit','Krankheitsphase','Genesung'],'a) Gesund / Inkubationszeit · b) Krankheitsphase · c) Genesung');}
+const MC_V=[
+ {q:'Was passiert während der Inkubationszeit?',c:['Die Erreger vermehren sich im Körper, ohne dass man etwas merkt','Man hat hohes Fieber','Der Körper hat die Erreger schon besiegt','Man ist bereits immun'],e:'Inkubationszeit = Zeit zwischen Ansteckung und ersten Symptomen. Die Erreger vermehren sich <b>unbemerkt</b>.'},
+ {q:'Wie nennt man die Zeit zwischen Ansteckung und ersten Krankheitszeichen?',c:['Inkubationszeit','Genesung','Krankheitsphase','Immunisierung'],e:'Das ist die <b>Inkubationszeit</b>.'},
+ {q:'Welches Merkmal trifft typischerweise auf die Inkubationszeit zu?',c:['Keine sichtbaren oder spürbaren Symptome (Erreger vermehren sich unbemerkt)','Frieren, Kopf- und Gliederschmerzen','Husten, Schnupfen, Bronchitis','Hohes Fieber'],e:'In der Inkubationszeit gibt es <b>noch keine Symptome</b>.'},
+ {q:'Warum bekommt man bei einer Infektion Fieber?',c:['Die höhere Temperatur hemmt die Vermehrung der Erreger und beschleunigt die Abwehr','Weil die Erreger Wärme erzeugen','Weil man zu wenig trinkt','Fieber hat keinen Nutzen'],e:'Fieber ist eine <b>Abwehrreaktion</b> des Körpers.'},
+ {q:'Was beschreibt die Genesung?',c:['Die Abwehr hat gewonnen, die Temperatur sinkt langsam wieder auf normal','Die Erreger vermehren sich unbemerkt','Die Temperatur steigt steil an','Man steckt sich gerade an'],e:'<b>Genesung</b> = Erholung, die Temperatur sinkt langsam.'},
+ {q:'Welche Körpertemperatur gilt in der Aufgabe als Ausgangswert?',c:['ca. 36,8 °C','ca. 40 °C','ca. 38,5 °C','ca. 35 °C'],e:'Ausgangswert: ca. <b>36,8 °C</b>.'}
+];
+const TF_V=[
+ ['Während der Inkubationszeit hat man schon hohes Fieber.',false,'Falsch: In der Inkubationszeit merkt man noch nichts.'],
+ ['In der Kurve steigt die Temperatur innerhalb von etwa einem Tag auf 40 °C.',true,'Richtig: von Tag 3 auf Tag 4.'],
+ ['In der Genesung sinkt die Temperatur an einem einzigen Tag auf normal.',false,'Falsch: Sie sinkt langsam über mehrere Tage (Tag 4 bis 10).'],
+ ['Grippe wird durch Viren ausgelöst.',true,'Richtig: durch Influenzaviren.'],
+ ['Antibiotika helfen gegen Grippeviren.',false,'Falsch: Antibiotika wirken nur gegen Bakterien, nicht gegen Viren.'],
+ ['Fieber ist eine Abwehrreaktion des Körpers.',true,'Richtig: Die höhere Temperatur hilft bei der Abwehr.']
+];
+const wrTemp=()=>writeT(`<div class="curvebox">${curveSvg(null,false)}</div><b>Beschreibe</b> den Temperaturverlauf im Diagramm in eigenen Worten.`,
+  [['Anfangs normale Temperatur (ca. 36,8 °C)',['36,8','36.8','normal']],['Ab Tag 3 steiler Anstieg',['steil','schnell','stark','steigt','anstieg']],['Hohes Fieber bis 40 °C',['40']],['Danach langsames Absinken',['sinkt','absink','faellt','abfall','langsam','runter']],['Bis Tag 10 wieder normal',['10']]],
+  'Die Körpertemperatur liegt zu Beginn im normalen Bereich (ca. 36,8 °C). Ab Tag 3 steigt sie innerhalb eines Tages steil auf hohes Fieber (40 °C) an. Danach sinkt die Temperatur bis zum 10. Tag langsam und kontinuierlich wieder auf den Normalwert ab.',
+  'Gehe die Kurve von links nach rechts durch: Anfangswert → Anstieg (wann, wie schnell, wie hoch) → Abfall (wie schnell, bis wann).');
+
+/* ---------- Impf-Schmiede ---------- */
+const IMPF=[
+ ['Abgeschwächte oder abgetötete Erreger werden gespritzt',0],['Fertige Antikörper werden gespritzt',1],['Der Körper bildet selbst Antikörper',0],
+ ['Der Schutz wirkt sofort',1],['Der Schutz baut sich erst nach einiger Zeit auf',0],['Es entstehen Gedächtniszellen',0],['Der Schutz hält oft viele Jahre',0],
+ ['Der Schutz ist nur vorübergehend, die fremden Antikörper werden abgebaut',1],['Notfall nach möglicher Ansteckung, z. B. Verdacht auf Tetanus',1],
+ ['Vorbeugende Schutzimpfung, z. B. im Kindesalter',0],['Die Antikörper stammen von immunisierten Tieren oder Spendern',1],['Das eigene Immunsystem wird nicht aktiviert',1]
+];
+const gImpfSort=()=>sortT('Aktive oder passive Immunisierung? Ordne jede Aussage zu.',IMPF,5,['aktiv','passiv'],'<b>Aktiv:</b> abgeschwächte/abgetötete Erreger, Körper bildet selbst Antikörper und Gedächtniszellen, Schutz dauert, hält lange.<br><b>Passiv:</b> fertige Antikörper, Schutz sofort, aber nur vorübergehend, keine Gedächtniszellen.');
+const CL_I=[
+ ['Bei der aktiven Immunisierung werden [abgeschwächte] oder abgetötete Erreger gespritzt. Das Immunsystem erkennt sie als fremd und bildet selbst [Antikörper] und [Gedächtniszellen]. So entsteht ein [langfristiger] Schutz.',['fertige','Antibiotika','kurzer']],
+ ['Bei der passiven Immunisierung bekommt man [fertige] Antikörper gespritzt. Der Schutz wirkt [sofort], hält aber nur [kurz], weil keine [Gedächtniszellen] gebildet werden.',['abgeschwächte','langsam','lange','Viren']]
+];
+const gImpfCloze=()=>{const [t,d]=pick(CL_I);return clozeT('Fülle die Lücken: Tippe auf ein Wort, es wandert in die nächste freie Lücke. Tippe auf eine Lücke, um sie zu leeren.',t,d,'');};
+const MC_I=[
+ {q:'Warum bekommt man bei Verdacht auf Tetanus oft eine passive Immunisierung?',c:['Sie schützt sofort, für eigene Antikörper bleibt keine Zeit','Sie schützt lebenslang','Sie bildet Gedächtniszellen','Sie ist am billigsten'],e:'Im Notfall zählt Zeit: <b>fertige Antikörper</b> wirken sofort.'},
+ {q:'Warum bietet die passive Immunisierung keinen langfristigen Schutz?',c:['Die fremden Antikörper werden abgebaut und es entstehen keine Gedächtniszellen','Die Antikörper vermehren sich zu stark','Weil die Erreger zu stark sind','Weil man sie nur einmal bekommt'],e:'Das eigene Immunsystem wird nicht aktiviert, also gibt es <b>keine Gedächtniszellen</b>.'},
+ {q:'Was enthält ein Impfstoff für die aktive Immunisierung?',c:['Abgeschwächte oder abgetötete Erreger bzw. Erregerbestandteile (Antigene)','Fertige Antikörper','Antibiotika','Vitamine'],e:'Der Körper soll den Erreger <b>kennenlernen</b>, ohne krank zu werden.'},
+ {q:'Woher stammen die Antikörper bei der passiven Immunisierung?',c:['Aus dem Blut immunisierter Tiere oder menschlicher Spender','Aus dem eigenen Körper','Aus Bakterien','Aus Pflanzen'],e:'Sie werden <b>von anderen</b> gebildet und dann gespritzt.'},
+ {q:'Warum muss man manche Impfungen auffrischen?',c:['Weil der Schutz mit der Zeit nachlassen kann','Weil der Impfstoff im Körper verdirbt','Weil man sonst Fieber bekommt','Das muss man nie'],e:'Auffrischen = das Immungedächtnis <b>erneut anregen</b>.'},
+ {q:'Was bedeutet „aktiv“ bei der aktiven Immunisierung?',c:['Das eigene Immunsystem wird aktiv und bildet selbst Antikörper','Man muss sich danach sportlich betätigen','Die Erreger sind besonders aktiv','Der Arzt ist aktiv'],e:'Der <b>eigene Körper</b> arbeitet selbst.'}
+];
+const wrAktiv=()=>writeT('<b>Aktive Immunisierung:</b> Welches Prinzip steckt dahinter und wie reagiert der eigene Körper darauf?',
+  [['Abgeschwächte/abgetötete Erreger bzw. Antigene werden gespritzt',['abgeschw','abgetoet','tot','antigen','erreger']],['Immunsystem erkennt sie als fremd',['fremd','erkenn']],['Körper bildet selbst Antikörper',['antikoerper']],['Gedächtniszellen entstehen',['gedaechtnis']],['Langfristiger Schutz',['langfrist','lange','jahre','dauerhaft']]],
+  'Dem Körper werden abgeschwächte oder abgetötete Erreger bzw. Erregerantigene gespritzt. Das Immunsystem erkennt diese als fremd, bildet selbstständig spezifische Antikörper sowie Gedächtniszellen und baut so einen langfristigen Immunschutz auf.',
+  'Begriffe, die rein sollten: abgeschwächte Erreger, als fremd erkannt, Antikörper, Gedächtniszellen, langfristig.');
+const wrPassiv=()=>writeT('<b>Passive Immunisierung:</b> In welchen Situationen (z. B. nach möglicher Infektion mit Tetanus oder Tollwut) wird sie angewendet, und warum wirkt sie sofort, bietet aber keinen langfristigen Schutz?',
+  [['Notfall/Verdacht, keine Zeit für eigene Abwehr',['notfall','verdacht','akut','keine zeit','schnell']],['Fertige Antikörper werden gespritzt',['fertig']],['Schutz wirkt sofort',['sofort']],['Keine Gedächtniszellen, eigenes Immunsystem nicht aktiviert',['gedaechtnis','nicht aktiv']],['Fremde Antikörper werden abgebaut, Schutz vorübergehend',['abgebaut','abbau','voruebergehend','kurz']]],
+  'Sie wird im akuten Verdachtsfall angewendet, wenn keine Zeit für die eigene Antikörperbildung bleibt. Dem Patienten werden bereits fertige Antikörper (aus dem Blut immunisierter Tiere oder menschlicher Spender) injiziert. Dadurch setzt die Schutzwirkung sofort ein. Da das eigene Immunsystem jedoch nicht aktiviert wird und keine Gedächtniszellen bildet, werden die fremden Antikörper nach einiger Zeit abgebaut und der Schutz ist nur vorübergehend.',
+  'Begriffe: Notfall, fertige Antikörper, sofort, keine Gedächtniszellen, abgebaut.');
+
+/* ---------- Abwehr-Kaserne ---------- */
+const CELLS=[['B-Zellen','bilden nach Aktivierung massenhaft passende Antikörper'],['T-Killerzellen','erkennen und zerstören von Viren befallene Körperzellen'],['T-Helferzellen','aktivieren B-Zellen und T-Killerzellen'],['Gedächtniszellen','merken sich den Erreger, beim nächsten Mal geht die Abwehr viel schneller'],['Fresszellen (Makrophagen)','fressen Erreger und zeigen deren Antigene den T-Helferzellen']];
+const gCellMatch=()=>pairT('Welche Immunzelle hat welche Aufgabe?',CELLS,4,CELLS.map(c=>`<b>${c[0]}:</b> ${c[1]}`).join('<br>'));
+const HZ=[['B-Zellen',0],['Antikörper',0],['T-Killerzellen',1],['Zerstören befallener Körperzellen',1],['Verklumpen von Viren',0],['Abwehr in den Körperflüssigkeiten',0]];
+const gHumZell=()=>sortT('Humorale oder zelluläre Immunantwort?',HZ,4,['humoral','zellulär'],'<b>Humoral</b> (in Körperflüssigkeiten): B-Zellen und Antikörper.<br><b>Zellulär</b>: T-Killerzellen zerstören befallene Zellen.');
+const ORDER_IM=['Viren dringen in den Körper ein','Fresszellen nehmen Viren auf und präsentieren deren Antigene','T-Helferzellen erkennen das Antigen und werden aktiviert','T-Helferzellen aktivieren passende B-Zellen und T-Killerzellen','B-Zellen bilden Antikörper, T-Killerzellen zerstören befallene Zellen','Antikörper verklumpen die Viren, Gedächtniszellen bleiben zurück'];
+const gOrderIm=()=>orderT('<b>Spezifische Immunantwort:</b> Tippe die Schritte in der richtigen Reihenfolge an.',ORDER_IM);
+const MC_A=[
+ {q:'Was ist ein Antigen?',c:['Ein Merkmal auf der Oberfläche eines Erregers, das das Immunsystem erkennt','Ein Medikament gegen Viren','Eine Immunzelle','Ein Abwehrstoff im Blut'],e:'Antigene sind die <b>Erkennungsmerkmale</b> des Erregers.'},
+ {q:'Wie passen Antikörper und Antigen zusammen?',c:['Wie Schlüssel und Schloss: Jeder Antikörper passt nur zu einem bestimmten Antigen','Jeder Antikörper passt zu allen Antigenen','Gar nicht','Wie Magnet und Eisen'],e:'<b>Schlüssel-Schloss-Prinzip</b>, deshalb heißt die Abwehr spezifisch.'},
+ {q:'Was machen Antikörper mit Viren?',c:['Sie verklumpen die Viren und machen sie unschädlich','Sie fressen die Viren','Sie zerstören befallene Körperzellen','Sie vermehren die Viren'],e:'Antikörper <b>verklumpen</b> Viren, Fresszellen räumen sie danach weg.'},
+ {q:'Welche Zellen zerstören von Viren befallene Körperzellen?',c:['T-Killerzellen','B-Zellen','Rote Blutkörperchen','Gedächtniszellen'],e:'Das machen die <b>T-Killerzellen</b> (zelluläre Immunantwort).'},
+ {q:'Warum wird man bei einer zweiten Infektion mit demselben Erreger meist nicht krank?',c:['Gedächtniszellen erkennen den Erreger, die Abwehr startet sehr schnell','Der Erreger ist beim zweiten Mal schwächer','Das Fieber bleibt im Körper','Weil man Antibiotika hat'],e:'<b>Gedächtniszellen</b> sorgen für eine schnelle, starke Antwort.'},
+ {q:'Warum heißt die Immunantwort der B-Zellen „humoral“?',c:['Antikörper wirken in den Körperflüssigkeiten (lat. humor = Flüssigkeit)','Weil sie lustig ist','Weil sie in den Knochen stattfindet','Weil sie nur in Zellen wirkt'],e:'humor = <b>Flüssigkeit</b>.'},
+ {q:'Wer aktiviert die B-Zellen?',c:['T-Helferzellen','T-Killerzellen','Rote Blutkörperchen','Antibiotika'],e:'<b>T-Helferzellen</b> geben das Startsignal.'}
+];
+const gImCloze=()=>clozeT('Fülle die Lücken.','B-Zellen werden durch [T-Helferzellen] aktiviert, teilen sich und bilden massenhaft [Antikörper]. Diese [verklumpen] die Viren. T-Killerzellen [zerstören] befallene Körperzellen.',['Fresszellen','Antibiotika','vermehren','heilen'],'');
+const wrB=()=>writeT('Beschreibe kurz die Aufgabe der <b>B-Zellen</b> (humorale Immunantwort) bei der Bekämpfung von Viren.',
+  [['Nehmen Erreger/Antigen auf bzw. erkennen ihn',['antigen','erkenn','nehmen','erreger']],['Werden durch T-Helferzellen aktiviert',['helfer']],['Teilen sich',['teil','vermehr']],['Bilden Antikörper',['antikoerper']],['Antikörper verklumpen Viren, machen sie unschädlich',['verklump','unschaedlich','binden']],['Gedächtniszellen entstehen',['gedaechtnis']]],
+  'B-Zellen nehmen den Erreger (das Antigen) auf, werden durch T-Helferzellen aktiviert, teilen sich und produzieren massenhaft spezifische <b>Antikörper</b>, welche die Viren verklumpen und unschädlich machen. Zudem entstehen B-Gedächtniszellen.',
+  'Stichworte: Antigen, T-Helferzellen, teilen, Antikörper, verklumpen, Gedächtniszellen.',4);
+const wrT=()=>writeT('Beschreibe kurz die Aufgabe der <b>T-Killerzellen</b> (zelluläre Immunantwort) bei der Bekämpfung von Viren.',
+  [['Werden durch T-Helferzellen aktiviert',['helfer']],['Erkennen vom Virus befallene Körperzellen',['befallen','infiziert','koerperzell']],['Zerstören diese Zellen gezielt',['zerstoer','toet','vernicht','kill']],['Stoppen so die Vermehrung der Viren',['vermehr','stopp','verhinder','ausbreit']]],
+  'T-Killerzellen werden durch T-Helferzellen aktiviert, erkennen bereits vom Virus befallene Körperzellen und <b>zerstören</b> diese gezielt, um eine weitere Vermehrung der Viren im Körper zu stoppen.',
+  'Stichworte: T-Helferzellen, befallene Körperzellen, zerstören, Vermehrung stoppen.',3);
+
+/* ---------- Lamarcks Turm ---------- */
+const ORDER_L=['Die Vorfahren der Giraffen hatten kurze Hälse','Sie hatten das Bedürfnis, an hoch hängende Blätter zu kommen','Sie streckten ihren Hals ständig (Gebrauch)','Dadurch wurde der Hals im Laufe ihres Lebens länger','Diese erworbene Eigenschaft vererbten sie an ihre Nachkommen','Über viele Generationen entstanden so immer längere Hälse'];
+const gOrderL=()=>orderT('<b>Lamarcks Erklärung</b> für den langen Giraffenhals: Bring die Schritte in die richtige Reihenfolge.',ORDER_L);
+const MC_L=[
+ {q:'Was meinte Lamarck mit „Gebrauch und Nichtgebrauch“?',c:['Häufig benutzte Organe werden stärker, ungenutzte verkümmern','Alle Organe bleiben immer gleich','Tiere suchen sich ihre Organe aus','Nur kranke Organe verändern sich'],e:'Gebrauch stärkt, <b>Nichtgebrauch lässt verkümmern</b>.'},
+ {q:'Was bedeutet „Vererbung erworbener Eigenschaften“?',c:['Was ein Lebewesen im Laufe seines Lebens verändert, gibt es an seine Nachkommen weiter','Nur angeborene Merkmale werden vererbt','Eigenschaften kann man kaufen','Nachkommen sind immer anders als die Eltern'],e:'Das ist Lamarcks Kernidee. Heute weiß man: <b>Das stimmt so nicht</b>.'},
+ {q:'Welche Aussage passt zu Lamarck?',c:['Giraffen bekamen lange Hälse, weil sie sich ständig nach Blättern streckten','Giraffen mit zufällig längerem Hals überlebten häufiger','Weismann bewies Lamarcks Theorie','Arten verändern sich nie'],e:'Strecken (Gebrauch) + Vererbung = <b>Lamarck</b>.'},
+ {q:'Was treibt laut Lamarck die Veränderung an?',c:['Ein inneres Bedürfnis und der Gebrauch der Organe','Zufällige Unterschiede und Auslese','Nur das Klima','Gar nichts'],e:'Laut Lamarck: <b>Bedürfnis + Gebrauch</b>.'},
+ {q:'Ein Bodybuilder trainiert sich große Muskeln an. Was würde Lamarck vorhersagen?',c:['Seine Kinder werden mit stärkeren Muskeln geboren','Seine Kinder haben normale Muskeln','Seine Muskeln werden kleiner','Nichts davon'],e:'So würde Lamarck argumentieren. Tatsächlich werden <b>antrainierte Muskeln nicht vererbt</b>.'}
+];
+const gLCloze=()=>clozeT('Fülle die Lücken zu Lamarcks Theorie.','Nach Lamarck hatten Giraffen ursprünglich [kurze] Hälse. Um an hohe Blätter zu kommen, [streckten] sie ihren Hals ständig (Gebrauch der Organe). Dadurch wurde er im Laufe des [Lebens] länger, und diese [erworbene] Eigenschaft wurde an die Nachkommen [vererbt].',['lange','zufällige','Generationen','angeborene'],'');
+const TF_L=[
+ ['Lamarck erklärte die Entstehung neuer Merkmale durch Gebrauch und Nichtgebrauch.',true,'Richtig.'],
+ ['Laut Lamarck gab es schon immer zufällige Unterschiede in der Halslänge.',false,'Falsch: Das ist <b>Darwins</b> Idee (Variabilität).'],
+ ['Heute weiß man, dass im Leben erworbene Eigenschaften in der Regel nicht vererbt werden.',true,'Richtig, siehe Weismanns Versuch.'],
+ ['Lamarck lebte vor Darwin.',true,'Richtig: Lamarck stellte seine Theorie 1809 vor, Darwins Hauptwerk erschien 1859.']
+];
+const wrL=()=>writeT('<b>Lamarcks Erklärung:</b> Wie begründete Lamarck die Entstehung des langen Halses? Verwende die Fachbegriffe <i>Gebrauch/Nichtgebrauch</i> und <i>Vererbung erworbener Eigenschaften</i>.',
+  [['Ursprünglich kurze Hälse',['kurz']],['Bedürfnis, hohe Blätter zu erreichen',['beduerf','blaett','hoch','nahrung']],['Hals strecken = Gebrauch',['streck','gebrauch']],['Hals wird im Laufe des Lebens länger',['laenger','leben']],['Erworbene Eigenschaft wird vererbt',['vererb','erworben','nachkommen']]],
+  'Alle Giraffen hatten ursprünglich kurze Hälse. Durch das innere Bedürfnis, an hoch hängende Blätter zu gelangen, streckten sie ihren Hals intensiv (<b>Gebrauch von Organen</b>). Dadurch verlängerte sich der Hals im Laufe des Lebens eines Individuums, und diese <b>erworbene Eigenschaft wurde an die Nachkommen vererbt</b>.',
+  'Stichworte: kurze Hälse, Bedürfnis, strecken (Gebrauch), im Leben länger, vererbt.');
+
+/* ---------- Darwins Insel ---------- */
+const ORDER_D=['Giraffen unterscheiden sich von Geburt an zufällig in der Halslänge (Variabilität)','Es werden mehr Nachkommen geboren, als überleben können (Überproduktion)','Es herrscht Konkurrenz um die Nahrung','Giraffen mit längerem Hals erreichen mehr Blätter und überleben häufiger (natürliche Selektion)','Sie geben ihre vorteilhaften Erbanlagen an mehr Nachkommen weiter','Über viele Generationen werden die Hälse in der Population länger'];
+const gOrderD=()=>orderT('<b>Darwins Erklärung</b> für den langen Giraffenhals: Bring die Schritte in die richtige Reihenfolge.',ORDER_D);
+const DEF=[['Variabilität','Die Individuen einer Art unterscheiden sich zufällig in ihren erblichen Merkmalen'],['Überproduktion','Es werden mehr Nachkommen geboren, als überleben können'],['Natürliche Selektion','Die am besten Angepassten überleben häufiger und haben mehr Nachkommen'],['Konkurrenz','Wettbewerb um begrenzte Nahrung und Lebensraum'],['Vererbung','Vorteilhafte Erbanlagen werden an die Nachkommen weitergegeben']];
+const gDefMatch=()=>pairT('Ordne jedem Fachbegriff aus Darwins Theorie die passende Bedeutung zu.',DEF,4,DEF.map(d=>`<b>${d[0]}:</b> ${d[1]}`).join('<br>'));
+const LD=[['Giraffen streckten ihren Hals, dadurch wurde er länger',0],['Es gab schon immer zufällige Unterschiede in der Halslänge',1],['Erworbene Eigenschaften werden vererbt',0],['Die am besten Angepassten überleben und vermehren sich',1],['Ein inneres Bedürfnis führt zur Veränderung',0],['Es werden mehr Nachkommen geboren, als überleben',1],['Gebrauch stärkt ein Organ, Nichtgebrauch lässt es verkümmern',0],['Nur angeborene, erbliche Merkmale werden weitergegeben',1]];
+const gLDSort=()=>sortT('Lamarck oder Darwin? Ordne jede Aussage zu.',LD,5,['Lamarck','Darwin'],'<b>Lamarck:</b> Bedürfnis, Gebrauch/Nichtgebrauch, Vererbung erworbener Eigenschaften.<br><b>Darwin:</b> Variabilität, Überproduktion, natürliche Selektion, Vererbung angeborener Merkmale.');
+const MC_D=[
+ {q:'Was bedeutet „survival of the fittest“?',c:['Überleben der am besten Angepassten','Überleben der Stärksten','Überleben der Größten','Überleben der Schnellsten'],e:'„fit“ heißt hier <b>angepasst</b>, nicht stark.'},
+ {q:'Warum herrscht laut Darwin Konkurrenz?',c:['Es entstehen mehr Nachkommen, als Nahrung für alle da ist','Weil Tiere sich nicht mögen','Weil alle Tiere gleich sind','Es gibt keine Konkurrenz'],e:'<b>Überproduktion</b> + begrenzte Nahrung = Konkurrenz.'},
+ {q:'Woher kommen die Unterschiede in der Halslänge laut Darwin?',c:['Sie sind zufällig und erblich, schon von Geburt an','Vom Strecken des Halses','Vom Futter','Vom Wetter'],e:'Das ist die <b>Variabilität</b>.'},
+ {q:'Was wird laut Darwin an die Nachkommen weitergegeben?',c:['Die angeborenen, vorteilhaften Erbanlagen','Die im Leben erworbenen Veränderungen','Gar nichts','Nur Krankheiten'],e:'Nur <b>erbliche</b> Merkmale werden weitergegeben.'},
+ {q:'Was ist der wichtigste Unterschied zwischen Lamarck und Darwin?',c:['Lamarck: erworbene Eigenschaften werden vererbt. Darwin: zufällige erbliche Unterschiede und Auslese','Es gibt keinen Unterschied','Lamarck glaubte an Selektion, Darwin nicht','Darwin lebte vor Lamarck'],e:'Bei Darwin <b>wählt die Umwelt aus</b>. Bei Lamarck verändert sich das Tier selbst.'}
+];
+const wrD=()=>writeT('<b>Darwins Erklärung:</b> Wie erklärt die Evolutionstheorie durch natürliche Selektion den langen Hals? Berücksichtige <i>Variabilität</i>, <i>Überproduktion von Nachkommen</i> und <i>natürliche Selektion</i>.',
+  [['Variabilität: zufällige erbliche Unterschiede',['variab','unterschied','zufaell']],['Überproduktion von Nachkommen',['ueberprod','mehr nachkommen']],['Konkurrenz um Nahrung',['konkurr','nahrung','wettbewerb','futter']],['Langhalsige überleben häufiger (Selektion)',['selekt','ueberleb','auslese']],['Geben Erbanlagen an Nachkommen weiter',['erbanlage','vererb','weitergeb','nachkommen']]],
+  'Innerhalb einer Giraffenpopulation gibt es bereits von Geburt an zufällige, erbliche Unterschiede bei der Halslänge (<b>Variabilität</b>). Da mehr Nachkommen geboren werden, als überleben können (<b>Überproduktion</b>), herrscht Konkurrenz um Nahrung. Giraffen mit von Natur aus etwas längeren Hälsen erreichen höhere Blätter, überleben häufiger (<b>natürliche Selektion</b>) und geben ihre vorteilhaften Erbanlagen an mehr Nachkommen weiter.',
+  'Stichworte: zufällige Unterschiede, mehr Nachkommen als überleben, Konkurrenz, überleben häufiger, Erbanlagen weitergeben.');
+
+/* ---------- Mäuse-Labor (Weismann) ---------- */
+const ORDER_W=['Weismann schnitt Mäusen die Schwänze ab','Diese Mäuse paarten sich','Die Nachkommen wurden geboren, mit normal langen Schwänzen','Auch den Nachkommen wurden die Schwänze abgeschnitten','Das wiederholte er über 22 Generationen','Ergebnis: Die Schwänze wurden nie kürzer, erworbene Merkmale werden nicht vererbt'];
+const gOrderW=()=>orderT('<b>Weismanns Versuch:</b> Bring die Schritte in die richtige Reihenfolge.',ORDER_W);
+const MC_W=[
+ {q:'Was wollte Weismann mit seinem Mäuse-Versuch prüfen?',c:['Ob im Leben erworbene Veränderungen vererbt werden','Wie schnell Mäuse wachsen','Ob Mäuse ohne Schwanz leben können','Wie Mäuse krank werden'],e:'Er prüfte Lamarcks Idee der <b>Vererbung erworbener Eigenschaften</b>.'},
+ {q:'Was beobachtete Weismann bei den Nachkommen?',c:['Alle wurden mit normal langen Schwänzen geboren','Sie hatten kürzere Schwänze','Sie hatten keine Schwänze','Sie hatten längere Schwänze'],e:'<b>Normale Schwänze</b>, über alle Generationen.'},
+ {q:'Welche Schlussfolgerung zog Weismann?',c:['Veränderungen an Körperzellen werden nicht auf die Keimzellen übertragen, erworbene Eigenschaften sind nicht vererbbar','Lamarck hatte recht','Mäuse sind keine guten Versuchstiere','Schwänze sind unwichtig'],e:'<b>Körperzellen ≠ Keimzellen</b>. Vererbt wird nur, was in den Keimzellen steckt.'},
+ {q:'Was sind Keimzellen?',c:['Fortpflanzungszellen (Eizellen und Spermien), die die Erbanlagen weitergeben','Zellen, die Keime töten','Hautzellen','Immunzellen'],e:'Keimzellen = <b>Fortpflanzungszellen</b>.'},
+ {q:'Profi-Frage: Warum gilt Weismanns Versuch nicht als perfekter Gegenbeweis gegen Lamarck?',c:['Lamarck ging es um Gebrauch und Nichtgebrauch, nicht um Verletzungen von außen','Weil Weismann zu wenige Mäuse hatte','Weil Mäuse keine Schwänze brauchen','Er ist ein perfekter Gegenbeweis'],e:'Die Schwänze wurden <b>von außen abgeschnitten</b>. Das ist kein „Nichtgebrauch“. Trotzdem zeigt der Versuch: Verletzungen werden nicht vererbt. Mit diesem Zusatz kannst du in der Klassenarbeit punkten.'}
+];
+const TF_W=[
+ ['Weismann wollte Lamarcks Theorie überprüfen.',true,'Richtig.'],
+ ['Die Nachkommen der schwanzlosen Mäuse hatten kürzere Schwänze.',false,'Falsch: Sie hatten <b>normal lange</b> Schwänze.'],
+ ['Weismann führte den Versuch über 22 Generationen durch.',true,'Richtig.'],
+ ['Weismann unterschied zwischen Körperzellen und Keimzellen.',true,'Richtig: Nur was in den Keimzellen steckt, wird vererbt.'],
+ ['Wer durch einen Unfall einen Finger verliert, bekommt Kinder mit vier Fingern.',false,'Falsch: Das ist eine erworbene Veränderung an Körperzellen und wird nicht vererbt.']
+];
+const gWNum=()=>num('Über wie viele Generationen schnitt Weismann den Mäusen die Schwänze ab?',22,'Generationen','Über <b>22 Generationen</b>, die Schwänze blieben immer normal lang.','Es war eine Zahl zwischen 20 und 25.',{tol:0});
+const wrW=()=>writeT('<b>Widerlegung:</b> Welches berühmte Experiment von August Weismann widerlegte Lamarcks Annahme, dass im Laufe des Lebens erworbene Merkmale vererbt werden?',
+  [['Mäusen wurden die Schwänze abgeschnitten',['schwanz','schwaenz']],['Über viele (22) Generationen',['22','generation']],['Nachkommen hatten trotzdem normale Schwänze',['normal','lang']],['Erworbene Eigenschaften werden nicht vererbt',['nicht vererb','nicht weiter','widerleg','erworben']],['Körperzellen werden nicht auf Keimzellen übertragen',['keimzell','fortpflanzung','koerperzell']]],
+  'Der Biologe August Weismann schnitt Mäusen über 22 Generationen hinweg die Schwänze ab. Dennoch wurden alle Nachkommen wieder mit normal langen Schwänzen geboren. Damit zeigte er, dass Veränderungen an Körperzellen nicht auf die Fortpflanzungszellen übertragen werden und erworbene Eigenschaften nicht vererbbar sind.',
+  'Stichworte: Mäuse, Schwänze ab, 22 Generationen, normale Schwänze, nicht vererbbar, Keimzellen.',3);
+
+/* ---------- Rat der Werte (Urteilsbildung) ---------- */
+const FV=[['Masern sind hochansteckend.',0],['Für die Ausrottung der Masern müssen mindestens 95 % zweimal geimpft sein.',0],['Seit dem 1. März 2020 gilt in Deutschland das Masernschutzgesetz.',0],['Masern können schwere Komplikationen wie Gehirnentzündungen auslösen.',0],['Der Schutz von Kleinkindern ist wichtiger als die freie Impfentscheidung.',1],['Jeder sollte selbst über seinen Körper entscheiden dürfen.',1],['Eine Impfpflicht ist ungerecht.',1],['Wir haben die Pflicht, Schwächere zu schützen.',1]];
+const gFVSort=()=>sortT('Tatsachenaussage oder Werturteil? Ordne zu.',FV,5,['Tatsache','Werturteil'],'<b>Tatsachenaussagen</b> kann man wissenschaftlich prüfen. <b>Werturteile</b> sagen, was gut, richtig oder wichtig ist, und beruhen auf Werten.');
+const PC=[['Herdenimmunität schützt auch Menschen, die nicht geimpft werden können',0],['Masern sind hochansteckend und können schwere Komplikationen auslösen',0],['Säuglinge und Immungeschwächte werden besser geschützt',0],['Je mehr Menschen geimpft sind, desto eher können Masern ausgerottet werden',0],['Eine Pflicht greift in die persönliche Freiheit und das Selbstbestimmungsrecht der Eltern ein',1],['Impfungen können, selten, Nebenwirkungen haben',1],['Zwang kann das Misstrauen gegenüber Impfungen verstärken',1],['Aufklärung und freiwillige Angebote könnten auch ausreichen',1]];
+const gPCSort=()=>sortT('Spricht das Argument <b>für</b> oder <b>gegen</b> eine Masernimpfpflicht in Gemeinschaftseinrichtungen?',PC,5,['Pro','Contra'],'Für ein gutes Urteil brauchst du <b>beide Seiten</b>, egal wie du dich am Ende entscheidest.');
+const VAL=[['Weniger Erkrankungen und Todesfälle','Gesundheit'],['Eltern sollen selbst über die Impfung entscheiden','Freiheit'],['Geimpfte schützen die Schwachen mit','Solidarität'],['Jeder trägt Verantwortung für seine Mitmenschen','Verantwortung']];
+const gValMatch=()=>pairT('Welcher Wert aus dem Wertepool steckt hinter dem Argument?',VAL,4,VAL.map(v=>`${v[0]} → <b>${v[1]}</b>`).join('<br>'));
+const gValMulti=()=>multiT('Welche Werte aus dem Wertepool passen laut Musterlösung am besten zur 95-%-Aussage (Schutz von Kleinkindern und Immungeschwächten)? <b>Wähle alle passenden.</b>',['Gesundheit','Solidarität','Verantwortung','Freiheit','Würde','Gerechtigkeit'],[0,1,2],'Laut Musterlösung: <b>Gesundheit, Solidarität oder Verantwortung</b> (für Mitmenschen). Freiheit passt eher zum Gegenargument.');
+const MC_U=[
+ {q:'„Wenn die Masern ausgerottet werden sollen, müssen mindestens 95 % der Bevölkerung doppelt geimpft sein.“ Ist diese Aussage wissenschaftlich belegt?',c:['Ja','Nein'],e:'<b>Ja.</b> Die WHO empfiehlt eine Impfquote von 95 % für die zweimalige Impfung.'},
+ {q:'Was ist Herdenimmunität?',c:['So viele sind geimpft, dass sich der Erreger kaum noch ausbreiten kann. Das schützt auch Ungeimpfte','Wenn eine Herde Kühe geimpft ist','Wenn man nach einer Krankheit immun ist','Wenn fertige Antikörper gespritzt werden'],e:'<b>Herdenimmunität</b> schützt indirekt auch Säuglinge und Immungeschwächte.'},
+ {q:'Was ist eine Tatsachenaussage?',c:['Eine Aussage, die man wissenschaftlich überprüfen kann','Eine persönliche Meinung','Eine Forderung','Ein Gefühl'],e:'Tatsachenaussage = <b>überprüfbar</b> (wahr oder falsch).'},
+ {q:'Was ist ein Werturteil?',c:['Eine Aussage, die auf Werten beruht und sagt, was gut oder richtig ist','Eine messbare Tatsache','Eine Zahl','Ein Experiment'],e:'Werturteile kann man nicht messen, nur <b>begründen</b>.'},
+ {q:'Seit wann gilt in Deutschland das Masernschutzgesetz?',c:['Seit 1. März 2020','Seit 1990','Seit 2010','Es gibt kein solches Gesetz'],e:'Das Masernschutzgesetz gilt <b>seit dem 1. März 2020</b>.'},
+ {q:'Was macht ein gutes, begründetes Urteil aus?',c:['Es wägt Pro- und Contra-Argumente ab und begründet die eigene Entscheidung','Es nennt nur die eigene Meinung','Es übernimmt die Meinung der Mehrheit','Es nennt nur Fakten ohne Entscheidung'],e:'Abwägen + <b>begründet entscheiden</b>.'}
+];
+const ORDER_U=['Fragestellung klären','Tatsachen (Fakten) sammeln','Pro- und Contra-Argumente sammeln','Argumente den Werten zuordnen und gewichten','Eigenes Urteil formulieren und begründen'];
+const gOrderU=()=>orderT('<b>Urteilsbildung:</b> In welcher Reihenfolge gehst du vor?',ORDER_U);
+const wrU=()=>writeT('<b>Urteilsbildung:</b> Formuliere in 2 bis 3 Sätzen eine begründete eigene Entscheidung zur Frage: <i>Soll es eine gesetzliche Masernimpfpflicht für Gemeinschaftseinrichtungen geben?</i> Beziehe ein Gegenargument (z. B. persönliche Freiheit) und ein Pro-Argument (z. B. Herdenimmunität) ein.<br><span class="muted">Ob du dafür oder dagegen bist, entscheidest du. Bewertet wird die Begründung.</span>',
+  [['Klare eigene Entscheidung (dafür oder dagegen)',['ich bin','befuerwort','dafuer','dagegen','sollte','finde','meiner meinung','lehne']],['Pro-Argument (z. B. Herdenimmunität, Schutz der Schwachen)',['herden','schutz','schuetz','ansteck','komplikation','kleinkind','immungeschw']],['Gegenargument (z. B. Freiheit, Selbstbestimmung)',['freiheit','selbstbestimm','zwang','nebenwirk','entscheiden']],['Abwägung („zwar … aber/jedoch“)',['zwar','aber','jedoch','allerdings','trotzdem','dennoch']],['Begründung („weil/da/deshalb“)',['weil',' da ','deshalb','denn','daher']]],
+  '<b>Beispiel dafür (aus der Musterlösung):</b> „Eine gesetzliche Masernimpfpflicht in Gemeinschaftseinrichtungen ist befürwortenswert, da Masern hochansteckend sind und schwere Komplikationen wie Gehirnentzündungen auslösen können. Zwar greift eine Impfpflicht in die persönliche Freiheit und das Selbstbestimmungsrecht der Eltern ein, jedoch wiegt der solidarische Gesundheitsschutz für Kleinkinder und immungeschwächte Menschen durch die Herdenimmunität schwerer.“<br><br><b>Beispiel dagegen (ebenfalls richtig):</b> „Ich bin gegen eine gesetzliche Pflicht. Zwar schützt eine hohe Impfquote durch Herdenimmunität auch Kleinkinder, aber eine Pflicht greift stark in die Freiheit und das Selbstbestimmungsrecht der Eltern ein. Deshalb sollte man eher auf Aufklärung und freiwillige Angebote setzen.“',
+  'Bauplan: Entscheidung + „weil …“ (Hauptargument) + „Zwar … (Gegenargument), aber/jedoch …“',4);
+
+/* ============ Welten ============ */
+const W=[
+ {id:'verlauf',name:'Fieber-Wachturm',icon:'🌡️',topic:'Verlauf einer Grippeinfektion · Fieberkurve · Inkubationszeit',build:()=>shuffle([gCurveZone(),gCurveNum(),gPhaseMatch(),poolMC(pick(MC_V)),tfT(...pick(TF_V))]).concat([wrTemp()])},
+ {id:'impf',name:'Impf-Schmiede',icon:'💉',topic:'Aktive und passive Immunisierung',build:()=>shuffle([gImpfSort(),gImpfCloze(),poolMC(pick(MC_I)),poolMC(pick(MC_I))]).concat([pick([wrAktiv,wrPassiv])()])},
+ {id:'abwehr',name:'Abwehr-Kaserne',icon:'🛡️',topic:'Spezifische Immunantwort · B-Zellen · T-Killerzellen · Antikörper',build:()=>shuffle([gCellMatch(),gHumZell(),gOrderIm(),poolMC(pick(MC_A)),gImCloze()]).concat([pick([wrB,wrT])()])},
+ {id:'lamarck',name:'Lamarcks Turm',icon:'🦒',topic:'Lamarck: Gebrauch/Nichtgebrauch · Vererbung erworbener Eigenschaften',build:()=>shuffle([gOrderL(),poolMC(pick(MC_L)),gLCloze(),tfT(...pick(TF_L))]).concat([wrL()])},
+ {id:'darwin',name:'Darwins Insel',icon:'🏝️',topic:'Darwin: Variabilität · Überproduktion · natürliche Selektion',build:()=>shuffle([gOrderD(),gDefMatch(),gLDSort(),poolMC(pick(MC_D))]).concat([wrD()])},
+ {id:'weismann',name:'Mäuse-Labor',icon:'🐭',topic:'Weismanns Versuch · Widerlegung Lamarcks',build:()=>shuffle([gOrderW(),poolMC(pick(MC_W.slice(0,4))),gWNum(),tfT(...pick(TF_W)),poolMC(MC_W[4])]).concat([wrW()])},
+ {id:'urteil',name:'Rat der Werte',icon:'⚖️',topic:'Tatsachen, Werte und begründetes Urteil (Masernimpfpflicht)',build:()=>shuffle([gFVSort(),gPCSort(),pick([gValMatch,gValMulti])(),poolMC(pick(MC_U)),gOrderU()]).concat([wrU()])}
+];
+function bossBuild(){
+  const g=[[gCurveZone,'verlauf'],[gPhaseMatch,'verlauf'],[gImpfSort,'impf'],[()=>poolMC(pick(MC_I)),'impf'],[gCellMatch,'abwehr'],[gOrderIm,'abwehr'],[()=>poolMC(pick(MC_L)),'lamarck'],[gLDSort,'darwin'],[()=>poolMC(pick(MC_W.slice(0,4))),'weismann'],[gFVSort,'urteil']];
+  return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
+}
+
+/* ============ Ränge & Erfolge ============ */
+const H=window.LernHub, APP='bio-immun-evo';
+/* Rang gilt nur in dieser App – jede Lern-App startet wieder bei Holz */
+const RANKS=[['Holz',0,'#a0703c'],['Stein',150,'#8a8a8a'],['Kupfer',400,'#d07a45'],['Eisen',800,'#d8d8d8'],['Gold',1400,'#f2c94c'],['Diamant',2200,'#4ee6e0'],['Netherit',3000,'#4d4246']];
+function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
+const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
+const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
+const K=k=>S.stats['k_'+k]||0;
+const ACH=[
+ ['first','🦠','Erste Welle abgewehrt','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
+ ['curve','🌡️','Kurvenleser','3 Aufgaben direkt an der Fieberkurve richtig.',()=>K('curve')+(S.stats.curveNum||0)>=3],
+ ['impf','💉','Impfmeister','Impf-Schmiede mit 3 Sternen.',()=>(S.stars.impf||0)>=3],
+ ['abwehr','🛡️','Kasernen-Kommandant','Abwehr-Kaserne mit 3 Sternen.',()=>(S.stars.abwehr||0)>=3],
+ ['order5','🔢','Ordnung muss sein','5 Reihenfolgen richtig sortiert.',()=>K('order')>=5],
+ ['match10','🔗','Zuordnungs-Profi','10 Zuordnungsaufgaben richtig.',()=>K('match')>=10],
+ ['cloze5','🧩','Lückenfüller','5 Lückentexte richtig.',()=>K('cloze')>=5],
+ ['write3','✍️','Schreibtalent','3 Schreibaufgaben geschafft.',()=>K('write')>=3],
+ ['write10','📝','Klassenarbeits-ready','10 Schreibaufgaben geschafft.',()=>K('write')>=10],
+ ['giraffe','🦒','Langhals','Lamarcks Turm und Darwins Insel geschafft (je mind. 1 Stern).',()=>(S.stars.lamarck||0)>=1&&(S.stars.darwin||0)>=1],
+ ['mouse','🐭','Mäuseflüsterer','Mäuse-Labor mit 3 Sternen.',()=>(S.stars.weismann||0)>=3],
+ ['urteil','⚖️','Weiser Rat','Rat der Werte geschafft (mind. 1 Stern).',()=>(S.stars.urteil||0)>=1],
+ ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
+ ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
+ ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
+ ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
+ ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
+ ['s21','🌟','Alle Sterne','Alle 21 Sterne gesammelt.',()=>starsTotal()>=21],
+ ['all','🏰','Festung komplett','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
+ ['iron','⛓️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
+ ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
+ ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
+ ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
+ ['cheat','📜','Gut vorbereitet','Den Lernzettel angeschaut.',()=>S.stats.cheat>=1],
+ ['boss','🧪','Supervirus besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
+ ['bossp','👑','Immun!','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
+];
+
+/* ============ Spielstand ============ */
+function defState(){return {name:'',xp:0,stars:{},plays:{},ach:{},stats:{correct:0,byWorld:{},bestCombo:0,cheat:0,nohint:0,bossWins:0,bossPerfect:0},streak:{last:'',days:0}};}
+function merge(d,o){for(const k in o){if(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k])&&d[k]&&typeof d[k]==='object')merge(d[k],o[k]);else d[k]=o[k];}return d;}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return merge(defState(),JSON.parse(r));}catch(e){}return defState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function touchStreak(){H.touchStreak();}
+
+/* ============ UI-Grundgerüst ============ */
+const $=s=>document.querySelector(s);
+const view=$('#view');
+function oreStrip(){
+  const germ=['#56c24a','#9b59d0','#e0473a','#f2d23c','#3f7be0'];
+  let h='';for(let i=0;i<40;i++){
+    const brick=i%2?'#7a6f66':'#8a7e74';let g='';
+    if(i%5===2){const c=germ[(i/5|0)%germ.length];g=`<i style="left:14px;top:14px;width:16px;height:16px;background:${c};box-shadow:0 0 0 2px rgba(0,0,0,.45)"></i><i style="left:19px;top:8px;width:6px;height:6px;background:${c}"></i><i style="left:19px;top:30px;width:6px;height:6px;background:${c}"></i><i style="left:8px;top:19px;width:6px;height:6px;background:${c}"></i><i style="left:30px;top:19px;width:6px;height:6px;background:${c}"></i><i style="left:18px;top:18px;width:4px;height:4px;background:#111"></i>`;}
+    h+=`<div class="ore" style="background:${brick};background-image:linear-gradient(rgba(0,0,0,.25) 2px,transparent 2px),linear-gradient(90deg,rgba(0,0,0,.25) 2px,transparent 2px);background-size:22px 22px;background-position:${i%2?11:0}px 0">${g}</div>`;}
+  $('#ores').innerHTML=h;
+}
+function updateHeader(){
+  const G=H.get(),r=rankIdx(S.xp),cur=RANKS[r],nxt=RANKS[r+1];
+  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${G.name?G.name+' · ':''}${cur[0]}</span>`;
+  const pct=nxt?((S.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
+  $('#xpfill').style.width=Math.min(100,pct)+'%';
+  $('#xptxt').textContent=nxt?`${S.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${S.xp} XP · Höchster Rang!`;
+  $('#streak').textContent=`🔥 ${G.streak.days||0} ${G.streak.days===1?'Tag':'Tage'}`;
+  $('#navach').textContent=`🏆 Erfolge ${H.countApp(APP)}/${ACH.length}`;
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{P=null;go(b.dataset.nav);}));
+function go(v){window.scrollTo(0,0);({map:renderMap,ach:renderAch,sheet:renderSheet,save:renderSave})[v]();}
+
+/* Toasts & Konfetti */
+const tq=[];let tBusy=0;
+function toast(icon,title,name){tq.push([icon,title,name]);if(!tBusy)nextToast();}
+function nextToast(){const t=tq.shift();if(!t){tBusy=0;return;}tBusy=1;const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<div class="ti">${t[0]}</div><div><div class="tt">${t[1]}</div><div class="tn">${t[2]}</div></div>`;$('#toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();nextToast();},400);},2600);}
+function confetti(n){const cols=['#5fbf3a','#f2c94c','#4ee6e0','#e0473a','#3f7be0','#d9813f'];
+  for(let i=0;i<(n||40);i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3800);}}
+function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn])=>{if(!H.has(APP,id)&&fn()){H.unlock(APP,id,ic,name,desc);toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any)confetti(30);updateHeader();}
+H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
+let lastRank=rankIdx(S.xp);
+function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
+function registerApp(){H.registerApp({id:APP,name:'Immun-Festung',icon:'🛡️',fach:'Biologie',klasse:9,achTotal:ACH.length,maxStars:21,stars:starsTotal()});}
+
+/* ============ Karte ============ */
+function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
+function renderMap(){
+  const unlocked=worldsDone()>=5;
+  let h='';
+  if(!H.get().name){
+    h+=`<div class="panel"><h2>Willkommen, Verteidiger!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
+  }
+  h+=`<div class="panel intro"><h2>Biologie Kl. 9 · Immunbiologie &amp; Evolution</h2>
+  <p>Deine Festung wird angegriffen! Jede Welt ist ein Thema aus der Klassenarbeit, jede richtige Antwort wehrt einen Erreger ab 🦠. Eine Runde hat 5–6 Aufgaben, die letzte ist immer eine <b>Schreibaufgabe</b> wie in der Klassenarbeit.</p>
+  <p class="muted">Bei Schreibaufgaben vergleichst du deine Antwort mit der Musterlösung und hakst ehrlich ab, was du hattest. Wenn du in 5 Welten mindestens einen Stern hast, greift das Supervirus an.</p></div>
+  <div class="worlds">`;
+  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">WELT ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🧪</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Das Supervirus</div><div class="tp">${unlocked?'10 gemischte Aufgaben, 3 Herzen. Hält deine Festung?':`🔒 Noch ${5-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  view.innerHTML=h;
+  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
+  $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
+  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){H.setName(v);updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
+}
+
+/* ============ Spiel ============ */
+let P=null;
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Das Supervirus',icon:'🧪',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function bossSvg(hp){
+  const c=hp>=3?'#56c24a':hp===2?'#c9b03a':hp===1?'#e0473a':'#555';
+  const sp=[[13,0],[13,24],[0,13],[24,13],[4,4],[22,4],[4,22],[22,22]].map(([x,y])=>`<rect x="${x}" y="${y}" width="3" height="3" fill="${c}"/>`).join('');
+  return `<svg width="116" height="116" viewBox="0 0 27 27" shape-rendering="crispEdges">${sp}
+   <rect x="6" y="5" width="15" height="17" fill="${c}"/><rect x="5" y="6" width="17" height="15" fill="${c}"/><rect x="6" y="6" width="15" height="2" fill="rgba(255,255,255,.25)"/>
+   <rect x="9" y="9" width="4" height="4" fill="#fff"/><rect x="15" y="9" width="4" height="4" fill="#fff"/><rect x="10" y="10" width="2" height="2" fill="#111"/><rect x="16" y="10" width="2" height="2" fill="#111"/>
+   <rect x="9" y="16" width="10" height="2" fill="#111"/><rect x="10" y="18" width="2" height="1" fill="#fff"/><rect x="16" y="18" width="2" height="1" fill="#fff"/></svg>`;
+}
+function renderTask(){
+  document.onkeydown=null;const t=P.tasks[P.i];P.answered=false;P.usedHint=false;P.taskT=Date.now();
+  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}">${k<P.res.length?(P.res[k]?'💥':'⚠️'):'🦠'}</span>`;});
+  view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
+   ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
+   ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
+   <div class="panel"><div class="taskhead"><span class="pix">AUFGABE ${P.i+1} / ${P.tasks.length}</span>${t.hint?'<button class="btn small gold" id="hintb">💡 Tipp</button>':''}</div>
+   <div class="q">${t.q}</div><div id="inp"></div><div id="hintbox"></div><div class="fb" id="fb"></div></div>`;
+  $('#quit').onclick=()=>{document.onkeydown=null;logRound(false,null);P=null;renderMap();};
+  if(t.hint)$('#hintb').onclick=()=>{if(P.answered)return;P.usedHint=true;P.hints++;$('#hintbox').innerHTML=`<div class="hintbox">💡 ${t.hint}<br><span class="muted" style="font-size:14px">(Mit Tipp gibt es keinen XP-Bonus.)</span></div>`;$('#hintb').disabled=true;};
+  INPUT[t.kind](t,$('#inp'));
+}
+function parseNum(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');if(s===''||isNaN(+s))return null;return +s;}
+function numOk(v,t){if(v===null)return false;if(t.tol===0)return Math.abs(v-t.ans)<1e-9;const tol=t.tol||0.02;return Math.abs(v-t.ans)<=Math.max(Math.abs(t.ans)*tol,0.005);}
+/* Zehnerpotenz-Eingabe: getrennte Felder ODER alles in einem Feld (6,02*10^23, 6,02·10^23, 6,02x10^23, 6,02e23, 10^-24) */
+function parseSci(mStr,eStr,neg){
+  let s=String(mStr||'').trim().replace(/\s/g,'').replace(/,/g,'.').replace(/[\u2212\u2013\u2014]/g,'-').replace(/[\u00b7\u00d7\u22c5xX*]/g,'*');
+  let m=s.match(/^([-+]?\d*\.?\d+)\*?10\^\(?([-+]?\d+)\)?$/)||s.match(/^([-+]?\d*\.?\d+)[eE]([-+]?\d+)$/);
+  if(m)return (+m[1])*Math.pow(10,+m[2]);
+  m=s.match(/^10\^\(?([-+]?\d+)\)?$/);if(m)return Math.pow(10,+m[1]);
+  const mant=parseNum(s);if(mant===null)return null;
+  const e=String(eStr||'').trim().replace(/\s/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(e===''||isNaN(+e))return null;
+  let ev=+e;if(neg&&ev>0)ev=-ev;
+  return mant*Math.pow(10,ev);
+}
+/* Eingabe wie am TI-30X Pro (Schul-Taschenrechner): Ziffern, Punkt, (–), EE, delete, clear, enter – für alle Zahlenaufgaben */
+function calcPad(t,el,isSci,check){
+  const st={m:'',mNeg:false,e:null,eNeg:false};let mode='m';
+  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 &nbsp;·&nbsp; <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>12.5</b>. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>';
+  el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
+    <div class="ckeys">${[['7','','dg'],['8','','dg'],['9','','dg'],['del','delete','fn'],['4','','dg'],['5','','dg'],['6','','dg'],['ac','clear','fn'],['1','','dg'],['2','','dg'],['3','','dg'],['exp','EE','fn'],['0','','dg'],[',','.','dg'],['neg','(–)','dg'],['ok','enter','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Wie auf deinem TI-30X Pro: ${ex}. <b>enter</b> = Prüfen. Am PC gehen auch die Tasten (E = EE, Minus = (–)).</div>
+    <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
+  const cd=$('#cd');
+  function draw(){
+    const NEG='<span class="cneg">-</span>';
+    const m=(st.mNeg?NEG:'')+(st.m||(st.e===null?'':'1')).replace(',','.');
+    let h=m;
+    if(st.e!==null)h+=`<span class="ce">E</span>${st.eNeg?NEG:''}${st.e}`;
+    h+='<span class="cur"></span>';
+    cd.innerHTML=`<div class="cline">${h}</div><div class="cunit">${t.unit}</div>`;
+  }
+  function value(){
+    const mStr=(st.m||(st.e!==null?'1':'')).replace(',','.');if(mStr===''||mStr==='.'||isNaN(+mStr))return null;
+    let v=+mStr*(st.mNeg?-1:1);if(st.e!==null){if(st.e==='')return null;v*=Math.pow(10,(st.eNeg?-1:1)*(+st.e));}return v;
+  }
+  function press(k){
+    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
+    if(/^[0-9]$/.test(k)){if(mode==='e'){if(st.e.length<3)st.e+=k;}else if(st.m.replace(',','').length<9)st.m+=k;}
+    else if(k===','){if(mode==='m'&&!st.m.includes(','))st.m+=(st.m===''?'0,':',');}
+    else if(k==='neg'){if(mode==='e')st.eNeg=!st.eNeg;else st.mNeg=!st.mNeg;}
+    else if(k==='exp'){if(st.e===null){st.e='';mode='e';}}
+    else if(k==='del'){if(mode==='e'){if(st.e!=='')st.e=st.e.slice(0,-1);else if(st.eNeg)st.eNeg=false;else{st.e=null;mode='m';}}else if(st.m!=='')st.m=st.m.slice(0,-1);else st.mNeg=false;}
+    else if(k==='ac'){st.m='';st.mNeg=false;st.e=null;st.eNeg=false;mode='m';}
+    else if(k==='ok'){const v=value();
+      if(v===null){const msg=$('#scimsg');msg.style.display='block';msg.innerHTML=st.e===''?'Hinter ×10<sup>x</sup> fehlt noch die Hochzahl.':'Bitte zuerst eine Zahl eintippen.';return;}
+      document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);
+      const [ok,extra]=check(v);answer(ok,extra);return;}
+    draw();
+  }
+  el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
+  document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='-'||k==='−')m='neg';else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='ok';
+    if(m){e.preventDefault();press(m);}};
+  draw();
+}
+const INPUT={
+  match(t,el){const sel=t.rows.map(()=>-1);
+    el.innerHTML=`<div class="mrows">${t.rows.map((r,i)=>`<div class="mrow" data-r="${i}"><div class="ml">${r.l}</div><div class="mopts">${t.opts.map((o,j)=>`<button type="button" class="mo" data-r="${i}" data-o="${j}">${o}</button>`).join('')}</div></div>`).join('')}</div><button class="btn green" id="chk" disabled>Prüfen</button>`;
+    el.querySelectorAll('.mo').forEach(b=>b.onclick=()=>{if(P.answered)return;const r=+b.dataset.r,o=+b.dataset.o;sel[r]=o;el.querySelectorAll(`.mo[data-r="${r}"]`).forEach(x=>x.classList.toggle('sel',+x.dataset.o===o));$('#chk').disabled=sel.includes(-1);});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=true;t.rows.forEach((r,i)=>{const good=sel[i]===r.a;if(!good)ok=false;el.querySelector(`.mrow[data-r="${i}"]`).classList.add(good?'right':'wrong');
+      el.querySelectorAll(`.mo[data-r="${i}"]`).forEach(x=>{x.disabled=true;if(+x.dataset.o===r.a)x.classList.add('corr');});});$('#chk').disabled=true;answer(ok,ok?'':'Grün umrandet = richtige Zuordnung.');};},
+  cloze(t,el){const fill=t.ans.map(()=>null);
+    function draw(){let k=0;const txt=t.text.replace(/\[[^\]]+\]/g,()=>{const i=k++;const v=fill[i];return `<button type="button" class="slot ${v!==null?'full':''}" data-s="${i}">${v!==null?t.pool[v]:'&nbsp;'}</button>`;});
+      el.innerHTML=`<div class="ctext">${txt}</div><div class="cpool">${t.pool.map((w,i)=>`<button type="button" class="cw" data-w="${i}" ${fill.includes(i)?'disabled':''}>${w}</button>`).join('')}</div><button class="btn green" id="chk" ${fill.includes(null)?'disabled':''}>Prüfen</button>`;
+      el.querySelectorAll('.cw').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=fill.indexOf(null);if(i<0)return;fill[i]=+b.dataset.w;draw();});
+      el.querySelectorAll('.slot').forEach(b=>b.onclick=()=>{if(P.answered)return;fill[+b.dataset.s]=null;draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;let ok=true;el.querySelectorAll('.slot').forEach(b=>{const i=+b.dataset.s;const good=t.pool[fill[i]]===t.ans[i];if(!good)ok=false;b.classList.add(good?'right':'wrong');b.disabled=true;});
+        el.querySelectorAll('.cw').forEach(b=>b.disabled=true);$('#chk').disabled=true;let k2=0;const full=t.text.replace(/\[([^\]]+)\]/g,(_,w)=>`<b>${w}</b>`);answer(ok,'');P.tasks[P.i].sol=(ok?'':'Richtig heißt es: ')+full;$('#fb .sol').innerHTML=(ok?'':'Richtig heißt es: ')+full;};}
+    draw();},
+  curve(t,el){el.innerHTML=`<div class="curvebox">${curveSvg(null,true)}</div><div class="muted" style="font-size:15px">Tippe auf den passenden Abschnitt der Kurve (die gestrichelten Bereiche).</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');el.querySelector('.curvebox').innerHTML=curveSvg({sel:v,corr:t.zone},false);answer(v===t.zone,`Du hast ${ZNAME[v]} angetippt.`);}));},
+  multi(t,el){const sel=new Set();
+    el.innerHTML=`<div class="chips">${t.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;sel.has(i)?sel.delete(i):sel.add(i);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;const ok=sel.size===t.ans.length&&t.ans.every(a=>sel.has(a));
+      el.querySelectorAll('.chip').forEach(b=>{const i=+b.dataset.i,inA=t.ans.includes(i);b.classList.remove('sel');if(sel.has(i))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = hat gefehlt, rot = passt nicht.');};},
+  write(t,el){el.innerHTML=`<textarea id="wt" class="wt" placeholder="Schreib deine Antwort hier – oder auf ein Blatt Papier, wie in der Klassenarbeit."></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn blue" id="show">Musterlösung zeigen</button></div><div id="wres"></div>`;
+    $('#show').onclick=()=>{if(P.answered)return;const txt=' '+norm($('#wt').value)+' ';$('#show').disabled=true;$('#wt').readOnly=true;
+      const hits=t.keys.map(([l,kws])=>kws.some(k=>txt.includes(norm(k))));
+      $('#wres').innerHTML=`<div class="sol" style="margin-top:12px"><b>Musterlösung:</b><br>${t.model}</div>
+        <div class="checkbox-panel"><b>Was hattest du?</b><div class="muted" style="font-size:15px;margin-bottom:6px">Hake ehrlich ab, was in deiner Antwort vorkommt${$('#wt').value.trim()?' (erkannte Begriffe sind schon angehakt, bitte prüfen)':''}. Ab <b>${t.need} von ${t.keys.length}</b> Punkten ist die Aufgabe geschafft.</div>
+        ${t.keys.map(([l],i)=>`<label class="chk"><input type="checkbox" data-wk="${i}" ${hits[i]?'checked':''}> ${l}</label>`).join('')}
+        <button class="btn green" id="eval" style="margin-top:10px">Auswerten</button></div>`;
+      $('#eval').onclick=()=>{if(P.answered)return;const n=[...el.querySelectorAll('input[data-wk]')].filter(x=>x.checked).length;el.querySelectorAll('input[data-wk]').forEach(x=>x.disabled=true);$('#eval').disabled=true;
+        t.sol=`Du hattest <b>${n} von ${t.keys.length}</b> Schlüsselpunkten.`+(n>=t.need?' Stark, so gibt es in der Klassenarbeit Punkte!':` Für „geschafft“ brauchst du ${t.need}. Lies die Musterlösung noch einmal und merk dir die fehlenden Punkte.`);
+        answer(n>=t.need,'');};};},
+
+  num(t,el){calcPad(t,el,false,v=>[numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`]);},
+  sci(t,el){calcPad(t,el,true,v=>[Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`]);},
+  mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
+    el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
+      el.querySelectorAll('[data-i]').forEach(x=>{x.disabled=true;if(+x.dataset.i===t.correct)x.classList.add('right');});if(!ok)b.classList.add('wrong');answer(ok,'');});},
+  tf(t,el){el.innerHTML=`<div class="row"><button class="btn green" data-v="1" style="min-width:140px">✔ Wahr</button><button class="btn red" data-v="0" style="min-width:140px">✘ Falsch</button></div>`;
+    el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(P.answered)return;const v=b.dataset.v==='1';el.querySelectorAll('[data-v]').forEach(x=>x.disabled=true);answer(v===t.ans,`Richtig ist: <b>${t.ans?'Wahr':'Falsch'}</b>`);});},
+  grid(t,el){const sel=new Set();
+    el.innerHTML=`<div class="elgrid">${t.items.map(s=>`<button class="el" data-s="${s}">${s}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{if(P.answered)return;const s=b.dataset.s;sel.has(s)?sel.delete(s):sel.add(s);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=sel.size===t.ans.length&&t.ans.every(s=>sel.has(s));
+      el.querySelectorAll('[data-s]').forEach(b=>{const s=b.dataset.s,inA=t.ans.includes(s);b.classList.remove('sel');if(sel.has(s))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = vergessen, rot = falsch ausgewählt.');};},
+  bal(t,el){const sp=t.r.concat(t.p);const co=sp.map(()=>1);const nr=t.r.length;
+    const elems=[];sp.forEach(f=>Object.keys(parseF(f)).forEach(e=>{if(!elems.includes(e))elems.push(e);}));
+    function counts(side){const c={};sp.forEach((f,k)=>{if((k<nr)!==(side==='L'))return;const p=parseF(f);for(const e in p)c[e]=(c[e]||0)+p[e]*co[k];});return c;}
+    function blocks(e,n){if(n>24)return `<span class="cnt">${n}</span>`;return `<span class="cnt">${n}</span>`+`<span class="blk" style="background:${ECOL[e]||'#888'}"></span>`.repeat(n);}
+    function draw(){
+      let h='<div class="bal">';sp.forEach((f,k)=>{if(k===nr)h+='<span class="op">→</span>';else if(k>0)h+='<span class="op">+</span>';
+        h+=`<div class="sp"><div class="st"><button data-k="${k}" data-d="1">▲</button><button data-k="${k}" data-d="-1">▼</button></div><span class="co">${co[k]}</span><span>${fx(f)}</span></div>`;});
+      h+='</div>';const L=counts('L'),R=counts('R');
+      h+=`<table class="atoms"><tr><th>Atom</th><th>links</th><th>rechts</th></tr>${elems.map(e=>{const ok=L[e]===R[e];const cls=t.noColor?'':(ok?'okc':'badc');return `<tr><td><b>${e}</b> <span class="muted">${EN[e]||''}</span></td><td class="${cls}">${blocks(e,L[e]||0)}</td><td class="${cls}">${blocks(e,R[e]||0)}</td></tr>`;}).join('')}</table>
+      <button class="btn green" id="chk">Prüfen</button>`;
+      el.innerHTML=h;
+      el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(P.answered)return;const k=+b.dataset.k;co[k]=Math.max(1,Math.min(9,co[k]+(+b.dataset.d)));draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;const L=counts('L'),R=counts('R');const bal=elems.every(e=>L[e]===R[e]);const g=co.reduce((a,b)=>gcd(a,b));
+        el.querySelectorAll('[data-k]').forEach(b=>b.disabled=true);$('#chk').disabled=true;
+        answer(bal&&g===1,bal&&g!==1?'Ausgeglichen, aber nicht mit den <b>kleinstmöglichen</b> Zahlen. Alle Koeffizienten lassen sich noch kürzen!':(bal?'':'Noch nicht ausgeglichen. Vergleiche links und rechts in der Tabelle.'));};
+    }
+    draw();},
+  order(t,el){const pool=shuffle(t.steps.map((s,i)=>i));const chosen=[];
+    function draw(){el.innerHTML=`<div class="orderlist">${chosen.map((i,k)=>`<div class="item"><b>${k+1}.</b>${t.steps[i]}</div>`).join('')}</div>
+      <div class="orderpool">${pool.filter(i=>!chosen.includes(i)).map(i=>`<button class="btn" style="text-align:left;background:#4a4a55" data-i="${i}">${t.steps[i]}</button>`).join('')}</div>
+      <div class="row"><button class="btn small" id="rs">↺ Zurücksetzen</button>${chosen.length===t.steps.length?'<button class="btn green" id="chk">Prüfen</button>':''}</div>`;
+      el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;chosen.push(+b.dataset.i);draw();});
+      $('#rs').onclick=()=>{if(P.answered)return;chosen.length=0;draw();};
+      const c=$('#chk');if(c)c.onclick=()=>{if(P.answered)return;const ok=chosen.every((v,k)=>v===k);c.disabled=true;$('#rs').disabled=true;answer(ok,'');};}
+    draw();}
+};
+function answer(ok,extra){
+  if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
+  P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
+  if(ok){P.combo++;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+    gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();S.stats['k_'+t.kind]=(S.stats['k_'+t.kind]||0)+1;if(t.kind==='num'&&/curvebox/.test(t.q))S.stats.curveNum=(S.stats.curveNum||0)+1;}
+  else{P.combo=0;if(P.boss)P.hearts--;}
+  P.res.push(ok);if(gain)gainXP(gain);
+  const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
+  $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
+    `<div class="sol">${!ok&&extra?extra+'<br>':''}${t.sol||''}</div><div class="row" style="margin-top:12px"><button class="btn ${ok?'green':'blue'}" id="next">${last?'Ergebnis ▶':'Weiter ▶'}</button></div>`;
+  const hb=$('#hintb');if(hb)hb.disabled=true;
+  save();checkAch();
+  const n=$('#next');n.onclick=()=>{if(last)finish();else{P.i++;renderTask();}};
+  setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
+  document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
+}
+function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Immun-Festung',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
+  right:P.res.filter(Boolean).length,total:P.res.length,planned:P.tasks.length,stars:stars,secs:Math.round(P.secs),hints:P.hints,done:done});}
+function finish(){
+  document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
+  touchStreak();
+  let h='';
+  if(P.boss){
+    const won=P.hearts>0;
+    logRound(true,null);
+    if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
+    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Das Supervirus ist besiegt!':'Das Supervirus hat die Festung überrannt …'}</h2>
+     <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
+     <p class="muted">${won?'Stark! Deine Abwehr steht. Das war fast schon Klassenarbeits-Niveau.':'Schau dir die Lösungswege nochmal an und trainiere die Welten, in denen es gehakt hat. Dann nochmal!'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Nochmal kämpfen</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(won)confetti(90);
+  }else{
+    const st=right===total?3:right>=total-1?2:right>=Math.ceil(total*0.6)?1:0;
+    const prev=S.stars[P.world]||0;
+    S.stars[P.world]=Math.max(prev,st);S.plays[P.world]=(S.plays[P.world]||0)+1;
+    logRound(true,st);
+    if(st===3&&P.hints===0)S.stats.nohint++;
+    if(st)gainXP(st*10);
+    h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>
+     <p>${right} von ${total} richtig${st?` · <b style="color:var(--gold)">+${st*10} XP</b> Sternbonus`:''}${st>prev&&prev>0?' · neuer Rekord!':''}</p>
+     <p class="muted">${st===3?'Perfekt! Diese Welt hast du im Griff.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Neue Runde</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(st===3)confetti(70);
+  }
+  const wid=P.world;save();checkAch();view.innerHTML=h;window.scrollTo(0,0);
+  $('#again').onclick=()=>{wid==='boss'?startBoss():startWorld(wid);};$('#tomap').onclick=()=>{P=null;renderMap();};
+}
+
+/* ============ Erfolge ============ */
+function renderAch(){
+  const got=H.countApp(APP),G=H.get();
+  view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 27 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
+  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=H.has(APP,id);return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>
+  <div class="panel" style="margin-top:22px"><h2>🌍 Meta-Erfolge (über alle Lern-Apps)</h2><p class="muted">Jede Lern-App hat ihren eigenen Rang und eigene Erfolge. Diese Meta-Erfolge sammelst du über alle Apps hinweg, im Lern-Hub steht deine ganze Trophäen-Vitrine.</p></div>
+  <div class="achs">${H.globalList().map(([id,ic,n,d,,hid])=>{const g=!!G.ach['hub:'+id];if(hid&&!g){ic='❓';n='???';d='Versteckter Erfolg. Wird später enthüllt …';}return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:(hid?'❓':'🔒')}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+}
+
+/* ============ Spickzettel ============ */
+function renderSheet(){
+  if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
+  view.innerHTML=`<div class="panel"><h2>📜 Lernzettel</h2><p>Das Wichtigste auf einen Blick. Tipp: Schreib dir die Fachbegriffe selbst auf Karteikarten.</p></div>
+  <div class="sheet">
+   <div class="card"><h3>Verlauf einer Infektion</h3><p><b>Inkubationszeit:</b> Erreger vermehren sich unbemerkt, keine Symptome.<br><b>Krankheitsphase:</b> Symptome, hohes Fieber (Kurve: Tag 3–4 steil auf 40 °C).<br><b>Genesung:</b> Temperatur sinkt langsam (Tag 4–10) auf ca. 36,8 °C.</p><p>Kurve beschreiben: Anfangswert → Anstieg (wann, wie schnell, wie hoch) → Abfall (wie, bis wann).</p></div>
+   <div class="card"><h3>Aktiv vs. passiv</h3><table><tr><td></td><td><b>aktiv</b></td><td><b>passiv</b></td></tr><tr><td>gespritzt</td><td>abgeschwächte/abgetötete Erreger</td><td>fertige Antikörper</td></tr><tr><td>Antikörper</td><td>bildet der Körper selbst</td><td>von Tieren/Spendern</td></tr><tr><td>Wirkung</td><td>nach einiger Zeit</td><td>sofort</td></tr><tr><td>Dauer</td><td>lange (Gedächtniszellen)</td><td>kurz (werden abgebaut)</td></tr><tr><td>Einsatz</td><td>vorbeugend</td><td>Notfall (Tetanus, Tollwut)</td></tr></table></div>
+   <div class="card"><h3>Spezifische Immunantwort</h3><p><b>Fresszellen</b> präsentieren Antigene → <b>T-Helferzellen</b> werden aktiviert und aktivieren:</p><p><b>B-Zellen</b> (humoral): teilen sich, bilden <b>Antikörper</b> → verklumpen Viren. Es entstehen Gedächtniszellen.<br><b>T-Killerzellen</b> (zellulär): <b>zerstören befallene Körperzellen</b> → Virusvermehrung stoppt.</p><p>Antigen + Antikörper = Schlüssel-Schloss-Prinzip.</p></div>
+   <div class="card"><h3>Lamarck (1809)</h3><p>Bedürfnis → <b>Gebrauch/Nichtgebrauch</b> der Organe → Veränderung im Lauf des Lebens → <b>Vererbung erworbener Eigenschaften</b>.</p><p>Giraffe: streckt Hals → Hals länger → vererbt.</p></div>
+   <div class="card"><h3>Darwin (1859)</h3><p><b>Variabilität</b> (zufällige, erbliche Unterschiede) · <b>Überproduktion</b> · Konkurrenz · <b>natürliche Selektion</b> (die Angepassten überleben häufiger) · Vererbung der vorteilhaften Erbanlagen.</p><p>„survival of the fittest“ = Überleben der am besten Angepassten.</p></div>
+   <div class="card"><h3>Weismann</h3><p>Schwänze von Mäusen abgeschnitten, <b>22 Generationen</b> lang → Nachkommen immer mit normalen Schwänzen.</p><p>Veränderungen an <b>Körperzellen</b> gelangen nicht in die <b>Keimzellen</b> → erworbene Eigenschaften werden nicht vererbt.</p><p><i>Profi:</i> Lamarck ging es um Gebrauch, nicht um Verletzungen. Der Versuch ist also kein perfekter Gegenbeweis.</p></div>
+   <div class="card"><h3>Urteilsbildung</h3><p><b>Tatsachenaussage:</b> wissenschaftlich prüfbar (z. B. 95 % Impfquote, 2 Dosen).<br><b>Werturteil:</b> beruht auf Werten (Gesundheit, Freiheit, Verantwortung, Solidarität, Gerechtigkeit, Würde).</p><p>Bauplan: Entscheidung + „weil …“ + „Zwar … (Gegenargument), aber/jedoch …“</p><p>Masernschutzgesetz: seit 1. März 2020.</p></div>
+  </div>`;
+}
+
+/* ============ Spielstand ============ */
+function renderSave(){
+  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,app:APP,state:S,profil:H.exportData()}))));}catch(e){}
+  view.innerHTML=`<div class="panel"><h2>💾 Spielstand</h2>
+   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(H.get().name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
+   <p class="muted">Dein Fortschritt wird automatisch auf diesem Gerät gespeichert. Der Speichercode enthält diese App <b>und</b> dein Hub-Profil (Name, Serie, Trophäen-Vitrine, Meta-Erfolge). Für ein anderes Gerät oder zur Sicherheit kopierst du ihn und fügst ihn dort unter „Laden“ ein.</p>
+   <h3>Speichercode</h3><textarea class="code" id="code" readonly>${code}</textarea>
+   <div class="row" style="margin-top:8px"><button class="btn blue small" id="copy">📋 Kopieren</button><span id="copymsg" class="muted"></span></div>
+   <h3 style="margin-top:20px">Laden</h3><textarea class="code" id="imp" placeholder="Speichercode hier einfügen"></textarea>
+   <div class="row" style="margin-top:8px"><button class="btn green small" id="load">Laden</button><span id="loadmsg"></span></div>
+   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Diese App zurücksetzen</button><div id="rsbox"></div></div>`;
+  $('#nmsave').onclick=()=>{H.setName($('#nm2').value.trim());updateHeader();};
+  $('#copy').onclick=()=>{const ta=$('#code');try{navigator.clipboard.writeText(ta.value).then(()=>$('#copymsg').textContent='Kopiert!',()=>{ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';});}catch(e){ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';}};
+  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(o.v===2){H.importData(o.profil);S=merge(defState(),o.state);lastRank=rankIdx(S.xp);}else if(typeof o.xp==='number'){S=merge(defState(),o);migrate(true);}else throw 0;save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
+  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Rang, Sterne und Erfolge dieser App löschen? (Meta-Erfolge im Hub bleiben erhalten.) <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
+    $('#rsyes').onclick=()=>{S=defState();const G=H.get();Object.keys(G.ach).forEach(k=>{if(k.indexOf(APP+':')===0)delete G.ach[k];});H.importData(G);lastRank=0;save();registerApp();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
+}
+
+/* ============ Start ============ */
+/* Alten Spielstand (vor dem gemeinsamen Profil) einmalig übernehmen */
+function migrate(force){const G=H.get();if(!force&&(S.migrated||!(S.xp>0)))return;
+  if(force||!G.xpByApp[APP]){G.xp+=S.xp;G.xpByApp[APP]=(G.xpByApp[APP]||0)+S.xp;}
+  if(S.name&&!G.name)G.name=S.name;
+  if(S.streak&&S.streak.days>(G.streak.days||0))G.streak=S.streak;
+  if(S.ach)ACH.forEach(([id,ic,n,d])=>{if(S.ach[id]&&!G.ach[APP+':'+id])G.ach[APP+':'+id]={t:S.ach[id],app:APP,icon:ic,name:n,desc:d};});
+  H.importData(G);S.migrated=true;save();}
+migrate(false);
+oreStrip();updateHeader();renderMap();checkAch();H.checkGlobal();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
+</script>
+</body>
+</html>
