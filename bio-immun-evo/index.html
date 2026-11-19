@@ -194,6 +194,10 @@ td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
 .ck:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
 .ck.dg{background:#e9e9ec;color:#111}
 .ck.fn{background:#1f1f22;font-size:19px}
+.ck.w2{grid-column:span 2}
+.ck.op{background:#6f8796;font-size:24px}
+.cdisp .cres{text-align:right;font-size:.95em;min-height:1.1em}
+.cdisp .cop{margin:0 3px}
 .ck.ok{background:#6f8796;font-size:19px}
 .ck.op{background:#3a3d44;font-size:24px}
 .ck.go{background:var(--green);font-size:19px}
@@ -654,66 +658,76 @@ function parseSci(mStr,eStr,neg){
   return mant*Math.pow(10,ev);
 }
 /* Taschenrechner wie der TI-30X Pro: + − × ÷, Klammern, EE, (–), delete, clear, enter (= ausrechnen), Prüfen */
+/* Taschenrechner wie der TI-30X Pro: Ziffern, Punkt, (–), EE, + − × ÷, Klammern, delete, clear, enter (= ausrechnen) */
+function calcEval(str){
+  // str: Zahlen mit Punkt, e für EE, ~ für Vorzeichen (–), Operatoren + - * /, Klammern
+  let i=0;const s=str;
+  function peek(){return s[i];}
+  function num(){const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e~?\d+)?/);if(!m)throw 0;i+=m[0].length;return parseFloat(m[0].replace('~','-'));}
+  function factor(){const c=peek();
+    if(c==='~'){i++;return -factor();}
+    if(c==='('){i++;const v=expr();if(peek()===')')i++;return v;}  // fehlende ")" am Ende wie beim TI ergänzen
+    return num();}
+  function term(){let v=factor();while(peek()==='*'||peek()==='/'){const o=s[i++];const w=factor();v=o==='*'?v*w:v/w;}return v;}
+  function expr(){let v=term();while(peek()==='+'||peek()==='-'){const o=s[i++];const w=term();v=o==='+'?v+w:v-w;}return v;}
+  try{const v=expr();if(i!==s.length||!isFinite(v))return null;return v;}catch(e){return null;}
+}
+function calcFmt(v){if(v===0)return '0';const a=Math.abs(v);
+  if(a>=1e10||a<1e-4){let e=Math.floor(Math.log10(a));let m=v/Math.pow(10,e);m=Math.round(m*1e6)/1e6;if(Math.abs(m)>=10){m/=10;e++;}return {m:String(m),e};}
+  return {m:String(Math.round(v*1e9)/1e9),e:null};}
 function calcPad(t,el,isSci,check){
-  /* Tokens: Ziffern '0'-'9', '.', 'E' (EE), 'n' (Vorzeichen (–)), '+','-','*','/','(',')', 'A' (Ans) */
-  let tok=[],ans=null,res=null,fresh=false;
-  const SHOW={'*':'×','/':'÷','-':'−','+':'+','E':'<span class="ce">E</span>','n':'<span class="cneg">-</span>','A':'Ans'};
-  const ex=isSci?'z. B. <b>16 × 1.66 EE (–) 24 enter</b>, dann <b>Prüfen</b>':'z. B. <b>2 × 56 + 3 × 16 enter</b>, dann <b>Prüfen</b>';
+  let tok=[],ans=null,done=false;
+  const OP={'+':'+','-':'−','*':'×','/':'÷'};
+  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 · <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>2 × 56 + 3 × 16</b>, dann <b>enter</b>';
+  const keys=[['del','delete','fn w2'],['ac','clear','fn w2'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
   el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
-    <div class="ckeys">${[['exp','EE','fn'],['lp','(','fn'],['rp',')','fn'],['/','÷','op'],
-      ['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],
-      ['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],
-      ['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],
-      ['0','','dg'],[',','.','dg'],['neg','(–)','dg'],['eq','enter','ok'],
-      ['ac','clear','fn'],['del','delete','fn'],['ok','Prüfen ✔','go wide']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
-    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Du kannst auch nur das Ergebnis eintippen und gleich auf Prüfen gehen. Am PC gehen auch die Tasten (* / + - ( ) , E, Enter).</div>
+    <div class="ckeys">${keys.map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <button type="button" class="btn green" id="calcok" style="width:100%;margin-top:10px;font-size:20px">✔ Ergebnis prüfen</button>
+    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>.</div>
     <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
   const cd=$('#cd');
-  function fmtRes(v){if(v===null||!isFinite(v))return 'Fehler';if(v===0)return '0';const a=Math.abs(v);
-    if(a>=1e10||a<1e-3){let e=Math.floor(Math.log10(a));let m=v/Math.pow(10,e);m=+m.toPrecision(6);if(Math.abs(m)>=10){m/=10;e++;}return String(m)+'<span class="ce">E</span>'+(e<0?'<span class="cneg">-</span>'+(-e):e);}
-    return String(+v.toPrecision(10));}
-  function draw(){const line=tok.map(x=>SHOW[x]!==undefined?SHOW[x]:x).join('');
-    cd.innerHTML=`<div class="cline">${line}<span class="cur"></span></div><div class="cres">${res!==null?fmtRes(res):''}</div><div class="cunit">${t.unit}</div>`;}
-  function evalTok(){
-    if(!tok.length)return null;let s='';
-    for(let i=0;i<tok.length;i++){const x=tok[i];
-      if(x==='A'){if(ans===null)return NaN;s+='('+ans+')';}
-      else if(x==='n')s+='-';
-      else if(x==='E')s+='e';
-      else if(x==='-')s+=' - ';
-      else if(x==='lp'||x==='(')s+='(';
-      else s+=x;}
-    s=s.replace(/e\s*-\s*/g,'e-');
-    if(!/^[0-9.+\-*/()e\s]+$/.test(s))return NaN;
-    if(/[0-9.)]\s*\(|\)\s*[0-9.]/.test(s))return NaN;
-    try{const v=Function('"use strict";return ('+s+')')();return (typeof v==='number'&&isFinite(v))?v:NaN;}catch(e){return NaN;}
+  const isOp=x=>x in OP;
+  function toStr(){return tok.map(x=>x==='E'?'e':x==='neg'?'~':x).join('');}
+  function draw(){
+    const line=tok.map(x=>x==='E'?'<span class="ce">E</span>':x==='neg'?'<span class="cneg">-</span>':isOp(x)?`<span class="cop">${OP[x]}</span>`:x).join('');
+    let res='';if(done&&ans!==null){const f=calcFmt(ans);res=f.m.replace('-','<span class="cneg">-</span>')+(f.e!==null?`<span class="ce">E</span>${f.e<0?'<span class="cneg">-</span>':''}${Math.abs(f.e)}`:'');}
+    cd.innerHTML=`<div class="cline">${line}${done?'':'<span class="cur"></span>'}</div><div class="cres">${res}<span class="cunit">${t.unit}</span></div>`;
   }
-  function msg(h){const m=$('#scimsg');m.style.display=h?'block':'none';m.innerHTML=h||'';}
+  function compute(){const v=calcEval(toStr());if(v===null){msg('Die Rechnung ist so nicht vollständig, prüfe Klammern und Rechenzeichen.');return false;}ans=v;done=true;return true;}
+  function msg(m){const x=$('#scimsg');x.style.display='block';x.innerHTML=m;}
   function press(k){
-    if(!P||P.answered||!document.getElementById('cd'))return;msg('');
-    const ops={'+':1,'-':1,'*':1,'/':1};
-    if(k==='eq'){const v=evalTok();if(v===null)return;if(isNaN(v)){msg('Syntaxfehler: Prüfe Klammern und Rechenzeichen. Zwischen Zahl und Klammer brauchst du ein ×.');return;}res=v;ans=v;fresh=true;draw();return;}
-    if(k==='ok'){let v=res;if(!fresh||res===null){const e=evalTok();if(e===null){msg('Bitte zuerst eine Zahl oder Rechnung eintippen.');return;}if(isNaN(e)){msg('Syntaxfehler: Prüfe Klammern und Rechenzeichen.');return;}v=e;res=e;draw();}
-      document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);const [ok,extra]=check(v);answer(ok,extra);return;}
-    if(k==='ac'){tok=[];res=null;fresh=false;draw();return;}
-    if(k==='del'){if(fresh){fresh=false;res=null;}tok.pop();draw();return;}
-    if(fresh){fresh=false;if(ops[k]){tok=['A'];}else{tok=[];}res=null;}
-    if(/^[0-9]$/.test(k))tok.push(k);
-    else if(k===','){tok.push('.');}
-    else if(k==='neg')tok.push('n');
-    else if(k==='exp'){tok.push('E');}
-    else if(ops[k])tok.push(k);
-    else if(k==='lp')tok.push('(');
-    else if(k==='rp')tok.push(')');
-    if(tok.length>40)tok.pop();
+    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
+    if(done&&k!=='enter'&&k!=='del'&&k!=='ac'){
+      if(isOp(k)){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}
+      else tok=[];
+      done=false;
+    }
+    const last=tok[tok.length-1];
+    if(/^[0-9]$/.test(k)){if(last===')')tok.push('*');tok.push(k);}
+    else if(k==='.'){if(last===')')tok.push('*');tok.push('.');}
+    else if(k==='neg'){tok.push('neg');}
+    else if(k==='exp'){if(!last||isOp(last)||last==='('||last==='neg')tok.push('1');tok.push('E');}
+    else if(isOp(k)){if(!tok.length&&ans!==null){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}const l2=tok[tok.length-1];if(l2&&isOp(l2))tok[tok.length-1]=k;else if(tok.length)tok.push(k);}
+    else if(k==='('){if(last&&(/[0-9.)]/.test(last)))tok.push('*');tok.push('(');}
+    else if(k===')'){tok.push(')');}
+    else if(k==='del'){if(done){done=false;}else tok.pop();}
+    else if(k==='ac'){tok=[];done=false;ans=null;}
+    else if(k==='enter'){if(!tok.length)return;if(done){submit();return;}compute();}
     draw();
   }
+  function submit(){
+    if(!P||P.answered)return;
+    if(!done){if(!tok.length){msg('Bitte zuerst eine Zahl oder Rechnung eintippen.');return;}if(!compute())return;draw();}
+    document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);$('#calcok').disabled=true;
+    const [ok,extra]=check(ans);answer(ok,extra);
+  }
   el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
+  $('#calcok').onclick=submit;
   document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
-    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='e'||k==='E'||k==='^')m='exp';
-    else if(k==='+'||k==='*'||k==='/')m=k;else if(k==='x'||k==='X')m='*';else if(k==='('||k===')')m=k==='('?'lp':'rp';
-    else if(k==='-'||k==='−'){const last=tok[tok.length-1];m=(!tok.length&&!fresh)||last==='E'||last==='('||(last&&'+-*/'.includes(last))?'neg':'-';}
-    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m=fresh?'ok':'eq';
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m='.';else if(k==='+')m='+';else if(k==='*'||k==='x'||k==='X')m='*';else if(k==='/'||k===':')m='/';
+    else if(k==='-'){const last=tok[tok.length-1];m=(!tok.length&&!done)||isOp(last)||last==='('||last==='E'?'neg':'-';}
+    else if(k==='('||k===')')m=k;else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='enter';
     if(m){e.preventDefault();press(m);}};
   draw();
 }
