@@ -195,6 +195,11 @@ td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
 .ck.dg{background:#e9e9ec;color:#111}
 .ck.fn{background:#1f1f22;font-size:19px}
 .ck.ok{background:#6f8796;font-size:19px}
+.ck.op{background:#3a3d44;font-size:24px}
+.ck.go{background:var(--green);font-size:19px}
+.ck.wide{grid-column:span 2}
+.cdisp .cres{text-align:right;font-size:1em;min-height:1.15em;font-weight:700}
+.cdisp .cline{font-size:.8em;word-break:break-all}
 .ck:disabled{filter:grayscale(1) brightness(.7)}
 
 .curvebox{background:#1d1d23;border:3px solid var(--line);padding:6px;margin:8px 0;max-width:520px}
@@ -657,45 +662,67 @@ function parseSci(mStr,eStr,neg){
   let ev=+e;if(neg&&ev>0)ev=-ev;
   return mant*Math.pow(10,ev);
 }
-/* Eingabe wie am TI-30X Pro (Schul-Taschenrechner): Ziffern, Punkt, (–), EE, delete, clear, enter – für alle Zahlenaufgaben */
+/* Taschenrechner wie der TI-30X Pro: + − × ÷, Klammern, EE, (–), delete, clear, enter (= ausrechnen), Prüfen */
 function calcPad(t,el,isSci,check){
-  const st={m:'',mNeg:false,e:null,eNeg:false};let mode='m';
-  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 &nbsp;·&nbsp; <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>12.5</b>. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>';
+  /* Tokens: Ziffern '0'-'9', '.', 'E' (EE), 'n' (Vorzeichen (–)), '+','-','*','/','(',')', 'A' (Ans) */
+  let tok=[],ans=null,res=null,fresh=false;
+  const SHOW={'*':'×','/':'÷','-':'−','+':'+','E':'<span class="ce">E</span>','n':'<span class="cneg">-</span>','A':'Ans'};
+  const ex=isSci?'z. B. <b>16 × 1.66 EE (–) 24 enter</b>, dann <b>Prüfen</b>':'z. B. <b>2 × 56 + 3 × 16 enter</b>, dann <b>Prüfen</b>';
   el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
-    <div class="ckeys">${[['7','','dg'],['8','','dg'],['9','','dg'],['del','delete','fn'],['4','','dg'],['5','','dg'],['6','','dg'],['ac','clear','fn'],['1','','dg'],['2','','dg'],['3','','dg'],['exp','EE','fn'],['0','','dg'],[',','.','dg'],['neg','(–)','dg'],['ok','enter','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
-    <div class="muted" style="font-size:15px;margin-top:8px">Wie auf deinem TI-30X Pro: ${ex}. <b>enter</b> = Prüfen. Am PC gehen auch die Tasten (E = EE, Minus = (–)).</div>
+    <div class="ckeys">${[['exp','EE','fn'],['lp','(','fn'],['rp',')','fn'],['/','÷','op'],
+      ['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],
+      ['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],
+      ['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],
+      ['0','','dg'],[',','.','dg'],['neg','(–)','dg'],['eq','enter','ok'],
+      ['ac','clear','fn'],['del','delete','fn'],['ok','Prüfen ✔','go wide']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Du kannst auch nur das Ergebnis eintippen und gleich auf Prüfen gehen. Am PC gehen auch die Tasten (* / + - ( ) , E, Enter).</div>
     <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
   const cd=$('#cd');
-  function draw(){
-    const NEG='<span class="cneg">-</span>';
-    const m=(st.mNeg?NEG:'')+(st.m||(st.e===null?'':'1')).replace(',','.');
-    let h=m;
-    if(st.e!==null)h+=`<span class="ce">E</span>${st.eNeg?NEG:''}${st.e}`;
-    h+='<span class="cur"></span>';
-    cd.innerHTML=`<div class="cline">${h}</div><div class="cunit">${t.unit}</div>`;
+  function fmtRes(v){if(v===null||!isFinite(v))return 'Fehler';if(v===0)return '0';const a=Math.abs(v);
+    if(a>=1e10||a<1e-3){let e=Math.floor(Math.log10(a));let m=v/Math.pow(10,e);m=+m.toPrecision(6);if(Math.abs(m)>=10){m/=10;e++;}return String(m)+'<span class="ce">E</span>'+(e<0?'<span class="cneg">-</span>'+(-e):e);}
+    return String(+v.toPrecision(10));}
+  function draw(){const line=tok.map(x=>SHOW[x]!==undefined?SHOW[x]:x).join('');
+    cd.innerHTML=`<div class="cline">${line}<span class="cur"></span></div><div class="cres">${res!==null?fmtRes(res):''}</div><div class="cunit">${t.unit}</div>`;}
+  function evalTok(){
+    if(!tok.length)return null;let s='';
+    for(let i=0;i<tok.length;i++){const x=tok[i];
+      if(x==='A'){if(ans===null)return NaN;s+='('+ans+')';}
+      else if(x==='n')s+='-';
+      else if(x==='E')s+='e';
+      else if(x==='-')s+=' - ';
+      else if(x==='lp'||x==='(')s+='(';
+      else s+=x;}
+    s=s.replace(/e\s*-\s*/g,'e-');
+    if(!/^[0-9.+\-*/()e\s]+$/.test(s))return NaN;
+    if(/[0-9.)]\s*\(|\)\s*[0-9.]/.test(s))return NaN;
+    try{const v=Function('"use strict";return ('+s+')')();return (typeof v==='number'&&isFinite(v))?v:NaN;}catch(e){return NaN;}
   }
-  function value(){
-    const mStr=(st.m||(st.e!==null?'1':'')).replace(',','.');if(mStr===''||mStr==='.'||isNaN(+mStr))return null;
-    let v=+mStr*(st.mNeg?-1:1);if(st.e!==null){if(st.e==='')return null;v*=Math.pow(10,(st.eNeg?-1:1)*(+st.e));}return v;
-  }
+  function msg(h){const m=$('#scimsg');m.style.display=h?'block':'none';m.innerHTML=h||'';}
   function press(k){
-    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
-    if(/^[0-9]$/.test(k)){if(mode==='e'){if(st.e.length<3)st.e+=k;}else if(st.m.replace(',','').length<9)st.m+=k;}
-    else if(k===','){if(mode==='m'&&!st.m.includes(','))st.m+=(st.m===''?'0,':',');}
-    else if(k==='neg'){if(mode==='e')st.eNeg=!st.eNeg;else st.mNeg=!st.mNeg;}
-    else if(k==='exp'){if(st.e===null){st.e='';mode='e';}}
-    else if(k==='del'){if(mode==='e'){if(st.e!=='')st.e=st.e.slice(0,-1);else if(st.eNeg)st.eNeg=false;else{st.e=null;mode='m';}}else if(st.m!=='')st.m=st.m.slice(0,-1);else st.mNeg=false;}
-    else if(k==='ac'){st.m='';st.mNeg=false;st.e=null;st.eNeg=false;mode='m';}
-    else if(k==='ok'){const v=value();
-      if(v===null){const msg=$('#scimsg');msg.style.display='block';msg.innerHTML=st.e===''?'Hinter ×10<sup>x</sup> fehlt noch die Hochzahl.':'Bitte zuerst eine Zahl eintippen.';return;}
-      document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);
-      const [ok,extra]=check(v);answer(ok,extra);return;}
+    if(!P||P.answered||!document.getElementById('cd'))return;msg('');
+    const ops={'+':1,'-':1,'*':1,'/':1};
+    if(k==='eq'){const v=evalTok();if(v===null)return;if(isNaN(v)){msg('Syntaxfehler: Prüfe Klammern und Rechenzeichen. Zwischen Zahl und Klammer brauchst du ein ×.');return;}res=v;ans=v;fresh=true;draw();return;}
+    if(k==='ok'){let v=res;if(!fresh||res===null){const e=evalTok();if(e===null){msg('Bitte zuerst eine Zahl oder Rechnung eintippen.');return;}if(isNaN(e)){msg('Syntaxfehler: Prüfe Klammern und Rechenzeichen.');return;}v=e;res=e;draw();}
+      document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);const [ok,extra]=check(v);answer(ok,extra);return;}
+    if(k==='ac'){tok=[];res=null;fresh=false;draw();return;}
+    if(k==='del'){if(fresh){fresh=false;res=null;}tok.pop();draw();return;}
+    if(fresh){fresh=false;if(ops[k]){tok=['A'];}else{tok=[];}res=null;}
+    if(/^[0-9]$/.test(k))tok.push(k);
+    else if(k===','){tok.push('.');}
+    else if(k==='neg')tok.push('n');
+    else if(k==='exp'){tok.push('E');}
+    else if(ops[k])tok.push(k);
+    else if(k==='lp')tok.push('(');
+    else if(k==='rp')tok.push(')');
+    if(tok.length>40)tok.pop();
     draw();
   }
   el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
   document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
-    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='-'||k==='−')m='neg';else if(k==='e'||k==='E'||k==='^')m='exp';
-    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='ok';
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='+'||k==='*'||k==='/')m=k;else if(k==='x'||k==='X')m='*';else if(k==='('||k===')')m=k==='('?'lp':'rp';
+    else if(k==='-'||k==='−'){const last=tok[tok.length-1];m=(!tok.length&&!fresh)||last==='E'||last==='('||(last&&'+-*/'.includes(last))?'neg':'-';}
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m=fresh?'ok':'eq';
     if(m){e.preventDefault();press(m);}};
   draw();
 }
