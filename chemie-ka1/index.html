@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chemie-Miner – KA Nr. 1</title>
+<title>Chemie-Fabrik – KA Nr. 1</title>
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -196,6 +196,8 @@ td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
 .ck.fn{background:#1f1f22;font-size:19px}
 .ck.ok{background:#6f8796;font-size:19px}
 .ck:disabled{filter:grayscale(1) brightness(.7)}
+.prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
+.prog span.ok,.prog span.bad{background:#2b2b33}
 textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
 .inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
 @media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
@@ -205,7 +207,7 @@ textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font
 <div class="ores" id="ores"></div>
 <header class="top">
   <div class="hrow">
-    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">⛏</div><h1>Chemie-Miner</h1></div>
+    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">🏭</div><h1>Chemie-Fabrik</h1></div>
     <div class="player">
       <div class="rank" id="rank"></div>
       <div class="xpbar"><div id="xpfill" style="width:0"></div><div class="xptxt" id="xptxt"></div></div>
@@ -600,14 +602,14 @@ const MC_LERN=[
 const MC_UG={q:'Wie rechnest du die Masse eines Teilchens von u in g um? (musst du auswendig können)',c:['Masse in u · 1,66 · 10<sup>−24</sup> g','Masse in u · 6,022 · 10<sup>23</sup>','Masse in u : 1,66 · 10<sup>−24</sup>','Masse in u · 1000'],e:'<b>1 u = 1,66 · 10<sup>−24</sup> g</b>, also mit diesem Wert malnehmen.'};
 /* ============ Welten ============ */
 const W=[
- {id:'basis',name:'Basislager',icon:'🏕️',topic:'Grundlagen aus Klasse 8 · HONClBrIF',build:()=>[gHonc()].concat(pickN(MC_BASIS,5).map(poolMC))},
- {id:'masse',name:'Massen-Mine',icon:'⛏️',topic:'Erhaltung der Masse · konstante Massenverhältnisse · Dalton & Demokrit',build:()=>shuffle([gCons(),gCons(),gRatio(),gLeft()].concat(pickN(MC_DALTON,2).map(poolMC)))},
- {id:'atom',name:'Atomschmiede',icon:'⚒️',topic:'atomare Masseneinheit u · Umrechnung u → g',build:()=>shuffle([gMassU(),gMassU(),gU2G(),gU2G(),gG2El(),poolMC(pick(MC_U.concat([MC_UG])))])},
- {id:'formel',name:'Formel-Werkbank',icon:'🧱',topic:'Verhältnisformeln · Molekülformeln · Atome zählen · Stoffdiagramm',build:()=>shuffle([gVerh(),gVerh(),gCount(),gCount(),gFType(),gPType()])},
- {id:'gleichung',name:'Gleichungs-Crafting',icon:'⚗️',topic:'Vom Reaktionsschema zur Reaktionsgleichung',build:()=>{const out=[],used=new Set();while(out.length<5){const t=gBal();if(!used.has(t.eqi)){used.add(t.eqi);out.push(t);}}return out;}},
- {id:'mol',name:'Mol-Portal',icon:'🌀',topic:'Teilchenzahl N · Stoffmenge n · molare Masse M · Avogadro-Konstante',build:()=>shuffle([poolMC(pick(MC_UMST)),gMn(),gNm(),gNN(),gNfromN(),gMN()])},
- {id:'stoich',name:'Stöchio-Turm',icon:'🗼',topic:'Rechnen mit Reaktionsgleichungen (Schema)',build:()=>shuffle([gStoich(),gStoich(),gStoich(),gStoich(),poolMC(pick(MC_ST))])},
- {id:'dichte',name:'Dichte-See',icon:'💧',topic:'Rechnen mit der Dichte · Masse ↔ Volumen ↔ Stoffmenge',build:()=>shuffle([gDens(),poolMC(pick(MC_LERN)),gDensId(),gDensMol(),gDensGas()])},
+ {id:'basis',name:'Rohstofflager',icon:'📦',topic:'Grundlagen aus Klasse 8 · HONClBrIF',build:()=>[gHonc()].concat(pickN(MC_BASIS,5).map(poolMC))},
+ {id:'masse',name:'Waagen-Halle',icon:'⚖️',topic:'Erhaltung der Masse · konstante Massenverhältnisse · Dalton & Demokrit',build:()=>shuffle([gCons(),gCons(),gRatio(),gLeft()].concat(pickN(MC_DALTON,2).map(poolMC)))},
+ {id:'atom',name:'Atom-Labor',icon:'🔬',topic:'atomare Masseneinheit u · Umrechnung u → g',build:()=>shuffle([gMassU(),gMassU(),gU2G(),gU2G(),gG2El(),poolMC(pick(MC_U.concat([MC_UG])))])},
+ {id:'formel',name:'Formel-Druckerei',icon:'🖨️',topic:'Verhältnisformeln · Molekülformeln · Atome zählen · Stoffdiagramm',build:()=>shuffle([gVerh(),gVerh(),gCount(),gCount(),gFType(),gPType()])},
+ {id:'gleichung',name:'Reaktor-Halle',icon:'⚗️',topic:'Vom Reaktionsschema zur Reaktionsgleichung',build:()=>{const out=[],used=new Set();while(out.length<5){const t=gBal();if(!used.has(t.eqi)){used.add(t.eqi);out.push(t);}}return out;}},
+ {id:'mol',name:'Mol-Zählwerk',icon:'🔢',topic:'Teilchenzahl N · Stoffmenge n · molare Masse M · Avogadro-Konstante',build:()=>shuffle([poolMC(pick(MC_UMST)),gMn(),gNm(),gNN(),gNfromN(),gMN()])},
+ {id:'stoich',name:'Dosier-Anlage',icon:'🧮',topic:'Rechnen mit Reaktionsgleichungen (Schema)',build:()=>shuffle([gStoich(),gStoich(),gStoich(),gStoich(),poolMC(pick(MC_ST))])},
+ {id:'dichte',name:'Tank-Lager',icon:'🛢️',topic:'Rechnen mit der Dichte · Masse ↔ Volumen ↔ Stoffmenge',build:()=>shuffle([gDens(),poolMC(pick(MC_LERN)),gDensId(),gDensMol(),gDensGas()])},
 ];
 function bossBuild(){
   const g=[[gCons,'masse'],[pick([gRatio,gLeft]),'masse'],[pick([gMassU,gU2G]),'atom'],[gVerh,'formel'],[()=>gBal(true),'gleichung'],[()=>gBal(true),'gleichung'],[pick([gMn,gNm]),'mol'],[pick([gNN,gMN]),'mol'],[gStoich,'stoich'],[gStoich,'stoich'],[pick([gDensGas,gDensMol]),'dichte']];
@@ -622,30 +624,30 @@ function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
 const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
 const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
 const ACH=[
- ['first','⛏️','Erster Block','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
+ ['first','🏭','Erste Charge','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
  ['honc','👯','Zweiatomig','HONClBrIF-Raster komplett richtig.',()=>S.stats.honcPerfect>=1],
  ['mass','⚖️','Nichts geht verloren','5 Aufgaben in der Massen-Mine richtig.',()=>(S.stats.byWorld.masse||0)>=5],
  ['u2g','🔬','Atomwaage','Zum ersten Mal u in Gramm umgerechnet.',()=>S.stats.u2g>=1],
- ['werk','🧱','Meister der Werkbank','Formel-Werkbank mit 3 Sternen.',()=>(S.stars.formel||0)>=3],
+ ['werk','🖨️','Meister der Druckerei','Formel-Druckerei mit 3 Sternen.',()=>(S.stars.formel||0)>=3],
  ['bal5','⚗️','Ausgleicher','5 Reaktionsgleichungen ausgeglichen.',()=>S.stats.balanced>=5],
  ['bal15','📐','Gleichungs-Legende','15 verschiedene Gleichungen ausgeglichen.',()=>S.stats.balancedSet.length>=15],
  ['mol10','🌀','Avogadros Kumpel','10 Aufgaben im Mol-Portal richtig.',()=>(S.stats.byWorld.mol||0)>=10],
- ['stoich','🗼','Turm erklommen','Stöchio-Turm geschafft (mind. 1 Stern).',()=>(S.stars.stoich||0)>=1],
- ['dichte','🤿','Tiefseetaucher','Dichte-See geschafft (mind. 1 Stern).',()=>(S.stars.dichte||0)>=1],
+ ['stoich','🧮','Perfekt dosiert','Dosier-Anlage geschafft (mind. 1 Stern).',()=>(S.stars.stoich||0)>=1],
+ ['dichte','🛢️','Tankwart','Tank-Lager geschafft (mind. 1 Stern).',()=>(S.stars.dichte||0)>=1],
  ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
  ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
  ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
  ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
  ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
  ['s24','🌟','Alle Sterne','Alle 24 Sterne gesammelt.',()=>starsTotal()>=24],
- ['all','🗺️','Weltenbummler','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
+ ['all','🏭','Fabrik komplett','In jeder Anlage mindestens 1 Stern.',()=>worldsDone()>=W.length],
  ['iron','🛡️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
  ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
  ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
  ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
  ['cheat','📜','Gut vorbereitet','Die Formelseite angeschaut.',()=>S.stats.cheat>=1],
- ['boss','👾','Wächter besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
- ['bossp','👑','Unbesiegbar','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
+ ['boss','🚨','Störfall behoben','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
+ ['bossp','👑','Null Unfälle','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
 ];
 
 /* ============ Spielstand ============ */
@@ -661,11 +663,12 @@ function touchStreak(){H.touchStreak();}
 const $=s=>document.querySelector(s);
 const view=$('#view');
 function oreStrip(){
-  const cols=['#f4f4f4','#e0473a','#3a3a3a','#3f7be0','#56c24a','#f2d23c','#b8693a','#4ee6e0','#d9813f','#9b59d0'];
-  const sym=['H','O','C','N','Cl','S','Fe','','Cu','Na'];
-  let h='';for(let i=0;i<40;i++){const k=i%10;const c=cols[(i*7)%10];
-    const dots=[[6,8],[26,6],[14,26],[30,28],[8,32]].slice(0,2+(i%3)).map(([x,y])=>`<i style="left:${x}px;top:${y}px;background:${c};box-shadow:4px 4px 0 rgba(0,0,0,.35)"></i>`).join('');
-    h+=`<div class="ore" style="background:${i%4===3?'#5d5d5d':'#6f6f6f'}">${dots}<span style="position:relative">${i%3===0?sym[k]:''}</span></div>`;}
+  const barrel=['#3f7be0','#e0473a','#56c24a','#f2c94c','#9b59d0'];
+  let h='';for(let i=0;i<40;i++){let inner='';let bg='#4b4f57';
+    if(i%6===0){bg='repeating-linear-gradient(45deg,#f2c94c 0 7px,#1c1c1f 7px 14px)';}
+    else if(i%3===1){const c=barrel[(i/3|0)%barrel.length];inner=`<i style="left:12px;top:8px;width:20px;height:28px;background:${c};box-shadow:inset 0 4px 0 rgba(255,255,255,.25),inset 0 -4px 0 rgba(0,0,0,.3)"></i><i style="left:12px;top:19px;width:20px;height:3px;background:rgba(0,0,0,.35)"></i>`;}
+    else{inner=`<i style="left:0;top:36px;width:44px;height:4px;background:#2a2c31"></i><i style="left:6px;top:37px;width:6px;height:2px;background:#8a8f99"></i><i style="left:26px;top:37px;width:6px;height:2px;background:#8a8f99"></i>`;}
+    h+=`<div class="ore" style="background:${bg}">${inner}</div>`;}
   $('#ores').innerHTML=h;
 }
 function updateHeader(){
@@ -693,7 +696,7 @@ function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn
 H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
 let lastRank=rankIdx(S.xp);
 function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
-function registerApp(){H.registerApp({id:APP,name:'Chemie-Miner',icon:'⛏️',fach:'Chemie',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
+function registerApp(){H.registerApp({id:APP,name:'Chemie-Fabrik',icon:'🏭',fach:'Chemie',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
 
 /* ============ Karte ============ */
 function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
@@ -701,14 +704,14 @@ function renderMap(){
   const unlocked=worldsDone()>=6;
   let h='';
   if(!H.get().name){
-    h+=`<div class="panel"><h2>Willkommen, Miner!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
+    h+=`<div class="panel"><h2>Willkommen in der Fabrik!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
   }
   h+=`<div class="panel intro"><h2>Klassenarbeit Nr. 1 · Chemie Kl. 9</h2>
-  <p>Jede Welt ist ein Thema aus deinem Themenzettel. Eine Runde hat 5–6 Aufgaben und dauert ein paar Minuten. Für jede Runde gibt es bis zu <b style="color:var(--gold)">3 Sterne</b>, dazu XP für neue Ränge und Erfolge.</p>
-  <p class="muted">Tipp: Spiel die Welten ungefähr der Reihe nach. Wenn du in 6 Welten mindestens einen Stern hast, öffnet sich der Endboss.</p></div>
+  <p>Bau deine Chemiefabrik auf! Jede Anlage ist ein Thema aus deinem Themenzettel, jede richtige Antwort produziert eine Charge 🧪. Eine Runde hat 5–6 Aufgaben und dauert ein paar Minuten. Für jede Runde gibt es bis zu <b style="color:var(--gold)">3 Sterne</b>, dazu XP für neue Ränge und Erfolge.</p>
+  <p class="muted">Tipp: Nimm die Anlagen ungefähr der Reihe nach in Betrieb. Wenn 6 Anlagen mindestens einen Stern haben, kommt es zum Störfall im Reaktor.</p></div>
   <div class="worlds">`;
-  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">WELT ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
-  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">👾</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Molekül-Wächter</div><div class="tp">${unlocked?'11 gemischte Aufgaben, 3 Herzen. Schaffst du es?':`🔒 Noch ${6-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">ANLAGE ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🚨</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Störfall-Reaktor</div><div class="tp">${unlocked?'11 gemischte Aufgaben, 3 Herzen. Bekommst du den Reaktor wieder in den Griff?':`🔒 Noch ${6-worldsDone()} Anlage(n) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
   view.innerHTML=h;
   view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
   $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
@@ -718,18 +721,20 @@ function renderMap(){
 /* ============ Spiel ============ */
 let P=null;
 function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false,secs:0};renderTask();}
-function startBoss(){P={world:'boss',name:'Der Molekül-Wächter',icon:'👾',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Der Störfall-Reaktor',icon:'🚨',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
 function bossSvg(hp){
-  return `<svg width="120" height="104" viewBox="0 0 30 26" shape-rendering="crispEdges">
-   <rect x="3" y="3" width="24" height="20" fill="#6b3fa0"/><rect x="3" y="3" width="24" height="3" fill="#8a5bc4"/><rect x="3" y="20" width="24" height="3" fill="#4a2873"/>
-   <rect x="9" y="8" width="12" height="8" fill="#f2f2f2"/><rect x="13" y="10" width="4" height="4" fill="${hp>1?'#e0473a':'#f2c94c'}"/>
-   <rect x="7" y="18" width="2" height="2" fill="#2a1540"/><rect x="11" y="18" width="2" height="2" fill="#2a1540"/><rect x="15" y="18" width="2" height="2" fill="#2a1540"/><rect x="19" y="18" width="2" height="2" fill="#2a1540"/>
-   <rect x="0" y="9" width="3" height="3" fill="#4ee6e0"/><rect x="27" y="9" width="3" height="3" fill="#4ee6e0"/><rect x="6" y="0" width="3" height="3" fill="#f2d23c"/><rect x="21" y="0" width="3" height="3" fill="#e0473a"/>
-   <rect x="5" y="23" width="4" height="3" fill="#4a2873"/><rect x="21" y="23" width="4" height="3" fill="#4a2873"/></svg>`;
+  const lamp=hp>=3?'#e0473a':hp===2?'#f2a03c':hp===1?'#f2c94c':'#56c24a';
+  const steam=hp>0?`<rect x="9" y="0" width="3" height="3" fill="#cfd3da"/><rect x="15" y="1" width="3" height="2" fill="#cfd3da"/><rect x="12" y="2" width="2" height="2" fill="#e8eaee"/>`:'';
+  return `<svg width="116" height="116" viewBox="0 0 28 28" shape-rendering="crispEdges">${steam}
+   <rect x="11" y="3" width="6" height="3" fill="#6b7078"/><rect x="5" y="6" width="18" height="18" fill="#8a8f99"/><rect x="5" y="6" width="18" height="2" fill="#b4b9c2"/>
+   <rect x="5" y="13" width="18" height="3" fill="#f2c94c"/><rect x="7" y="13" width="2" height="3" fill="#1c1c1f"/><rect x="11" y="13" width="2" height="3" fill="#1c1c1f"/><rect x="15" y="13" width="2" height="3" fill="#1c1c1f"/><rect x="19" y="13" width="2" height="3" fill="#1c1c1f"/>
+   <rect x="9" y="8" width="10" height="4" fill="#2a2c31"/><rect x="10" y="9" width="3" height="2" fill="${lamp}"/><rect x="15" y="9" width="3" height="2" fill="${lamp}"/>
+   <rect x="9" y="18" width="10" height="3" fill="#2a2c31"/><rect x="2" y="16" width="3" height="2" fill="#6b7078"/><rect x="23" y="16" width="3" height="2" fill="#6b7078"/>
+   <rect x="6" y="24" width="3" height="3" fill="#4b4f57"/><rect x="19" y="24" width="3" height="3" fill="#4b4f57"/></svg>`;
 }
 function renderTask(){
   document.onkeydown=null;const t=P.tasks[P.i];P.answered=false;P.usedHint=false;P.taskT=Date.now();
-  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}"></span>`;});
+  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}">${k<P.res.length?(P.res[k]?'🧪':'💨'):'⚙️'}</span>`;});
   view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
    ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
    ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
@@ -851,7 +856,7 @@ function answer(ok,extra){
   setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
   document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
 }
-function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Chemie-Miner',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
+function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Chemie-Fabrik',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
   right:P.res.filter(Boolean).length,total:P.res.length,planned:P.tasks.length,stars:stars,secs:Math.round(P.secs),hints:P.hints,done:done});}
 function finish(){
   document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
@@ -861,7 +866,7 @@ function finish(){
     const won=P.hearts>0;
     logRound(true,null);
     if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
-    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Der Molekül-Wächter ist besiegt!':'Der Wächter war stärker …'}</h2>
+    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Störfall behoben! Die Fabrik läuft wieder.':'Der Reaktor ist durchgebrannt …'}</h2>
      <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
      <p class="muted">${won?'Stark! Das war fast schon Klassenarbeits-Niveau.':'Schau dir die Lösungswege nochmal an und trainiere die Welten, in denen es gehakt hat. Dann nochmal!'}</p>
      <div class="row" style="justify-content:center"><button class="btn green" id="again">Nochmal kämpfen</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
@@ -875,7 +880,7 @@ function finish(){
     if(st)gainXP(st*10);
     h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>
      <p>${right} von ${total} richtig${st?` · <b style="color:var(--gold)">+${st*10} XP</b> Sternbonus`:''}${st>prev&&prev>0?' · neuer Rekord!':''}</p>
-     <p class="muted">${st===3?'Perfekt! Diese Welt hast du im Griff.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
+     <p class="muted">${st===3?'Perfekt! Diese Anlage läuft rund.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
      <div class="row" style="justify-content:center"><button class="btn green" id="again">Neue Runde</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
     if(st===3)confetti(70);
   }
@@ -935,6 +940,7 @@ function migrate(force){const G=H.get();if(!force&&(S.migrated||!(S.xp>0)))retur
   if(S.ach)ACH.forEach(([id,ic,n,d])=>{if(S.ach[id]&&!G.ach[APP+':'+id])G.ach[APP+':'+id]={t:S.ach[id],app:APP,icon:ic,name:n,desc:d};});
   H.importData(G);S.migrated=true;save();}
 migrate(false);
+(function(){const G=H.get();let ch=false;ACH.forEach(([id,ic,n,d])=>{const k=APP+':'+id;if(G.ach[k]&&(G.ach[k].name!==n||G.ach[k].icon!==ic)){G.ach[k].icon=ic;G.ach[k].name=n;G.ach[k].desc=d;ch=true;}});if(ch)H.importData(G);})();
 oreStrip();updateHeader();renderMap();checkAch();H.checkGlobal();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
 </script>
