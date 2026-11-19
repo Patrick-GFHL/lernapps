@@ -215,7 +215,7 @@ textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font
   <nav class="tabs">
     <button class="btn small" data-nav="map">🗺 Karte</button>
     <button class="btn small" data-nav="ach" id="navach">🏆 Erfolge</button>
-    <button class="btn small" data-nav="sheet">📜 Spickzettel</button>
+    <button class="btn small" data-nav="sheet">📜 Formeln</button>
     <button class="btn small" data-nav="save">💾 Spielstand</button>
   </nav>
 </header>
@@ -341,7 +341,7 @@ const FU=['H2O','CO2','NH3','CH4','NaCl','H2SO4','HCl','MgO','Fe2O3','CaCO3','Al
 function gMassU(){
   const f=pick(FU),m=molar(f);
   return num(`Wie groß ist die Masse eines Teilchens <b>${fx(f)}</b> (${nm(f)}) in u?`,m,'u',
-    `m(${fx(f)}) = ${breakdown(f)} = <b>${fmt(m,1)} u</b>`,'Atommassen aus der Tabelle (Spickzettel) nehmen und mit der Anzahl der Atome malnehmen. Die kleine Zahl gilt nur für das Atom direkt davor.');
+    `m(${fx(f)}) = ${breakdown(f)} = <b>${fmt(m,1)} u</b>`,'Atommassen aus dem Periodensystem nehmen und mit der Anzahl der Atome malnehmen. Die kleine Zahl gilt nur für das Atom direkt davor.');
 }
 function gU2G(){
   let label,mu;
@@ -584,17 +584,30 @@ const MC_H2=[
  {q:'Ungefähr wie viel-mal leichter als Luft ist Wasserstoff?',c:['ca. 14-mal','ca. 2-mal','ca. 100-mal','gleich schwer'],e:'1,29 g/L : 0,09 g/L ≈ <b>14</b>.'}
 ];
 
+
+/* ---------- Formeln: Umstellen (Formelsammlung) und Auswendiglernen ---------- */
+const MC_UMST=[
+ {q:'Auf der Formelsammlung steht <b>N<sub>A</sub> = N / n</b>. Wie berechnest du die Teilchenzahl N?',c:['N = n · N<sub>A</sub>','N = n / N<sub>A</sub>','N = N<sub>A</sub> / n','N = N<sub>A</sub> − n'],e:'Beide Seiten mal n: <b>N = n · N<sub>A</sub></b>.'},
+ {q:'Auf der Formelsammlung steht <b>N<sub>A</sub> = N / n</b>. Wie berechnest du die Stoffmenge n?',c:['n = N / N<sub>A</sub>','n = N · N<sub>A</sub>','n = N<sub>A</sub> / N','n = N + N<sub>A</sub>'],e:'<b>n = N / N<sub>A</sub></b>.'},
+ {q:'Auf der Formelsammlung steht <b>M = m / n</b>. Wie berechnest du die Stoffmenge n?',c:['n = m / M','n = m · M','n = M / m','n = m − M'],e:'<b>n = m / M</b>.'},
+ {q:'Auf der Formelsammlung steht <b>M = m / n</b>. Wie berechnest du die Masse m?',c:['m = n · M','m = n / M','m = M / n','m = M − n'],e:'Beide Seiten mal n: <b>m = n · M</b>.'}
+];
+const MC_LERN=[
+ {q:'Die Dichte steht <b>nicht</b> auf der Formelsammlung, die musst du auswendig können. Wie lautet die Formel?',c:['ρ = m / V','ρ = V / m','ρ = m · V','ρ = n / V'],e:'<b>ρ = m / V</b> (Masse durch Volumen).'},
+ {q:'Wie berechnest du das Volumen aus Masse und Dichte?',c:['V = m / ρ','V = m · ρ','V = ρ / m','V = n · M'],e:'<b>V = m / ρ</b>.'},
+ {q:'Wie berechnest du die Masse aus Dichte und Volumen?',c:['m = ρ · V','m = ρ / V','m = V / ρ','m = n / M'],e:'<b>m = ρ · V</b>.'}
+];
+const MC_UG={q:'Wie rechnest du die Masse eines Teilchens von u in g um? (musst du auswendig können)',c:['Masse in u · 1,66 · 10<sup>−24</sup> g','Masse in u · 6,022 · 10<sup>23</sup>','Masse in u : 1,66 · 10<sup>−24</sup>','Masse in u · 1000'],e:'<b>1 u = 1,66 · 10<sup>−24</sup> g</b>, also mit diesem Wert malnehmen.'};
 /* ============ Welten ============ */
 const W=[
  {id:'basis',name:'Basislager',icon:'🏕️',topic:'Grundlagen aus Klasse 8 · HONClBrIF',build:()=>[gHonc()].concat(pickN(MC_BASIS,5).map(poolMC))},
  {id:'masse',name:'Massen-Mine',icon:'⛏️',topic:'Erhaltung der Masse · konstante Massenverhältnisse · Dalton & Demokrit',build:()=>shuffle([gCons(),gCons(),gRatio(),gLeft()].concat(pickN(MC_DALTON,2).map(poolMC)))},
- {id:'atom',name:'Atomschmiede',icon:'⚒️',topic:'atomare Masseneinheit u · Umrechnung u → g',build:()=>shuffle([gMassU(),gMassU(),gU2G(),gU2G(),gG2El(),poolMC(pick(MC_U))])},
+ {id:'atom',name:'Atomschmiede',icon:'⚒️',topic:'atomare Masseneinheit u · Umrechnung u → g',build:()=>shuffle([gMassU(),gMassU(),gU2G(),gU2G(),gG2El(),poolMC(pick(MC_U.concat([MC_UG])))])},
  {id:'formel',name:'Formel-Werkbank',icon:'🧱',topic:'Verhältnisformeln · Molekülformeln · Atome zählen · Stoffdiagramm',build:()=>shuffle([gVerh(),gVerh(),gCount(),gCount(),gFType(),gPType()])},
  {id:'gleichung',name:'Gleichungs-Crafting',icon:'⚗️',topic:'Vom Reaktionsschema zur Reaktionsgleichung',build:()=>{const out=[],used=new Set();while(out.length<5){const t=gBal();if(!used.has(t.eqi)){used.add(t.eqi);out.push(t);}}return out;}},
- {id:'mol',name:'Mol-Portal',icon:'🌀',topic:'Teilchenzahl N · Stoffmenge n · molare Masse M · Avogadro-Konstante',build:()=>shuffle([gMolar(),gMn(),gNm(),gNN(),gNfromN(),gMN()])},
+ {id:'mol',name:'Mol-Portal',icon:'🌀',topic:'Teilchenzahl N · Stoffmenge n · molare Masse M · Avogadro-Konstante',build:()=>shuffle([poolMC(pick(MC_UMST)),gMn(),gNm(),gNN(),gNfromN(),gMN()])},
  {id:'stoich',name:'Stöchio-Turm',icon:'🗼',topic:'Rechnen mit Reaktionsgleichungen (Schema)',build:()=>shuffle([gStoich(),gStoich(),gStoich(),gStoich(),poolMC(pick(MC_ST))])},
- {id:'dichte',name:'Dichte-See',icon:'💧',topic:'Rechnen mit der Dichte · Masse ↔ Volumen ↔ Stoffmenge',build:()=>shuffle([gDens(),gDens(),gDensId(),gDensMol(),gDensGas()])},
- {id:'h2',name:'Wasserstoff-Höhle',icon:'🎈',topic:'Eigenschaften von Wasserstoff · Knallgasprobe',note:'Genaue Abgrenzung kommt noch vom Lehrer',build:()=>{const tfs=[];const pool=shuffle(TF_H2).slice(0,3);pool.forEach(([q,a,e])=>tfs.push({kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e}));return shuffle(tfs.concat([gOrder()].concat(pickN(MC_H2,2).map(poolMC))));}}
+ {id:'dichte',name:'Dichte-See',icon:'💧',topic:'Rechnen mit der Dichte · Masse ↔ Volumen ↔ Stoffmenge',build:()=>shuffle([gDens(),poolMC(pick(MC_LERN)),gDensId(),gDensMol(),gDensGas()])},
 ];
 function bossBuild(){
   const g=[[gCons,'masse'],[pick([gRatio,gLeft]),'masse'],[pick([gMassU,gU2G]),'atom'],[gVerh,'formel'],[()=>gBal(true),'gleichung'],[()=>gBal(true),'gleichung'],[pick([gMn,gNm]),'mol'],[pick([gNN,gMN]),'mol'],[gStoich,'stoich'],[gStoich,'stoich'],[pick([gDensGas,gDensMol]),'dichte']];
@@ -619,20 +632,18 @@ const ACH=[
  ['mol10','🌀','Avogadros Kumpel','10 Aufgaben im Mol-Portal richtig.',()=>(S.stats.byWorld.mol||0)>=10],
  ['stoich','🗼','Turm erklommen','Stöchio-Turm geschafft (mind. 1 Stern).',()=>(S.stars.stoich||0)>=1],
  ['dichte','🤿','Tiefseetaucher','Dichte-See geschafft (mind. 1 Stern).',()=>(S.stars.dichte||0)>=1],
- ['plopp','🎈','Plopp!','Knallgasprobe richtig sortiert.',()=>S.stats.orderCorrect>=1],
- ['h2','💨','Wasserstoff-Profi','Wasserstoff-Höhle mit 3 Sternen.',()=>(S.stars.h2||0)>=3],
  ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
  ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
  ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
  ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
  ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
- ['s27','🌟','Alle Sterne','Alle 27 Sterne gesammelt.',()=>starsTotal()>=27],
+ ['s24','🌟','Alle Sterne','Alle 24 Sterne gesammelt.',()=>starsTotal()>=24],
  ['all','🗺️','Weltenbummler','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
  ['iron','🛡️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
  ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
  ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
  ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
- ['cheat','📜','Gut vorbereitet','Den Spickzettel angeschaut.',()=>S.stats.cheat>=1],
+ ['cheat','📜','Gut vorbereitet','Die Formelseite angeschaut.',()=>S.stats.cheat>=1],
  ['boss','👾','Wächter besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
  ['bossp','👑','Unbesiegbar','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
 ];
@@ -682,7 +693,7 @@ function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn
 H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
 let lastRank=rankIdx(S.xp);
 function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
-function registerApp(){H.registerApp({id:APP,name:'Chemie-Miner',icon:'⛏️',fach:'Chemie',klasse:9,achTotal:ACH.length,maxStars:27,stars:starsTotal()});}
+function registerApp(){H.registerApp({id:APP,name:'Chemie-Miner',icon:'⛏️',fach:'Chemie',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
 
 /* ============ Karte ============ */
 function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
@@ -885,16 +896,15 @@ function renderAch(){
 function renderSheet(){
   if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
   const els=['H','C','N','O','Na','Mg','Al','S','Cl','Ca','Fe','Cu','Zn'];
-  view.innerHTML=`<div class="panel"><h2>📜 Formelspickzettel</h2><p>Du darfst in der Klassenarbeit einen Formelspickzettel benutzen. <b>Schreib ihn selbst ab</b>, beim Abschreiben lernst du schon. Was dein Lehrer genau erlaubt, gilt natürlich vor diesem Zettel.</p></div>
+  view.innerHTML=`<div class="panel"><h2>📜 Formeln für die Klassenarbeit</h2><p><b>Ein eigener Spickzettel ist nicht erlaubt.</b> Du bekommst eine <b>Formelsammlung</b> (Auszug für Baden-Württemberg) und ein <b>Periodensystem</b>. Alle anderen Formeln musst du auswendig können.</p></div>
   <div class="sheet">
-   <div class="card"><h3>Stoffmenge n</h3><div class="f">n = m / M</div><div class="f">m = n · M</div><div class="f">M = m / n</div><p>m in g · M in g/mol · n in mol</p></div>
-   <div class="card"><h3>Teilchenzahl N</h3><div class="f">N = n · N<sub>A</sub></div><div class="f">n = N / N<sub>A</sub></div><p>N<sub>A</sub> = 6,022 · 10<sup>23</sup> 1/mol<br>(Avogadro-Konstante = Teilchen pro mol)</p></div>
-   <div class="card"><h3>Dichte ρ</h3><div class="f">ρ = m / V</div><div class="f">m = ρ · V</div><div class="f">V = m / ρ</div><p>1 cm³ = 1 mL · Gase meist in g/L</p></div>
-   <div class="card"><h3>Atomare Masseneinheit</h3><div class="f">1 u = 1,66 · 10<sup>−24</sup> g</div><p>m(Teilchen) in g = Masse in u · 1,66 · 10<sup>−24</sup> g</p><p><b>Merke:</b> M in g/mol hat denselben Zahlenwert wie die Teilchenmasse in u (H<sub>2</sub>O: 18 u → 18 g/mol).</p></div>
-   <div class="card"><h3>Stöchiometrie-Schema</h3><p>① Reaktionsgleichung aufstellen und ausgleichen<br>② n(gegeben) = m / M<br>③ Stoffmengenverhältnis aus den Koeffizienten<br>④ m(gesucht) = n · M</p></div>
-   <div class="card"><h3>Verhältnisformel</h3><p>N(A) : N(B) = m(A)/m<sub>A</sub> : m(B)/m<sub>B</sub><br>(Masse ÷ Atommasse, dann auf ganze Zahlen bringen)</p><p><b>HONClBrIF</b> → H<sub>2</sub> O<sub>2</sub> N<sub>2</sub> Cl<sub>2</sub> Br<sub>2</sub> I<sub>2</sub> F<sub>2</sub></p></div>
-   <div class="card"><h3>Atommassen (gerundet)</h3><table>${els.map(e=>`<tr><td><b>${e}</b></td><td>${EN[e]}</td><td>${fmt(A[e],1)} u</td></tr>`).join('')}</table><p style="font-size:14px">Manche Bücher nehmen für Cu 64 u, das ist auch in Ordnung.</p></div>
-   <div class="card"><h3>Massengesetze</h3><p><b>Erhaltung der Masse:</b> m(Ausgangsstoffe) = m(Produkte)</p><p><b>Konstante Massenverhältnisse:</b> Elemente reagieren immer im gleichen Massenverhältnis (z. B. Fe : S = 7 : 4).</p></div>
+   <div class="card" style="background:#dfeecd"><h3>✅ Bekommst du (Formelsammlung)</h3><div class="f">N<sub>A</sub> = N / n</div><div class="f">M = m / n</div><p style="font-size:15px">Außerdem stehen dort V<sub>m</sub> = V / n, p · V = n · R · T und c(A) = n(A) / V(Lsg). Die brauchst du für diese Klassenarbeit voraussichtlich nicht.</p><p><b>Wichtig:</b> Du musst die Formeln <b>umstellen</b> können, z. B. N = n · N<sub>A</sub> oder n = m / M.</p></div>
+   <div class="card" style="background:#dfeecd"><h3>✅ Bekommst du (Periodensystem)</h3><p>Die Atommassen liest du im Periodensystem ab. Zum Üben die gerundeten Werte:</p><table>${els.map(e=>`<tr><td><b>${e}</b></td><td>${EN[e]}</td><td>${fmt(A[e],1)} u</td></tr>`).join('')}</table></div>
+   <div class="card" style="background:#f6d9cf"><h3>🧠 Auswendig lernen: Dichte</h3><div class="f">ρ = m / V</div><div class="f">m = ρ · V &nbsp;·&nbsp; V = m / ρ</div><p>1 cm³ = 1 mL · Gase meist in g/L</p></div>
+   <div class="card" style="background:#f6d9cf"><h3>🧠 Auswendig lernen: Werte</h3><div class="f">1 u = 1,66 · 10<sup>−24</sup> g</div><p>m(Teilchen) in g = Masse in u · 1,66 · 10<sup>−24</sup> g</p><div class="f">N<sub>A</sub> = 6,022 · 10<sup>23</sup> 1/mol</div><p style="font-size:15px">Ob der Zahlenwert von N<sub>A</sub> mit auf dem Blatt steht, ist nicht sicher, also besser lernen.</p><p>M in g/mol hat denselben Zahlenwert wie die Teilchenmasse in u.</p></div>
+   <div class="card" style="background:#f6d9cf"><h3>🧠 Auswendig lernen: Stöchiometrie-Schema</h3><p>① Reaktionsgleichung aufstellen und ausgleichen<br>② n(gegeben) = m / M<br>③ Stoffmengenverhältnis aus den Koeffizienten<br>④ m(gesucht) = n · M</p></div>
+   <div class="card" style="background:#f6d9cf"><h3>🧠 Auswendig lernen: Verhältnisformel</h3><p>N(A) : N(B) = m(A)/m<sub>A</sub> : m(B)/m<sub>B</sub><br>(Masse ÷ Atommasse, dann auf ganze Zahlen bringen)</p><p><b>HONClBrIF</b> → H<sub>2</sub> O<sub>2</sub> N<sub>2</sub> Cl<sub>2</sub> Br<sub>2</sub> I<sub>2</sub> F<sub>2</sub></p></div>
+   <div class="card" style="background:#f6d9cf"><h3>🧠 Auswendig lernen: Massengesetze</h3><p><b>Erhaltung der Masse:</b> m(Ausgangsstoffe) = m(Produkte)</p><p><b>Konstante Massenverhältnisse:</b> Elemente reagieren immer im gleichen Massenverhältnis (z. B. Fe : S = 7 : 4).</p></div>
   </div>`;
 }
 

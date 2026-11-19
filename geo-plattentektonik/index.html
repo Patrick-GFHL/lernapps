@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiefen-Expedition – Geo KA</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lern-Hub">
+<meta name="theme-color" content="#17171c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17171c; --panel:#2b2b33; --panel2:#35353f; --line:#0b0b0e;
+  --text:#f1efe6; --muted:#a9a7a0; --green:#5fbf3a; --green-d:#3c8a20;
+  --gold:#f2c94c; --red:#e05a47; --blue:#4fa3e0; --dia:#4ee6e0; --stone:#7d7d7d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Atkinson Hyperlegible',ui-monospace,Menlo,Consolas,monospace;font-size:19px;line-height:1.45;
+  background-image:linear-gradient(rgba(255,255,255,.025) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.025) 2px,transparent 2px);
+  background-size:32px 32px;min-height:100vh}
+h1,h2,h3,.pix{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400;letter-spacing:.5px}
+h1{font-size:18px;margin:0;line-height:1.5}
+h2{font-size:15px;margin:0 0 14px;line-height:1.6}
+h3{font-size:12px;margin:0 0 8px;line-height:1.6}
+sub,sup{font-size:.7em;line-height:0}
+button{font-family:inherit;font-size:18px;color:var(--text);cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 14px 60px}
+
+/* ore strip */
+.ores{display:flex;overflow:hidden;height:44px;border-bottom:4px solid var(--line)}
+.ore{flex:0 0 44px;height:44px;position:relative;background:#6f6f6f;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.28),inset 4px 4px 0 rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:rgba(0,0,0,.55)}
+.ore i{position:absolute;width:8px;height:8px}
+/* header */
+header.top{background:#202027;border-bottom:4px solid var(--line)}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;background:var(--green);box-shadow:inset -4px -4px 0 var(--green-d),inset 4px 4px 0 rgba(255,255,255,.3);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px}
+.player{display:flex;align-items:center;gap:12px;flex:1;min-width:260px}
+.rank{display:flex;align-items:center;gap:8px;font-weight:700}
+.rankblock{width:22px;height:22px;border:3px solid var(--line);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.35)}
+.xpbar{flex:1;min-width:120px;height:18px;background:#111;border:3px solid var(--line);position:relative}
+.xpbar>div{height:100%;background:linear-gradient(#8ff05a,#5fbf3a);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);transition:width .5s}
+.xptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-shadow:1px 1px 0 #000}
+.streak{font-weight:700;white-space:nowrap}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;max-width:980px;margin:0 auto}
+
+/* buttons */
+.btn{background:#6d6d78;border:3px solid var(--line);padding:9px 16px;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.22);text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{box-shadow:inset 4px 4px 0 rgba(0,0,0,.35)}
+.btn:disabled{filter:grayscale(1) brightness(.7);cursor:default}
+.btn.green{background:var(--green)}
+.btn.gold{background:#c99a1e}
+.btn.red{background:#b6412f}
+.btn.blue{background:#3b7fb8}
+.btn.small{font-size:16px;padding:6px 12px}
+.btn.on{background:var(--green)}
+
+/* panels */
+.panel{background:var(--panel);border:4px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.3),inset 4px 4px 0 rgba(255,255,255,.07);padding:18px;margin:16px 0}
+.muted{color:var(--muted)}
+.intro p{margin:6px 0}
+
+/* world map */
+.worlds{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.world{background:var(--panel2);border:4px solid var(--line);padding:14px;text-align:left;display:flex;gap:12px;align-items:flex-start;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.08);transition:transform .1s}
+.world:hover{transform:translateY(-3px)}
+.world .ic{font-size:36px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line);flex:0 0 52px}
+.world .nm{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.6;margin-bottom:4px}
+.world .tp{font-size:15px;color:var(--muted);line-height:1.3}
+.stars{color:var(--gold);font-size:20px;letter-spacing:2px;margin-top:6px}
+.stars .off{color:#55545c}
+.world.boss{grid-column:1/-1;background:#3a2346}
+.world.locked{filter:grayscale(.8);opacity:.75}
+.num-badge{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted)}
+.tag{display:inline-block;font-size:13px;background:#5a4a1e;border:2px solid var(--line);padding:0 6px;margin-top:4px}
+
+/* play */
+.playtop{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.prog{flex:1;display:flex;gap:4px;min-width:180px}
+.prog span{flex:1;height:16px;background:#111;border:3px solid var(--line)}
+.prog span.ok{background:var(--green)}
+.prog span.bad{background:var(--red)}
+.prog span.cur{background:#777}
+.hearts{font-size:22px;letter-spacing:2px}
+.combo{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gold)}
+.q{font-size:21px;margin:6px 0 16px}
+.q .eq{display:inline-block;background:#1d1d23;border:3px solid var(--line);padding:6px 12px;margin:8px 0;font-size:22px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input.in{font-family:inherit;font-size:22px;width:170px;padding:8px 10px;background:#111;color:var(--text);border:3px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.6)}
+input.in.exp{width:80px}
+input.in:focus{outline:3px solid var(--blue)}
+.unit{font-size:21px}
+.choices{display:grid;gap:10px}
+.choices .btn{text-align:left;font-size:18px;padding:12px 14px;background:#4a4a55}
+.choices .btn.right{background:var(--green)}
+.choices .btn.wrong{background:var(--red)}
+.fb{margin-top:16px}
+.fb .ok,.fb .bad{font-family:'Press Start 2P',monospace;font-size:12px;padding:10px 12px;border:3px solid var(--line);margin-bottom:10px;line-height:1.6}
+.fb .ok{background:var(--green-d)}
+.fb .bad{background:#8a3328}
+.sol{background:#1d1d23;border:3px solid var(--line);padding:12px 14px;font-size:18px}
+.sol ol{margin:4px 0;padding-left:22px}
+.hintbox{margin-top:12px;background:#4a3f1c;border:3px solid var(--line);padding:10px 12px;font-size:17px}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.taskhead .pix{font-size:10px;color:var(--muted)}
+
+/* element grid */
+.elgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:14px}
+.el{height:64px;font-family:'Press Start 2P',monospace;font-size:15px;background:#5b5b66;border:3px solid var(--line);
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.2)}
+.el.sel{background:var(--blue)}
+.el.right{background:var(--green)}
+.el.wrong{background:var(--red)}
+.el.miss{outline:4px dashed var(--gold);outline-offset:-8px}
+
+/* balance */
+.bal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:24px;margin:6px 0 14px}
+.sp{display:flex;align-items:center;gap:6px;background:#1d1d23;border:3px solid var(--line);padding:6px 8px}
+.sp .co{font-family:'Press Start 2P',monospace;font-size:16px;min-width:26px;text-align:center;color:var(--gold)}
+.sp .st{display:flex;flex-direction:column;gap:3px}
+.sp .st button{width:34px;height:26px;padding:0;font-size:16px;line-height:1;background:#5b5b66;border:2px solid var(--line)}
+.op{font-size:26px;color:var(--muted)}
+table.atoms{border-collapse:collapse;width:100%;font-size:17px;margin-bottom:12px}
+table.atoms td,table.atoms th{border:3px solid var(--line);padding:5px 8px;text-align:left;vertical-align:middle}
+table.atoms th{background:#1d1d23;font-weight:600}
+.blk{display:inline-block;width:13px;height:13px;margin:1px;border:2px solid rgba(0,0,0,.6)}
+.cnt{font-weight:700;margin-right:6px}
+td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
+
+/* order */
+.orderpool,.orderlist{display:grid;gap:8px;margin-bottom:12px}
+.orderlist .item{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.orderlist .item b{color:var(--gold);margin-right:8px}
+
+/* result */
+.result{text-align:center}
+.bigstars{font-size:58px;color:var(--gold);letter-spacing:6px;margin:10px 0}
+.bigstars .off{color:#4d4c55}
+.bigstars span{display:inline-block;animation:pop .45s both}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.boss-art{display:flex;justify-content:center;margin:6px 0 4px}
+
+/* achievements */
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ach{display:flex;gap:12px;align-items:center;background:var(--panel2);border:4px solid var(--line);padding:10px 12px}
+.ach .ai{font-size:30px;width:50px;height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line)}
+.ach .an{font-weight:700;font-size:18px}
+.ach .ad{font-size:15px;color:var(--muted);line-height:1.3}
+.ach.locked .ai{filter:grayscale(1) brightness(.5)}
+.ach.locked .an{color:var(--muted)}
+.ach.got{background:#2f3a28}
+
+/* cheat sheet */
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:#f3ead2;color:#2a2418;border:4px solid var(--line);padding:14px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.12)}
+.card h3{color:#5a3d12}
+.card .f{font-size:21px;margin:4px 0}
+.card table{border-collapse:collapse;width:100%;font-size:16px}
+.card td{border:2px solid #b9a77a;padding:2px 6px}
+
+/* toast */
+#toasts{position:fixed;top:12px;right:12px;display:flex;flex-direction:column;gap:10px;z-index:50;pointer-events:none}
+.toast{background:#212126;border:4px solid var(--line);box-shadow:0 0 0 3px #6d6d78;padding:10px 14px;display:flex;gap:12px;align-items:center;min-width:260px;max-width:340px;animation:tin .4s both}
+.toast .ti{font-size:30px}
+.toast .tt{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);line-height:1.6}
+.toast .tn{font-weight:700}
+.toast.out{animation:tout .4s both}
+@keyframes tin{from{transform:translateX(120%)}to{transform:none}}
+@keyframes tout{to{transform:translateX(130%)}}
+.confetti{position:fixed;top:-20px;width:12px;height:12px;z-index:40;pointer-events:none;border:2px solid rgba(0,0,0,.5);animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+
+.calc{max-width:420px}
+.cdisp{background:#a9b89c;color:#14180f;border:6px solid #1c1c1f;border-radius:6px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.22);padding:8px 12px;min-height:76px;font-size:30px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;margin-bottom:12px;word-break:break-all;display:flex;flex-direction:column;justify-content:space-between}
+.cdisp .cline{text-align:left;min-height:1.2em;letter-spacing:.5px}
+.cdisp .ce{font-size:.78em;margin:0 1px}
+.cdisp .cneg{font-size:.8em;position:relative;top:-.12em;margin-right:1px}
+.cdisp .cunit{text-align:right;font-size:.55em;color:#3b4630}
+.cdisp .cur{display:inline-block;width:.5em;height:.95em;margin-left:2px;background:#2a3320;vertical-align:-.1em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.calc .ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;background:#141416;border:4px solid var(--line);border-radius:10px;padding:12px}
+.ck{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:600;height:54px;color:#fff;background:#2a2a2e;border:none;border-radius:9px;box-shadow:0 4px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);cursor:pointer;touch-action:manipulation}
+.ck:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+.ck.dg{background:#e9e9ec;color:#111}
+.ck.fn{background:#1f1f22;font-size:19px}
+.ck.ok{background:#6f8796;font-size:19px}
+.ck:disabled{filter:grayscale(1) brightness(.7)}
+
+.curvebox{background:#1d1d23;border:3px solid var(--line);padding:6px;margin:8px 0;max-width:520px}
+.curvebox svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.mrows{display:grid;gap:10px;margin-bottom:12px}
+.mrow{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.mrow.right{border-color:var(--green)}.mrow.wrong{border-color:var(--red)}
+.ml{font-size:18px;margin-bottom:6px}
+.mopts{display:flex;flex-wrap:wrap;gap:6px}
+.mo,.cw,.chip{font-family:inherit;font-size:16px;color:var(--text);background:#4a4a55;border:3px solid var(--line);padding:6px 10px;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.12);text-align:left}
+.mo.sel,.chip.sel{background:var(--blue)}
+.mo.corr{outline:3px solid var(--green);outline-offset:-3px}
+.mo:disabled,.cw:disabled{cursor:default}
+.cw:disabled{opacity:.35}
+.ctext{font-size:20px;line-height:2.1;background:#1d1d23;border:3px solid var(--line);padding:10px 12px;margin-bottom:12px}
+.slot{font-family:inherit;font-size:17px;min-width:110px;color:var(--text);background:#2b2b33;border:2px dashed #8a8a96;padding:2px 8px;margin:0 2px;cursor:pointer;vertical-align:middle}
+.slot.full{border-style:solid;background:#3b5e86}
+.slot.right{background:var(--green-d);border-color:var(--green)}.slot.wrong{background:#8a3328;border-color:var(--red)}
+.cpool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip.right{background:var(--green)}.chip.wrong{background:var(--red)}.chip.miss{outline:3px dashed var(--gold);outline-offset:-5px}
+.wt{width:100%;min-height:130px;font-family:inherit;font-size:18px;background:#111;color:var(--text);border:3px solid var(--line);padding:10px}
+.checkbox-panel{background:#1d1d23;border:3px solid var(--line);padding:12px;margin-top:12px}
+label.chk{display:flex;gap:10px;align-items:flex-start;font-size:17px;padding:5px 0;cursor:pointer}
+label.chk input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
+.prog span.ok,.prog span.bad{background:#2b2b33}
+textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
+.inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
+@media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="ores" id="ores"></div>
+<header class="top">
+  <div class="hrow">
+    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">🌋</div><h1>Tiefen-Expedition</h1></div>
+    <div class="player">
+      <div class="rank" id="rank"></div>
+      <div class="xpbar"><div id="xpfill" style="width:0"></div><div class="xptxt" id="xptxt"></div></div>
+      <div class="streak" id="streak"></div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="btn small" data-nav="map">🗺 Karte</button>
+    <button class="btn small" data-nav="ach" id="navach">🏆 Erfolge</button>
+    <button class="btn small" data-nav="sheet">📜 Lernzettel</button>
+    <button class="btn small" data-nav="save">💾 Spielstand</button>
+  </nav>
+</header>
+<main class="wrap" id="view"></main>
+<div id="toasts"></div>
+
+<script src="../shared/profil.js"></script>
+<script>
+"use strict";
+/* ============ Daten ============ */
+const KEY='geoPlatten_v1';
+const A={H:1,C:12,N:14,O:16,Na:23,Mg:24,Al:27,S:32,Cl:35.5,Ca:40,Fe:56,Cu:63.5,Zn:65};
+const EN={H:'Wasserstoff',C:'Kohlenstoff',N:'Stickstoff',O:'Sauerstoff',Na:'Natrium',Mg:'Magnesium',Al:'Aluminium',S:'Schwefel',Cl:'Chlor',Ca:'Calcium',Fe:'Eisen',Cu:'Kupfer',Zn:'Zink'};
+const NAMES={H2O:'Wasser',CO2:'Kohlenstoffdioxid',O2:'Sauerstoff',H2:'Wasserstoff',N2:'Stickstoff',Cl2:'Chlor',NaCl:'Natriumchlorid',CH4:'Methan',NH3:'Ammoniak',MgO:'Magnesiumoxid',FeS:'Eisensulfid',HCl:'Chlorwasserstoff',H2SO4:'Schwefelsäure',CaCO3:'Calciumcarbonat',Al2O3:'Aluminiumoxid',Fe2O3:'Eisenoxid',CuO:'Kupferoxid',C2H6O:'Ethanol',ZnCl2:'Zinkchlorid',Cu2S:'Kupfersulfid',C3H8:'Propan',AlCl3:'Aluminiumchlorid',FeCl3:'Eisenchlorid',MgCl2:'Magnesiumchlorid',NaOH:'Natriumhydroxid',CO:'Kohlenstoffmonooxid',Cu2O:'rotes Kupferoxid',Na2O:'Natriumoxid',CaCl2:'Calciumchlorid',Fe:'Eisen',Mg:'Magnesium',C:'Kohlenstoff',Cu:'Kupfer',Al:'Aluminium',S:'Schwefel',Zn:'Zink',Na:'Natrium'};
+const ECOL={H:'#f4f4f4',O:'#e0473a',C:'#3a3a3a',N:'#3f7be0',Cl:'#56c24a',Na:'#9b59d0',Mg:'#c9c9d6',Al:'#a9b4bf',S:'#f2d23c',Ca:'#e8e2c8',Fe:'#b8693a',Cu:'#d9813f',Zn:'#7f97a8'};
+const NA=6.022e23, U=1.66e-24;
+
+/* ============ Helfer ============ */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const r2=x=>Math.round(x*100)/100;
+function fmt(x,d=2){const p=Math.pow(10,d);return (Math.round(x*p)/p).toLocaleString('de-DE',{maximumFractionDigits:d});}
+function sci(x){let e=Math.floor(Math.log10(Math.abs(x)));let m=x/Math.pow(10,e);m=Math.round(m*100)/100;if(m>=10){m=m/10;e++;}return fmt(m,2)+' · 10<sup>'+e+'</sup>';}
+const fx=f=>f.replace(/(\d+)/g,'<sub>$1</sub>');
+const nm=f=>NAMES[f]||f;
+function parseF(f){const c={};f.replace(/([A-Z][a-z]?)(\d*)/g,(_,e,n)=>{c[e]=(c[e]||0)+(n?+n:1);return '';});return c;}
+function molar(f){const c=parseF(f);let s=0;for(const e in c)s+=A[e]*c[e];return Math.round(s*10)/10;}
+function breakdown(f){const c=parseF(f);return Object.keys(c).map(e=>(c[e]>1?c[e]+' · ':'')+fmt(A[e],1)+' u').join(' + ');}
+function coefHtml(c,f){return (c>1?c+' ':'')+fx(f);}
+function eqHtml(sp,nr){const l=sp.slice(0,nr).map(s=>coefHtml(s[1],s[0])).join(' + ');const r=sp.slice(nr).map(s=>coefHtml(s[1],s[0])).join(' + ');return l+' → '+r;}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+
+/* ============ Aufgaben-Bausteine ============ */
+function num(q,ans,unit,sol,hint,o){return Object.assign({kind:'num',q,ans,unit,sol,hint},o||{});}
+function sciT(q,ans,unit,sol,hint,o){return Object.assign({kind:'sci',q,ans,unit,sol,hint},o||{});}
+function mc(q,choices,e,o){const idx=shuffle(choices.map((_,i)=>i));return Object.assign({kind:'mc',q,choices:idx.map(i=>choices[i]),correct:idx.indexOf(0),sol:e},o||{});}
+const poolMC=p=>mc(p.q,p.c,p.e);
+
+/* ============ Geographie-Inhalte: Plattentektonik & Vulkanismus ============ */
+const norm=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function tfT(q,a,e){return {kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e};}
+function matchT(q,rows,opts,sol,o){return Object.assign({kind:'match',q,rows,opts,sol},o||{});}
+function sortT(q,pool,n,opts,sol){const rows=pickN(pool,n).map(([l,a])=>({l,a}));return matchT(q,rows,opts,sol);}
+function pairT(q,pairs,n,sol){const sel=pickN(pairs,n);const opts=shuffle(sel.map(p=>p[1]));return matchT(q,sel.map(p=>({l:p[0],a:opts.indexOf(p[1])})),opts,sol);}
+function clozeT(q,text,distract,sol,o){const ans=[];text.replace(/\[([^\]]+)\]/g,(_,w)=>{ans.push(w);return '';});return Object.assign({kind:'cloze',q,text,ans,pool:shuffle(ans.concat(distract)),sol},o||{});}
+function orderT(q,steps,sol){return {kind:'order',q,steps,sol:sol||'<ol>'+steps.map(s=>'<li>'+s+'</li>').join('')+'</ol>'};}
+function writeT(q,keys,model,hint,need){return {kind:'write',q,keys,model,hint,need:need||Math.ceil(keys.length*0.6),sol:''};}
+function multiT(q,opts,ans,sol){const idx=shuffle(opts.map((_,i)=>i));return {kind:'multi',q,opts:idx.map(i=>opts[i]),ans:ans.map(a=>idx.indexOf(a)),sol};}
+const CL_HINT='Tippe auf ein Wort, es wandert in die nächste freie Lücke. Tippe auf eine Lücke, um sie wieder zu leeren.';
+
+/* ---------- Tippbare Schaubilder ---------- */
+/* Zone: [id, Beschriftung, Farbe, Form ("x,y x,y …" oder "E:cx,cy,rx,ry"), [Label-x, Label-y]] */
+function shape(z,extra){const [id,,fill,sh]=z;
+  if(sh.startsWith('E:')){const [cx,cy,rx,ry]=sh.slice(2).split(',');return `<ellipse data-z="${id}" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;}
+  return `<polygon data-z="${id}" points="${sh}" fill="${fill}" ${extra}/>`;}
+function drawDiag(zones,deco,st,overlay){
+  let s=`<svg viewBox="0 0 340 200" class="diag" xmlns="http://www.w3.org/2000/svg">`+(deco.pre||'');
+  zones.forEach(z=>{let ex='stroke="rgba(0,0,0,.45)" stroke-width="1" style="cursor:pointer"';
+    if(st){if(z[0]===st.corr)ex='stroke="#5fbf3a" stroke-width="4"';else if(z[0]===st.sel)ex='stroke="#e05a47" stroke-width="4"';else ex='stroke="rgba(0,0,0,.45)" stroke-width="1"';}
+    s+=shape(z,ex);});
+  s+=(deco.post||'');
+  if(st)zones.forEach(z=>{const [x,y]=z[4];const hi=z[0]===st.corr;s+=`<text x="${x}" y="${y}" font-size="${hi?12:10}" font-weight="${hi?700:400}" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke" style="pointer-events:none">${z[1]}</text>`;});
+  if(st&&overlay)s+=overlay;
+  return s+'</svg>';
+}
+const DIAG={
+  erde:{zones:[
+    ['as','Asthenosphäre','#d9572b','0,125 340,125 340,198 0,198',[170,165]],
+    ['lm','oberster Erdmantel (Teil der Lithosphäre)','#a8703e','0,90 160,90 200,60 340,60 340,125 0,125',[160,112]],
+    ['kk','kontinentale Kruste','#9c7a54','0,26 175,26 200,46 200,60 160,90 0,90',[80,62]],
+    ['ok','ozeanische Kruste','#57626d','200,46 340,46 340,60 200,60',[270,57]]],
+    deco:{post:`<polygon points="175,26 340,26 340,46 200,46" fill="#2f6fb0" style="pointer-events:none"/><text x="270" y="40" font-size="10" fill="#cfe6ff" text-anchor="middle" style="pointer-events:none">Meer</text>`},
+    overlay:`<line x1="336" y1="26" x2="336" y2="125" stroke="#f2c94c" stroke-width="2"/><text x="330" y="82" font-size="10" fill="#f2c94c" text-anchor="end" stroke="#000" stroke-width="3" paint-order="stroke">Lithosphäre ↕</text>`},
+  sub:{zones:[
+    ['as','Asthenosphäre (Erdmantel)','#c4502a','0,70 340,70 340,200 0,200',[90,170]],
+    ['kp','kontinentale Platte','#9c7a54','205,50 228,30 340,30 340,105 290,105 225,62',[278,50]],
+    ['ozp','ozeanische Platte','#57626d','0,48 192,51 180,70 0,70',[80,62]],
+    ['wb','Wadati-Benioff-Zone','#4d5863','192,51 300,150 282,168 180,70',[246,150]],
+    ['mag','aufsteigendes Magma','#ff7a2e','263,30 273,30 278,118 259,118',[282,128]],
+    ['vk','Vulkan','#6b6b6b','250,31 268,8 286,31',[268,6]],
+    ['tg','Tiefseegraben','#10263d','180,44 212,46 197,64',[196,92]]],
+    deco:{pre:'',post:`<rect x="0" y="36" width="196" height="12" fill="#2f6fb0" style="pointer-events:none"/>`+
+      [0,1,2,3,4,5,6].map(i=>`<circle cx="${199+i*14}" cy="${66+i*13}" r="3" fill="#f2c94c" style="pointer-events:none"/>`).join('')+
+      `<text x="120" y="45" font-size="12" fill="#fff" style="pointer-events:none">→</text><text x="310" y="22" font-size="12" fill="#fff" style="pointer-events:none">←</text>`}},
+  vulkan:{zones:[
+    ['pl','Pluton','#7a2a22','E:282,160,32,14',[282,186]],
+    ['mk','Magmakammer','#e0472b','E:170,172,55,16',[110,196]],
+    ['sc','Schlot','#ff7a2e','164,52 176,52 178,158 162,158',[205,140]],
+    ['kr','Krater','#2e2e2e','146,40 194,40 184,53 156,53',[115,36]],
+    ['la','Lavastrom','#ff5a1f','193,44 201,46 246,110 258,119 240,119 196,57',[258,96]],
+    ['as','Aschewolke','#9a9a9a','E:170,17,50,13',[255,16]]],
+    deco:{pre:`<rect x="0" y="119" width="340" height="81" fill="#6e5236"/><polygon points="68,120 146,40 194,40 272,120" fill="#6b6b6b"/>`,post:''}},
+  antrieb:{zones:[
+    ['aa','Konvektionsströme in der Asthenosphäre','rgba(255,214,140,.28)','E:165,140,95,34',[165,186]],
+    ['rd','Mittelozeanischer Rücken','#6c7884','86,56 110,38 134,56 134,70 86,70',[112,30]],
+    ['pz','abtauchende Platte','#57626d','250,57 322,140 306,152 238,72',[282,172]]],
+    deco:{pre:`<rect x="0" y="70" width="340" height="130" fill="#c4502a"/><rect x="0" y="40" width="262" height="16" fill="#2f6fb0"/><polygon points="0,56 86,56 86,70 0,70" fill="#57626d"/><polygon points="134,56 250,57 238,72 134,70" fill="#57626d"/><polygon points="262,52 282,36 340,36 340,92 300,92" fill="#9c7a54"/>`,
+      post:`<path d="M90 140 a75 26 0 1 1 150 0 a75 26 0 1 1 -150 0" fill="none" stroke="#ffd68c" stroke-width="2" stroke-dasharray="6 5" style="pointer-events:none"/><text x="160" y="114" font-size="12" fill="#ffd68c" style="pointer-events:none">⟶</text><text x="160" y="172" font-size="12" fill="#ffd68c" style="pointer-events:none">⟵</text><text x="60" y="66" font-size="11" fill="#fff" style="pointer-events:none">←</text><text x="160" y="66" font-size="11" fill="#fff" style="pointer-events:none">→</text>`}}
+};
+function tapT(d,zone,q,sol){return {kind:'tap',diagram:d,zone,q,sol};}
+function gTap(d,list){const [z,q,e]=pick(list);return tapT(d,z,q,e);}
+
+/* ---------- Welt 1: Schichten-Schacht (Aufbau der Erde) ---------- */
+const TAP_ERDE=[
+ ['kk','Tippe auf die <b>kontinentale Kruste</b>.','Die kontinentale Kruste ist <b>dick</b> (ca. 30–70 km) und bildet die Kontinente.'],
+ ['ok','Tippe auf die <b>ozeanische Kruste</b>.','Die ozeanische Kruste ist <b>dünn</b> (ca. 5–10 km) und bildet den Meeresboden.'],
+ ['as','Tippe auf die <b>Asthenosphäre</b>.','Die <b>Asthenosphäre</b> ist zähplastisch. Auf ihr bewegen sich die Platten.'],
+ ['lm','Die <b>Lithosphäre</b> besteht aus der Erdkruste und … Tippe auf den Bereich, der <b>zusätzlich zur Kruste</b> zur Lithosphäre gehört.','Lithosphäre = Erdkruste + <b>oberster, starrer Teil des Erdmantels</b>.'],
+ ['as','Auf welcher Schicht „schwimmen“ die Lithosphärenplatten? Tippe sie an.','Die Platten gleiten auf der zähplastischen <b>Asthenosphäre</b>.']
+];
+const KRUSTE=[['dünn (ca. 5–10 km)',0],['dick (ca. 30–70 km, unter Gebirgen am dicksten)',1],['höhere Dichte (schwerer)',0],['geringere Dichte (leichter)',1],['besteht vor allem aus Basalt',0],['besteht vor allem aus granitischem Gestein',1],['geologisch jung (höchstens etwa 200 Mio. Jahre)',0],['teils über 3 Milliarden Jahre alt',1],['bildet den Meeresboden',0],['bildet die Kontinente',1]];
+const gKruste=()=>sortT('Ozeanische oder kontinentale Kruste? Ordne zu.',KRUSTE,5,['ozeanisch','kontinental'],'<b>Ozeanisch:</b> dünn, schwer, Basalt, jung, Meeresboden.<br><b>Kontinental:</b> dick, leicht, granitisch, teils sehr alt, Kontinente.');
+const SCHICHT=[['Lithosphäre','Starre Gesteinshülle aus Erdkruste und oberstem Erdmantel, in Platten zerbrochen'],['Asthenosphäre','Zähplastische, teils aufgeschmolzene Schicht im oberen Erdmantel, auf der die Platten gleiten'],['Ozeanische Kruste','Dünne, schwere Kruste unter den Ozeanen'],['Kontinentale Kruste','Dicke, leichte Kruste der Kontinente'],['Oberer Erdmantel','Schicht unter der Kruste, ihr oberster Teil gehört noch zur Lithosphäre']];
+const gSchichtMatch=()=>pairT('Ordne jedem Begriff die passende Beschreibung zu.',SCHICHT,4,SCHICHT.map(s=>`<b>${s[0]}:</b> ${s[1]}`).join('<br>'));
+const MC_E=[
+ {q:'Woraus besteht die Lithosphäre?',c:['Aus der Erdkruste und dem obersten, starren Teil des Erdmantels','Nur aus der Erdkruste','Aus dem äußeren Erdkern','Aus der Asthenosphäre'],e:'Lithosphäre = <b>Kruste + oberster Erdmantel</b>.'},
+ {q:'Warum können sich die Lithosphärenplatten bewegen?',c:['Sie liegen auf der zähplastischen Asthenosphäre','Sie schwimmen auf Wasser','Der Erdkern zieht sie an','Sie bewegen sich gar nicht'],e:'Die <b>Asthenosphäre</b> ist verformbar, darauf gleiten die Platten.'},
+ {q:'Wie dick ist die Lithosphäre ungefähr?',c:['ca. 100 km (unter Ozeanen dünner, unter Kontinenten dicker)','ca. 1 km','ca. 1000 km','ca. 6370 km'],e:'Rund <b>100 km</b>. 6370 km wäre der ganze Erdradius.'},
+ {q:'Was bedeutet „zähplastisch“?',c:['Fest, aber über lange Zeit langsam verformbar und fließfähig','Flüssig wie Wasser','Gasförmig','Hart und spröde wie Glas'],e:'Die Asthenosphäre ist <b>nicht flüssig</b>, sondern fließt extrem langsam.'},
+ {q:'Welche Kruste ist dichter und damit schwerer?',c:['Die ozeanische Kruste','Die kontinentale Kruste','Beide gleich','Keine von beiden'],e:'Die <b>ozeanische</b> Kruste (Basalt) ist dichter, deshalb taucht sie bei der Subduktion ab.'},
+ {q:'Welche Schicht liegt direkt unter der Lithosphäre?',c:['Die Asthenosphäre','Der innere Erdkern','Die ozeanische Kruste','Die Atmosphäre'],e:'Unter der Lithosphäre folgt die <b>Asthenosphäre</b>.'}
+];
+const wrErde=()=>writeT('<b>Vergleiche</b> die ozeanische und die kontinentale Kruste und erkläre, wie Lithosphäre und Asthenosphäre zusammenhängen.',
+  [['Ozeanische Kruste ist dünn (ca. 5–10 km)',['duenn','5','10 km']],['Kontinentale Kruste ist dick (ca. 30–70 km)',['dick','30','70']],['Ozeanische Kruste ist dichter/schwerer',['dicht','schwer']],['Lithosphäre = Kruste + oberster Erdmantel',['erdmantel','mantel']],['Lithosphäre ist starr und in Platten zerbrochen',['starr','platten','fest']],['Asthenosphäre ist zähplastisch, darauf bewegen sich die Platten',['zaeh','plastisch','gleiten','bewegen','schwimmen']]],
+  'Die <b>ozeanische Kruste</b> ist dünn (ca. 5–10 km), besteht vor allem aus Basalt, ist dichter (schwerer) und geologisch jung. Die <b>kontinentale Kruste</b> ist dick (ca. 30–70 km), leichter und teils sehr alt. Zusammen mit dem obersten Teil des Erdmantels bildet die Kruste die starre <b>Lithosphäre</b>, die in Platten zerbrochen ist. Darunter liegt die zähplastische <b>Asthenosphäre</b>, auf der sich die Lithosphärenplatten langsam bewegen.',
+  'Stichworte: dünn/dick, Dichte, Lithosphäre = Kruste + oberer Mantel, starr, Platten, Asthenosphäre zähplastisch.',4);
+
+/* ---------- Welt 2: Platten-Werkstatt (Plattengrenzen) ---------- */
+const GRENZE=[['Platten bewegen sich voneinander weg',0],['Platten bewegen sich aufeinander zu',1],['Neue ozeanische Kruste entsteht',0],['Eine Platte taucht unter die andere ab (Subduktion)',1],['Mittelozeanischer Rücken',0],['Tiefseegraben',1],['Faltengebirge entstehen',1],['Ein Grabenbruch (Rift) entsteht',0]];
+const gGrenzeSort=()=>sortT('Divergierende oder konvergierende Plattengrenze?',GRENZE,5,['divergierend','konvergierend'],'<b>Divergierend</b> = auseinander (Rift, Mittelozeanischer Rücken, neue Kruste).<br><b>Konvergierend</b> = aufeinander zu (Subduktion, Tiefseegraben, Faltengebirge).');
+const KD=[['Neue Kruste wird gebildet',0],['Kruste wird vernichtet bzw. in den Erdmantel zurückgeführt',1],['An divergierenden Plattengrenzen',0],['An Subduktionszonen',1],['Mittelatlantischer Rücken',0],['Tiefseegraben vor Südamerika (Anden)',1],['Island',0]];
+const gKDSort=()=>sortT('Konstruktive oder destruktive Plattengrenze?',KD,5,['konstruktiv','destruktiv'],'<b>Konstruktiv</b> (aufbauend): neue Kruste entsteht.<br><b>Destruktiv</b> (zerstörend): Kruste taucht ab und wird im Erdmantel aufgeschmolzen.');
+const BEGR=[['divergierend','auseinanderdriftend'],['konvergierend','aufeinander zu bewegend'],['konstruktiv','aufbauend: neue Kruste entsteht'],['destruktiv','zerstörend: Kruste wird abgebaut']];
+const gBegr=()=>pairT('Was bedeuten die Fachbegriffe?',BEGR,4,BEGR.map(b=>`<b>${b[0]}:</b> ${b[1]}`).join('<br>'));
+const MC_P=[
+ {q:'Welche Art von Plattengrenze liegt am Mittelatlantischen Rücken?',c:['Divergierend und konstruktiv','Konvergierend und destruktiv','Konvergierend und konstruktiv','Gar keine Plattengrenze'],e:'Die Platten driften auseinander, neue Kruste entsteht: <b>divergierend, konstruktiv</b>.'},
+ {q:'Warum nennt man eine Subduktionszone „destruktiv“?',c:['Die abtauchende Kruste wird im Erdmantel aufgeschmolzen, also vernichtet','Weil dort Häuser zerstört werden','Weil dort neue Kruste entsteht','Weil dort Platten stillstehen'],e:'<b>destruktiv</b> = Kruste wird abgebaut.'},
+ {q:'Was passiert, wenn zwei kontinentale Platten zusammenstoßen?',c:['Keine taucht richtig ab, die Gesteine werden gefaltet, ein Faltengebirge entsteht','Eine Platte schmilzt sofort','Es entsteht ein Mittelozeanischer Rücken','Es entsteht ein neuer Ozean'],e:'Beide sind leicht, deshalb <b>Kollision → Faltengebirge</b> (z. B. Himalaya).'},
+ {q:'Wie schnell bewegen sich Lithosphärenplatten ungefähr?',c:['Wenige Zentimeter pro Jahr','Mehrere Meter pro Tag','Einen Kilometer pro Jahr','Gar nicht messbar'],e:'Meist <b>2–10 cm pro Jahr</b>, etwa so schnell, wie Fingernägel wachsen.'},
+ {q:'Island liegt …',c:['auf dem Mittelatlantischen Rücken, an einer divergierenden Plattengrenze','an einer Subduktionszone','mitten auf einer Platte ohne Grenze','an einer Kollisionszone'],e:'Island liegt auf dem <b>Mittelatlantischen Rücken</b> (dazu kommt ein Hot Spot).'},
+ {q:'Was bedeutet „divergierend“?',c:['Auseinanderstrebend','Zusammenstoßend','Aneinander vorbeigleitend','Stillstehend'],e:'divergieren = <b>auseinanderstreben</b>.'}
+];
+function gSpeed(){const v=pick([2,3,4,5,8,10]),t=pick([1,2,5,10]);const km=v*t*10;
+  return num(`Eine Platte bewegt sich <b>${v} cm pro Jahr</b>. Wie viele <b>Kilometer</b> legt sie in <b>${t} Million${t>1?'en':''} Jahren</b> zurück?`,km,'km',
+  `${v} cm · ${t.toLocaleString('de-DE')}.000.000 = ${(v*t*1e6).toLocaleString('de-DE')} cm = ${(v*t*1e4).toLocaleString('de-DE')} m = <b>${km.toLocaleString('de-DE')} km</b>`,'1 km = 100.000 cm. Tipp: 1 cm pro Jahr ergibt in 1 Million Jahren genau 10 km.',{tol:0});}
+const wrGrenze=()=>writeT('<b>Erkläre</b> den Unterschied zwischen divergierenden und konvergierenden Plattengrenzen. Verwende dabei <i>konstruktiv</i> und <i>destruktiv</i>.',
+  [['Divergierend: Platten bewegen sich auseinander',['auseinander','voneinander']],['Dort steigt Magma auf, neue Kruste entsteht (konstruktiv)',['konstruktiv','neue kruste','neu gebildet','aufbau']],['Konvergierend: Platten bewegen sich aufeinander zu',['aufeinander','zusammen']],['Eine Platte taucht ab bzw. Kruste wird vernichtet (destruktiv)',['destruktiv','abtauch','subdukt','vernicht','zerstoer']],['Beispiel (z. B. Mittelatlantischer Rücken / Anden / Himalaya)',['atlant','ruecken','anden','himalaya','island','tiefseegraben']]],
+  'An <b>divergierenden</b> Plattengrenzen bewegen sich die Platten auseinander. Magma steigt auf und bildet neue ozeanische Kruste, deshalb heißen sie <b>konstruktiv</b> (z. B. Mittelatlantischer Rücken). An <b>konvergierenden</b> Plattengrenzen bewegen sich die Platten aufeinander zu. Die dichtere Platte taucht ab und wird im Erdmantel aufgeschmolzen, deshalb heißen sie <b>destruktiv</b> (z. B. Tiefseegraben vor den Anden). Stoßen zwei Kontinente zusammen, entsteht ein Faltengebirge (z. B. Himalaya).',
+  'Stichworte: auseinander, neue Kruste, konstruktiv, aufeinander zu, abtauchen, destruktiv, Beispiel.',3);
+
+/* ---------- Welt 3: Antriebs-Maschinenraum ---------- */
+const ANTR=[['Plattenzug','Die abtauchende, schwere ozeanische Platte zieht den Rest der Platte hinter sich her'],['Rückendruck','Am erhöhten Mittelozeanischen Rücken drückt aufsteigendes Material die Platten auseinander, sie gleiten vom Rücken ab'],['Asthenosphärenantrieb','Konvektionsströme in der Asthenosphäre nehmen die aufliegenden Platten durch Reibung mit']];
+const gAntrMatch=()=>pairT('Ordne jedem Antriebsmechanismus die passende Erklärung zu.',ANTR,3,ANTR.map(a=>`<b>${a[0]}:</b> ${a[1]}`).join('<br>'));
+const TAP_ANTR=[
+ ['pz','Tippe auf die Stelle, an der der <b>Plattenzug</b> wirkt.','Der <b>Plattenzug</b> wirkt an der Subduktionszone: Die abtauchende Platte zieht den Rest nach.'],
+ ['rd','Tippe auf die Stelle, an der der <b>Rückendruck</b> entsteht.','Der <b>Rückendruck</b> entsteht am Mittelozeanischen Rücken.'],
+ ['aa','Tippe auf den Bereich des <b>Asthenosphärenantriebs</b>.','Die <b>Konvektionsströme</b> in der Asthenosphäre nehmen die Platten mit.']
+];
+const MC_AN=[
+ {q:'Welcher Antriebsmechanismus gilt nach heutigem Wissen als der stärkste?',c:['Plattenzug','Rückendruck','Asthenosphärenantrieb','Die Erdrotation'],e:'Nach heutigem Stand ist der <b>Plattenzug</b> die wichtigste Antriebskraft.'},
+ {q:'Wo wirkt der Rückendruck?',c:['Am Mittelozeanischen Rücken','Im Tiefseegraben','Im Erdkern','Am Hot Spot'],e:'<b>Rücken</b>druck: am Mittelozeanischen <b>Rücken</b>.'},
+ {q:'Wo wirkt der Plattenzug?',c:['In der Subduktionszone, wo die Platte abtaucht','Am Mittelozeanischen Rücken','In der Mitte der Kontinente','An der Erdoberfläche durch Wind'],e:'Die abtauchende Platte <b>zieht</b> den Rest nach.'},
+ {q:'Woher stammt die Energie für die Plattenbewegung?',c:['Aus der Wärme im Erdinneren','Von der Sonne','Vom Wind','Von Ebbe und Flut'],e:'Die <b>Wärme im Erdinneren</b> treibt Konvektion und Magmenaufstieg an.'},
+ {q:'Was ist Konvektion?',c:['Heißes Material steigt auf, kühlt ab und sinkt wieder ab, es entsteht ein Kreislauf','Ein Erdbeben','Eine Gesteinsart','Das Abtauchen einer Platte'],e:'<b>Konvektion</b> = Kreislauf aus Aufsteigen und Absinken.'},
+ {q:'Warum zieht eine abtauchende ozeanische Platte den Rest der Platte nach?',c:['Sie ist kalt und dicht, also schwerer als der umgebende Mantel, und sinkt','Weil der Erdkern sie anzieht','Weil sie leichter ist','Weil Wasser sie drückt'],e:'Die alte, kalte Platte ist <b>dichter</b> als der Mantel und sinkt ab.'}
+];
+const gAntrCloze=()=>clozeT(CL_HINT,'Beim [Plattenzug] zieht die abtauchende, [schwere] ozeanische Platte den Rest nach. Beim [Rückendruck] gleiten die Platten vom erhöhten Mittelozeanischen Rücken ab. Beim Asthenosphärenantrieb nehmen [Konvektionsströme] die Platten mit.',['leichte','Erdkern','Vulkane'],'');
+const wrAntr=()=>writeT('<b>Erkläre</b> die drei Antriebsmechanismen der Plattenbewegung: Plattenzug, Rückendruck und Asthenosphärenantrieb.',
+  [['Plattenzug: abtauchende Platte zieht den Rest nach',['zieht','zug']],['…weil sie schwer/dicht ist (Subduktionszone)',['schwer','dicht','subdukt','abtauch']],['Rückendruck: am Mittelozeanischen Rücken',['ruecken']],['Platten werden auseinandergedrückt / gleiten ab',['drueck','gleit','auseinander']],['Asthenosphärenantrieb: Konvektionsströme',['konvekt','stroem','kreislauf']],['…nehmen die Platten durch Reibung mit',['reibung','mitnehm','mitgenommen','mit ']]],
+  '<b>Plattenzug:</b> In der Subduktionszone taucht die kalte, schwere ozeanische Platte in den Erdmantel ab und zieht den Rest der Platte hinter sich her. Das gilt heute als stärkster Antrieb.<br><b>Rückendruck:</b> Am Mittelozeanischen Rücken steigt Magma auf. Die Platten werden auseinandergedrückt und gleiten vom erhöhten Rücken ab.<br><b>Asthenosphärenantrieb:</b> In der Asthenosphäre gibt es Konvektionsströme (heißes Material steigt auf, kühles sinkt ab). Sie nehmen die aufliegenden Platten durch Reibung mit.',
+  'Stichworte: zieht, schwer, Subduktion · Rücken, auseinanderdrücken · Konvektion, Reibung.',4);
+
+/* ---------- Welt 4: Wilson-Portal ---------- */
+const ORDER_WZ=['Kontinentales Rift: Ein Kontinent wird gedehnt und bricht auf (Grabenbruch)','Ozeanisches Rift: Meerwasser dringt ein, ein schmales Meer entsteht','Seafloor spreading: Am Mittelozeanischen Rücken entsteht neue Kruste, der Ozean wird breiter','Subduktion: Ozeanische Kruste taucht an einem Tiefseegraben ab, der Ozean schrumpft','Kollision: Die Kontinente stoßen zusammen, der Ozean verschwindet','Hochgebirgsbildung: An der Suturzone entsteht ein Faltengebirge'];
+const gOrderWZ=()=>orderT('<b>Wilson-Zyklus:</b> Bring die Phasen in die richtige Reihenfolge.',ORDER_WZ,'<ol>'+ORDER_WZ.map(s=>'<li>'+s+'</li>').join('')+'</ol>Danach kann der Zyklus von vorn beginnen, deshalb heißt er <b>Zyklus</b>.');
+const WZ_EX=[['Kontinentales Rift','Ostafrikanischer Grabenbruch'],['Ozeanisches Rift (junges Meer)','Rotes Meer'],['Seafloor spreading (breiter Ozean)','Atlantik'],['Subduktion (schrumpfender Ozean)','Pazifik'],['Kollision und Faltengebirge','Himalaya']];
+const gWZEx=()=>pairT('Ordne jeder Phase des Wilson-Zyklus ein Beispiel zu.',WZ_EX,4,WZ_EX.map(w=>`<b>${w[0]}:</b> ${w[1]}`).join('<br>'));
+const WZ_T=[['Suturzone','Nahtstelle, an der zwei Kontinente zusammengewachsen sind'],['Seafloor spreading','Ausbreitung des Meeresbodens durch neue Kruste am Rücken'],['Mittelozeanischer Rücken','Untermeerisches Gebirge, an dem Magma aufsteigt und neue Kruste entsteht'],['Deformation','Verformung von Gestein durch Faltung, Brüche und Überschiebungen'],['Kollision','Zusammenstoß zweier Kontinentalplatten'],['Kontinentales Rift','Aufbrechen eines Kontinents, es entsteht ein Grabenbruch']];
+const gWZT=()=>pairT('Ordne die Fachbegriffe zu.',WZ_T,4,WZ_T.map(w=>`<b>${w[0]}:</b> ${w[1]}`).join('<br>'));
+const MC_WZ=[
+ {q:'Was meint „Recycling der Platten“ beim Wilson-Zyklus?',c:['Ozeanische Kruste entsteht am Rücken und wird in Subduktionszonen wieder in den Erdmantel zurückgeführt','Platten werden von Menschen wiederverwertet','Kontinente lösen sich auf','Vulkane entstehen immer an derselben Stelle'],e:'Entstehen am Rücken → Abtauchen in der Subduktionszone → <b>Kreislauf</b>.'},
+ {q:'Wo ist der Meeresboden am jüngsten?',c:['Direkt am Mittelozeanischen Rücken','Am Tiefseegraben','An den Küsten der Kontinente','Überall gleich alt'],e:'Am <b>Rücken</b> entsteht neue Kruste, sie wird nach außen immer älter.'},
+ {q:'Wie entstand der Himalaya?',c:['Durch die Kollision der Indischen mit der Eurasischen Platte','Durch einen Hot Spot','Durch seafloor spreading','Durch einen Meteoriteneinschlag'],e:'<b>Kollision Indien – Eurasien</b>: Faltengebirge an der Suturzone.'},
+ {q:'Warum heißt es Wilson-<b>Zyklus</b>?',c:['Die Phasen wiederholen sich: Kontinente brechen auf, Ozeane öffnen und schließen sich','Weil er nur einmal passiert','Weil er jedes Jahr stattfindet','Weil er mit Fahrrädern zu tun hat'],e:'Ein Zyklus ist ein <b>Kreislauf</b>, der von vorn beginnen kann.'},
+ {q:'Was passiert in der Phase „seafloor spreading“?',c:['Am Mittelozeanischen Rücken entsteht neue Kruste, der Ozean wird breiter','Der Ozean schrumpft','Zwei Kontinente kollidieren','Ein Vulkan bricht aus'],e:'<b>Spreading</b> = Ausbreitung des Meeresbodens.'},
+ {q:'Welche Phase beschreibt das Rote Meer am besten?',c:['Ozeanisches Rift: ein junges, schmales Meer','Kollision','Subduktion','Faltengebirge'],e:'Das Rote Meer ist ein <b>junger Ozean</b>.'}
+];
+const gWZCloze=()=>clozeT(CL_HINT,'Zuerst bricht ein Kontinent auf: ein kontinentales [Rift] entsteht. Dann dringt Meerwasser ein. Durch [seafloor spreading] wird der Ozean breiter. Später taucht die ozeanische Kruste in einer [Subduktionszone] ab. Am Ende kommt es zur [Kollision], und an der Suturzone entsteht ein [Faltengebirge].',['Hot Spot','Pluton','Schildvulkan'],'');
+const wrWZ=()=>writeT('<b>Beschreibe</b> den Wilson-Zyklus. Verwende möglichst viele Fachbegriffe (kontinentales Rift, seafloor spreading, Mittelozeanischer Rücken, Subduktionszone, Kollision, Suturzone, Faltengebirge).',
+  [['Kontinentales Rift: Kontinent bricht auf',['rift','graben','aufbrech','bricht']],['Ozean entsteht, seafloor spreading am Mittelozeanischen Rücken',['spreading','ruecken','breiter']],['Subduktion: Ozean schrumpft, Kruste taucht ab',['subdukt','abtauch','schrumpf']],['Kollision der Kontinente',['kollision','zusammenst']],['Suturzone / Faltengebirge / Hochgebirgsbildung',['sutur','faltengebirge','hochgebirge','gebirge']],['Zyklus beginnt von vorn (Recycling)',['zyklus','von vorn','neu','kreislauf','recycl']]],
+  'Zuerst wird ein Kontinent gedehnt und bricht auf (<b>kontinentales Rift</b>, z. B. Ostafrika). Meerwasser dringt ein (<b>ozeanisches Rift</b>, z. B. Rotes Meer). Am <b>Mittelozeanischen Rücken</b> entsteht ständig neue Kruste, der Ozean wird breiter (<b>seafloor spreading</b>, z. B. Atlantik). Später taucht die alte ozeanische Kruste in einer <b>Subduktionszone</b> ab, der Ozean schrumpft (z. B. Pazifik), es kommt zu Vulkanismus. Schließlich stoßen die Kontinente zusammen (<b>Kollision</b>). An der <b>Suturzone</b> werden die Gesteine deformiert, ein <b>Faltengebirge</b> entsteht (z. B. Himalaya). Danach kann der Zyklus erneut beginnen.',
+  'Gehe die Phasen der Reihe nach durch: Rift → Ozean → Spreading → Subduktion → Kollision → Gebirge.',4);
+
+/* ---------- Welt 5: Subduktions-Graben ---------- */
+const TAP_SUB=[
+ ['tg','Tippe auf den <b>Tiefseegraben</b>.','Der <b>Tiefseegraben</b> entsteht dort, wo die ozeanische Platte abtaucht.'],
+ ['wb','Tippe auf die <b>Wadati-Benioff-Zone</b>.','Die <b>Wadati-Benioff-Zone</b> ist die schräg abtauchende Zone der Erdbebenherde (gelbe Punkte) in der abtauchenden Platte.'],
+ ['vk','Tippe auf den <b>Vulkan</b>, der durch die Subduktion entsteht.','Hinter dem Tiefseegraben entstehen auf der oberen Platte <b>Vulkane</b>.'],
+ ['mag','Tippe auf das <b>aufsteigende Magma</b>.','In ca. 100 km Tiefe schmilzt Gestein teilweise auf, das <b>Magma steigt auf</b>.'],
+ ['ozp','Tippe auf die Platte, die <b>abtaucht</b> (bevor sie abtaucht).','Die dichtere <b>ozeanische Platte</b> taucht ab.'],
+ ['kp','Tippe auf die <b>kontinentale Platte</b>.','Die leichtere <b>kontinentale Platte</b> bleibt oben.']
+];
+const ORDER_SUB=['Eine ozeanische und eine kontinentale Platte bewegen sich aufeinander zu','Die dichtere ozeanische Platte taucht ab, es entsteht ein Tiefseegraben','Entlang der abtauchenden Platte entstehen Erdbeben (Wadati-Benioff-Zone)','In etwa 100 km Tiefe wird Wasser frei, das Gestein darüber schmilzt teilweise auf','Das Magma steigt auf, auf der oberen Platte entstehen Vulkane'];
+const gOrderSub=()=>orderT('<b>Subduktion:</b> Was passiert nacheinander?',ORDER_SUB);
+const SUB_T=[['Tiefseegraben','Lange, sehr tiefe Rinne im Meeresboden, wo eine Platte abtaucht'],['Wadati-Benioff-Zone','Schräg abtauchende Zone von Erdbebenherden entlang der abtauchenden Platte'],['Ring of fire','Gürtel aus Vulkanen und Erdbebengebieten rund um den Pazifik'],['Subduktion','Abtauchen einer Lithosphärenplatte unter eine andere in den Erdmantel']];
+const gSubT=()=>pairT('Ordne die Fachbegriffe zu.',SUB_T,4,SUB_T.map(s=>`<b>${s[0]}:</b> ${s[1]}`).join('<br>'));
+const MC_S=[
+ {q:'Was ist die Wadati-Benioff-Zone?',c:['Eine schräg abtauchende Zone von Erdbebenherden entlang der abtauchenden Platte','Ein Gebirge im Ozean','Ein Vulkan auf Hawaii','Die Grenze zwischen Erdkern und Erdmantel'],e:'Erdbebenherde zeichnen die <b>abtauchende Platte</b> nach.'},
+ {q:'Was ist der „Ring of fire“?',c:['Ein Gürtel aus Vulkanen und Erdbebengebieten rund um den Pazifik','Ein Ring um den Erdkern','Ein Vulkan in Island','Eine Gebirgskette in Europa'],e:'Der <b>Pazifische Feuerring</b>.'},
+ {q:'Warum gibt es am Ring of fire so viele Vulkane und Erdbeben?',c:['Rund um den Pazifik liegen viele Subduktionszonen','Weil es dort besonders warm ist','Wegen starker Winde','Wegen vieler Hot Spots'],e:'Rund um den Pazifik tauchen Platten ab, es gibt <b>Subduktionszonen</b>.'},
+ {q:'Bis in welche Tiefe reichen die Erdbebenherde der Wadati-Benioff-Zone ungefähr?',c:['bis etwa 700 km','bis etwa 1 km','bis zum Erdkern','nur bis 10 km'],e:'Die tiefsten Beben liegen bei etwa <b>700 km</b>.'},
+ {q:'Welches ist der tiefste Tiefseegraben der Erde?',c:['Marianengraben (ca. 11 km)','Atlantikgraben','Oberrheingraben','Ostafrikanischer Graben'],e:'Der <b>Marianengraben</b> im Pazifik, fast 11 km tief.'},
+ {q:'Warum liegen die Erdbebenherde tiefer, je weiter man vom Tiefseegraben ins Landesinnere geht?',c:['Weil die Platte schräg abtaucht','Weil das Land höher liegt','Zufall','Weil dort mehr Vulkane sind'],e:'Die Herde folgen der <b>schräg abtauchenden</b> Platte.'},
+ {q:'Warum schmilzt über der abtauchenden Platte Gestein auf?',c:['Aus der Platte wird Wasser frei, das senkt den Schmelzpunkt des Gesteins','Weil die Sonne es erhitzt','Weil Reibung alles verbrennt','Weil der Erdkern dort an die Oberfläche kommt'],e:'Freigesetztes <b>Wasser senkt den Schmelzpunkt</b>, dann entsteht Magma.'}
+];
+const wrSub=()=>writeT('<b>Erkläre</b>, was in einer Subduktionszone passiert. Verwende die Begriffe <i>Tiefseegraben</i>, <i>Wadati-Benioff-Zone</i> und <i>Vulkanismus</i>.',
+  [['Ozeanische Platte taucht unter die kontinentale ab',['abtauch','taucht','subdukt','unter']],['…weil sie dichter/schwerer ist',['dicht','schwer']],['Es entsteht ein Tiefseegraben',['tiefseegraben','graben']],['Erdbeben entlang der abtauchenden Platte (Wadati-Benioff-Zone)',['erdbeben','benioff','wadati']],['Gestein schmilzt in der Tiefe auf, Magma steigt auf',['schmilzt','schmelz','magma']],['Vulkane entstehen (Vulkanismus)',['vulkan']]],
+  'An einer Subduktionszone bewegen sich eine ozeanische und eine kontinentale Platte aufeinander zu. Die <b>dichtere ozeanische Platte taucht ab</b>. An der Abtauchstelle entsteht ein <b>Tiefseegraben</b>. Entlang der schräg abtauchenden Platte entstehen Erdbeben, ihre Herde bilden die <b>Wadati-Benioff-Zone</b> (bis etwa 700 km tief). In etwa 100 km Tiefe wird Wasser aus der Platte frei, das Gestein darüber schmilzt teilweise auf. Das Magma steigt auf, es entstehen <b>Vulkane</b>. Rund um den Pazifik bilden diese Zonen den <b>Ring of fire</b>.',
+  'Stichworte: abtauchen, dichter, Tiefseegraben, Erdbeben, Wadati-Benioff-Zone, Magma, Vulkane.',4);
+
+/* ---------- Welt 6: Vulkan-Kammer ---------- */
+const TAP_V=[
+ ['mk','Tippe auf die <b>Magmakammer</b>.','In der <b>Magmakammer</b> sammelt sich Magma in der Erdkruste.'],
+ ['sc','Tippe auf den <b>Schlot</b>.','Durch den <b>Schlot</b> steigt das Magma zum Krater auf.'],
+ ['kr','Tippe auf den <b>Krater</b>.','Der <b>Krater</b> ist die Öffnung an der Spitze.'],
+ ['la','Tippe auf die <b>Lava</b>.','Tritt Magma an der Oberfläche aus, heißt es <b>Lava</b>.'],
+ ['pl','Tippe auf den <b>Pluton</b>.','Ein <b>Pluton</b> ist Magma, das in der Kruste stecken bleibt und langsam erstarrt.'],
+ ['as','Tippe auf die <b>Aschewolke</b>.','Bei explosiven Ausbrüchen entstehen <b>Aschewolken</b>.']
+];
+const GLOSSAR=[['Magma','Gesteinsschmelze im Erdinneren'],['Lava','Gesteinsschmelze, die an der Erdoberfläche austritt'],['Magmakammer','Hohlraum in der Erdkruste, in dem sich Magma sammelt'],['Schlot','Aufstiegskanal des Magmas zum Krater'],['Krater','Trichterförmige Öffnung an der Spitze des Vulkans'],['Pluton','In der Erdkruste stecken gebliebenes, langsam erstarrtes Magma (z. B. Granit)'],['Hot Spot','Ortsfeste Stelle, an der heißes Mantelmaterial aufsteigt, unabhängig von Plattengrenzen'],['Schichtvulkan','Steiler Vulkan aus Lava- und Ascheschichten mit explosiven Ausbrüchen'],['Schildvulkan','Flacher Vulkan aus dünnflüssiger Lava mit ruhigen Ausbrüchen'],['Pyroklastischer Strom','Glühend heiße Lawine aus Gas, Asche und Gestein']];
+const gGlossar=()=>pairT('Vulkan-Glossar: Ordne die Begriffe zu.',GLOSSAR,4,'');
+const ORDER_MA=['Gestein schmilzt im Erdinneren teilweise auf, es entsteht Magma','Das Magma ist heißer und leichter als das umgebende Gestein und steigt auf','Es sammelt sich in einer Magmakammer in der Erdkruste','Gase im Magma bauen immer mehr Druck auf','Das Magma steigt durch den Schlot und tritt als Lava aus dem Krater aus'];
+const gOrderMA=()=>orderT('<b>Magmenaufstieg:</b> Bring die Schritte in die richtige Reihenfolge.',ORDER_MA,'<ol>'+ORDER_MA.map(s=>'<li>'+s+'</li>').join('')+'</ol>Bleibt das Magma stecken und erstarrt in der Kruste, entsteht ein <b>Pluton</b>.');
+const VT=[['zähflüssige, gasreiche Lava',0],['dünnflüssige, gasarme Lava',1],['explosive Ausbrüche',0],['eher ruhige, ausfließende Ausbrüche',1],['steile Kegelform',0],['flach und breit wie ein liegender Schild',1],['typisch an Subduktionszonen',0],['typisch an Hot Spots wie Hawaii',1],['z. B. Vesuv oder Fuji',0]];
+const gVT=()=>sortT('Schichtvulkan oder Schildvulkan?',VT,5,['Schichtvulkan','Schildvulkan'],'<b>Schichtvulkan:</b> zähflüssig, explosiv, steil, Subduktionszonen (Vesuv, Fuji).<br><b>Schildvulkan:</b> dünnflüssig, ruhig, flach, Hot Spots (Hawaii).');
+const MC_VU=[
+ {q:'Was ist der Unterschied zwischen Magma und Lava?',c:['Magma ist im Erdinneren, Lava ist an der Erdoberfläche ausgetreten','Lava ist heißer','Magma ist fest, Lava flüssig','Es gibt keinen Unterschied'],e:'Gleiche Schmelze, anderer Ort: <b>innen Magma, außen Lava</b>.'},
+ {q:'Was ist ein Pluton?',c:['Magma, das in der Erdkruste stecken bleibt und langsam erstarrt','Ein Zwergplanet','Ein besonders hoher Vulkan','Eine Aschewolke'],e:'Aus Plutonen entstehen <b>Tiefengesteine</b> wie Granit.'},
+ {q:'Was ist ein Hot Spot?',c:['Eine ortsfeste Stelle, an der heißes Mantelmaterial aufsteigt, unabhängig von Plattengrenzen','Ein besonders heißer Strand','Eine Subduktionszone','Ein Erdbebenherd'],e:'Hot Spots liegen oft <b>mitten auf einer Platte</b>.'},
+ {q:'Wie entsteht eine Vulkankette wie Hawaii?',c:['Die Platte wandert über einen ortsfesten Hot Spot','Durch Subduktion','Durch zwei kollidierende Kontinente','Durch ein großes Erdbeben'],e:'Die Platte bewegt sich, der Hot Spot bleibt: <b>eine Insel nach der anderen</b>.'},
+ {q:'Warum steigt Magma auf?',c:['Es ist heißer und hat eine geringere Dichte als das umgebende Gestein','Weil es angesaugt wird','Wegen des Windes','Weil die Erde sich dreht'],e:'Leichteres Material steigt <b>auf</b>, ähnlich wie ein Korken im Wasser.'},
+ {q:'Wo liegen die jüngsten Hawaii-Inseln?',c:['Im Südosten der Kette, direkt über dem Hot Spot','Am nordwestlichen Ende','Alle sind gleich alt','Unter dem Meer am Rand'],e:'Die Pazifische Platte wandert nach Nordwesten, die <b>jüngste Insel liegt über dem Hot Spot</b>.'},
+ {q:'Warum ist ein Schichtvulkan gefährlicher als ein Schildvulkan?',c:['Seine zähflüssige, gasreiche Lava führt zu explosiven Ausbrüchen','Weil er größer ist','Weil er öfter ausbricht','Ist er nicht'],e:'Zähflüssig + gasreich = <b>explosiv</b> (Aschewolken, pyroklastische Ströme).'}
+];
+const wrVulkan=()=>pick([
+  ()=>writeT('<b>Erkläre</b> den Prozess des Magmenaufstiegs bis zum Vulkanausbruch. Gehe auch darauf ein, was ein <i>Pluton</i> ist.',
+   [['Gestein schmilzt in der Tiefe auf, Magma entsteht',['schmilzt','schmelz','aufgeschmolzen','entsteht magma']],['Magma ist leichter/heißer und steigt auf',['leicht','dichte','heiss','steigt']],['Sammelt sich in der Magmakammer',['magmakammer','kammer']],['Gasdruck steigt',['gas','druck']],['Aufstieg durch den Schlot, Austritt als Lava am Krater',['schlot','krater','lava']],['Pluton: steckengebliebenes, erstarrtes Magma in der Kruste',['pluton','erstarr','stecken']]],
+   'Im Erdinneren schmilzt Gestein teilweise auf, es entsteht <b>Magma</b>. Weil es heißer und leichter (geringere Dichte) ist als das umgebende Gestein, <b>steigt es auf</b> und sammelt sich in einer <b>Magmakammer</b> in der Erdkruste. Die im Magma gelösten Gase bauen <b>Druck</b> auf. Ist der Druck groß genug, steigt das Magma durch den <b>Schlot</b> und tritt am <b>Krater</b> als <b>Lava</b> aus. Bleibt Magma in der Kruste stecken und erstarrt langsam, entsteht ein <b>Pluton</b>.',
+   'Stichworte: schmelzen, leichter, aufsteigen, Magmakammer, Gasdruck, Schlot, Krater, Lava, Pluton.',4),
+  ()=>writeT('<b>Erkläre</b>, was ein <i>Hot Spot</i> ist und wie dadurch eine Vulkankette wie Hawaii entsteht.',
+   [['Ortsfeste Stelle im Erdmantel',['ortsfest','fest','bleibt']],['Heißes Mantelmaterial steigt auf',['aufsteig','steigt','heiss','mantel']],['Unabhängig von Plattengrenzen',['unabhaengig','mitten','plattengrenze']],['Platte bewegt sich über den Hot Spot hinweg',['platte bewegt','wandert','bewegt sich','verschiebt']],['Es entsteht eine Kette von Vulkanen/Inseln, die jüngste über dem Hot Spot',['kette','insel','juengst','aelter']]],
+   'Ein <b>Hot Spot</b> ist eine <b>ortsfeste</b> Stelle, an der heißes Material aus dem Erdmantel aufsteigt, <b>unabhängig von Plattengrenzen</b>. Die Lithosphärenplatte <b>wandert darüber hinweg</b>. So entsteht immer wieder ein neuer Vulkan, während die älteren mit der Platte wegtransportiert werden und erlöschen. Es bildet sich eine <b>Kette von Vulkaninseln</b> wie Hawaii. Die jüngste Insel liegt direkt über dem Hot Spot.',
+   'Stichworte: ortsfest, Mantelmaterial steigt auf, unabhängig von Plattengrenzen, Platte wandert, Inselkette.',3)])();
+
+/* ============ Welten ============ */
+const W=[
+ {id:'aufbau',name:'Schichten-Schacht',icon:'🪨',topic:'Aufbau der Erde ab oberem Erdmantel · Lithosphäre · Asthenosphäre · ozeanische und kontinentale Kruste',build:()=>shuffle([gTap('erde',TAP_ERDE),gKruste(),gSchichtMatch(),poolMC(pick(MC_E)),gTap('erde',TAP_ERDE)]).concat([wrErde()])},
+ {id:'platten',name:'Platten-Werkstatt',icon:'🧩',topic:'Divergierende und konvergierende Platten · konstruktive und destruktive Plattengrenzen',build:()=>shuffle([gGrenzeSort(),gKDSort(),gBegr(),poolMC(pick(MC_P)),gSpeed()]).concat([wrGrenze()])},
+ {id:'antrieb',name:'Antriebs-Maschinenraum',icon:'⚙️',topic:'Antriebsmechanismen: Plattenzug · Rückendruck · Asthenosphärenantrieb',build:()=>shuffle([gAntrMatch(),gTap('antrieb',TAP_ANTR),gAntrCloze(),poolMC(pick(MC_AN)),gTap('antrieb',TAP_ANTR)]).concat([wrAntr()])},
+ {id:'wilson',name:'Wilson-Portal',icon:'🔄',topic:'Wilson-Zyklus / Recycling der Platten · Rift · seafloor spreading · Kollision · Faltengebirge',build:()=>shuffle([gOrderWZ(),gWZEx(),gWZT(),poolMC(pick(MC_WZ)),gWZCloze()]).concat([wrWZ()])},
+ {id:'subduktion',name:'Subduktions-Graben',icon:'🕳️',topic:'Subduktionszonen · Tiefseegraben · Wadati-Benioff-Zone · Ring of fire',build:()=>shuffle([gTap('sub',TAP_SUB),gTap('sub',TAP_SUB),gOrderSub(),gSubT(),poolMC(pick(MC_S))]).concat([wrSub()])},
+ {id:'vulkan',name:'Vulkan-Kammer',icon:'🌋',topic:'Grundlagen Vulkanismus (Glossar) · Magmenaufstieg · Pluton · Hot Spot',build:()=>shuffle([gTap('vulkan',TAP_V),gGlossar(),gOrderMA(),gVT(),poolMC(pick(MC_VU))]).concat([wrVulkan()])}
+];
+function bossBuild(){
+  const g=[[()=>gTap('erde',TAP_ERDE),'aufbau'],[gKruste,'aufbau'],[gGrenzeSort,'platten'],[gSpeed,'platten'],[gAntrMatch,'antrieb'],[gOrderWZ,'wilson'],[()=>gTap('sub',TAP_SUB),'subduktion'],[()=>poolMC(pick(MC_S)),'subduktion'],[()=>gTap('vulkan',TAP_V),'vulkan'],[gVT,'vulkan']];
+  return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
+}
+
+/* ============ Ränge & Erfolge ============ */
+const H=window.LernHub, APP='geo-plattentektonik';
+/* Rang gilt nur in dieser App – jede Lern-App startet wieder bei Holz */
+const RANKS=[['Holz',0,'#a0703c'],['Stein',150,'#8a8a8a'],['Kupfer',400,'#d07a45'],['Eisen',800,'#d8d8d8'],['Gold',1400,'#f2c94c'],['Diamant',2200,'#4ee6e0'],['Netherit',3000,'#4d4246']];
+function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
+const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
+const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
+const K=k=>S.stats['k_'+k]||0;
+const ACH=[
+ ['first','⛏️','Erster Spatenstich','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
+ ['tap10','👆','Präzisionsbohrer','10 Schaubild-Aufgaben richtig angetippt.',()=>K('tap')>=10],
+ ['aufbau','🪨','Schichtenkenner','Schichten-Schacht mit 3 Sternen.',()=>(S.stars.aufbau||0)>=3],
+ ['platten','🧩','Plattenprofi','Platten-Werkstatt mit 3 Sternen.',()=>(S.stars.platten||0)>=3],
+ ['antrieb','⚙️','Maschinist','Antriebs-Maschinenraum geschafft (mind. 1 Stern).',()=>(S.stars.antrieb||0)>=1],
+ ['wilson','🔄','Zyklus-Meister','Wilson-Portal mit 3 Sternen.',()=>(S.stars.wilson||0)>=3],
+ ['sub','🕳️','Grabentaucher','Subduktions-Graben geschafft (mind. 1 Stern).',()=>(S.stars.subduktion||0)>=1],
+ ['vulkan','🌋','Vulkanologe','Vulkan-Kammer mit 3 Sternen.',()=>(S.stars.vulkan||0)>=3],
+ ['calc','📏','Plattenrechner','3 Rechenaufgaben richtig.',()=>K('num')>=3],
+ ['order5','🔢','Ordnung muss sein','5 Reihenfolgen richtig sortiert.',()=>K('order')>=5],
+ ['match10','🔗','Zuordnungs-Profi','10 Zuordnungsaufgaben richtig.',()=>K('match')>=10],
+ ['cloze5','🧩','Lückenfüller','5 Lückentexte richtig.',()=>K('cloze')>=5],
+ ['write3','✍️','Schreibtalent','3 Schreibaufgaben geschafft.',()=>K('write')>=3],
+ ['write10','📝','Klassenarbeits-ready','10 Schreibaufgaben geschafft.',()=>K('write')>=10],
+ ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
+ ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
+ ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
+ ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
+ ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
+ ['s18','🌟','Alle Sterne','Alle 18 Sterne gesammelt.',()=>starsTotal()>=18],
+ ['all','🌍','Erdkern erreicht','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
+ ['iron','⛓️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
+ ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
+ ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
+ ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
+ ['cheat','📜','Gut vorbereitet','Den Lernzettel angeschaut.',()=>S.stats.cheat>=1],
+ ['boss','🔥','Magma-Titan besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
+ ['bossp','👑','Feuerfest','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
+];
+
+/* ============ Spielstand ============ */
+function defState(){return {name:'',xp:0,stars:{},plays:{},ach:{},stats:{correct:0,byWorld:{},bestCombo:0,cheat:0,nohint:0,bossWins:0,bossPerfect:0},streak:{last:'',days:0}};}
+function merge(d,o){for(const k in o){if(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k])&&d[k]&&typeof d[k]==='object')merge(d[k],o[k]);else d[k]=o[k];}return d;}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return merge(defState(),JSON.parse(r));}catch(e){}return defState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function touchStreak(){H.touchStreak();}
+
+/* ============ UI-Grundgerüst ============ */
+const $=s=>document.querySelector(s);
+const view=$('#view');
+function oreStrip(){
+  const L=['#6b8f3a','#8a6a44','#7d7d7d','#6a6a6a','#c4502a','#ff7a2e'];
+  let h='';for(let i=0;i<40;i++){const c=L[Math.min(5,Math.floor((i%20)/3.4))];const lava=c==='#ff7a2e'||c==='#c4502a';
+    const dots=lava?`<i style="left:10px;top:12px;background:#ffd68c"></i><i style="left:26px;top:26px;background:#ffb04a"></i>`:(i%3===0?`<i style="left:8px;top:26px;background:rgba(0,0,0,.25)"></i><i style="left:26px;top:10px;background:rgba(255,255,255,.18)"></i>`:'');
+    h+=`<div class="ore" style="background:${c}">${dots}</div>`;}
+  $('#ores').innerHTML=h;
+}
+function updateHeader(){
+  const G=H.get(),r=rankIdx(S.xp),cur=RANKS[r],nxt=RANKS[r+1];
+  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${G.name?G.name+' · ':''}${cur[0]}</span>`;
+  const pct=nxt?((S.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
+  $('#xpfill').style.width=Math.min(100,pct)+'%';
+  $('#xptxt').textContent=nxt?`${S.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${S.xp} XP · Höchster Rang!`;
+  $('#streak').textContent=`🔥 ${G.streak.days||0} ${G.streak.days===1?'Tag':'Tage'}`;
+  $('#navach').textContent=`🏆 Erfolge ${H.countApp(APP)}/${ACH.length}`;
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{P=null;go(b.dataset.nav);}));
+function go(v){window.scrollTo(0,0);({map:renderMap,ach:renderAch,sheet:renderSheet,save:renderSave})[v]();}
+
+/* Toasts & Konfetti */
+const tq=[];let tBusy=0;
+function toast(icon,title,name){tq.push([icon,title,name]);if(!tBusy)nextToast();}
+function nextToast(){const t=tq.shift();if(!t){tBusy=0;return;}tBusy=1;const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<div class="ti">${t[0]}</div><div><div class="tt">${t[1]}</div><div class="tn">${t[2]}</div></div>`;$('#toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();nextToast();},400);},2600);}
+function confetti(n){const cols=['#5fbf3a','#f2c94c','#4ee6e0','#e0473a','#3f7be0','#d9813f'];
+  for(let i=0;i<(n||40);i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3800);}}
+function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn])=>{if(!H.has(APP,id)&&fn()){H.unlock(APP,id,ic,name,desc);toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any)confetti(30);updateHeader();}
+H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
+let lastRank=rankIdx(S.xp);
+function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
+function registerApp(){H.registerApp({id:APP,name:'Tiefen-Expedition',icon:'🌋',fach:'Geographie',klasse:9,achTotal:ACH.length,maxStars:18,stars:starsTotal()});}
+
+/* ============ Karte ============ */
+function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
+function renderMap(){
+  const unlocked=worldsDone()>=4;
+  let h='';
+  if(!H.get().name){
+    h+=`<div class="panel"><h2>Willkommen, Expeditionsleiter!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
+  }
+  h+=`<div class="panel intro"><h2>Geographie Kl. 9 · Plattentektonik &amp; Vulkanismus</h2>
+  <p>Grab dich durch die Erde! Jede Welt liegt eine Ebene tiefer und ist ein Thema der Klassenarbeit. Viele Aufgaben sind <b>Schaubilder zum Antippen</b>, die letzte Aufgabe jeder Runde ist eine <b>Schreibaufgabe</b> wie in der Klassenarbeit.</p>
+  <p class="muted">Wenn du in 4 Welten mindestens einen Stern hast, erwacht der Magma-Titan.</p></div>
+  <div class="worlds">`;
+  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">WELT ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🔥</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Magma-Titan</div><div class="tp">${unlocked?'10 gemischte Aufgaben, 3 Herzen. Überlebst du die Glut?':`🔒 Noch ${4-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  view.innerHTML=h;
+  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
+  $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
+  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){H.setName(v);updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
+}
+
+/* ============ Spiel ============ */
+let P=null;
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Der Magma-Titan',icon:'🔥',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function bossSvg(hp){
+  const c=hp>=3?'#ff7a2e':hp===2?'#e0572b':hp===1?'#a8402a':'#555',g=hp>0?'#ffd68c':'#888';
+  return `<svg width="116" height="116" viewBox="0 0 28 28" shape-rendering="crispEdges">
+   <rect x="6" y="4" width="16" height="18" fill="#3a2a22"/><rect x="7" y="5" width="14" height="16" fill="${c}"/>
+   <rect x="8" y="7" width="3" height="2" fill="#3a2a22"/><rect x="17" y="7" width="3" height="2" fill="#3a2a22"/>
+   <rect x="9" y="10" width="3" height="3" fill="${g}"/><rect x="16" y="10" width="3" height="3" fill="${g}"/>
+   <rect x="10" y="16" width="8" height="2" fill="#3a2a22"/><rect x="2" y="9" width="4" height="7" fill="#3a2a22"/><rect x="22" y="9" width="4" height="7" fill="#3a2a22"/>
+   <rect x="3" y="10" width="2" height="5" fill="${c}"/><rect x="23" y="10" width="2" height="5" fill="${c}"/>
+   <rect x="8" y="22" width="4" height="5" fill="#3a2a22"/><rect x="16" y="22" width="4" height="5" fill="#3a2a22"/>
+   <rect x="12" y="1" width="2" height="3" fill="${g}"/><rect x="15" y="2" width="2" height="2" fill="${g}"/></svg>`;
+}
+function renderTask(){
+  document.onkeydown=null;const t=P.tasks[P.i];P.answered=false;P.usedHint=false;P.taskT=Date.now();
+  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}">${k<P.res.length?(P.res[k]?'💎':'🔥'):'🪨'}</span>`;});
+  view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
+   ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
+   ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
+   <div class="panel"><div class="taskhead"><span class="pix">AUFGABE ${P.i+1} / ${P.tasks.length}</span>${t.hint?'<button class="btn small gold" id="hintb">💡 Tipp</button>':''}</div>
+   <div class="q">${t.q}</div><div id="inp"></div><div id="hintbox"></div><div class="fb" id="fb"></div></div>`;
+  $('#quit').onclick=()=>{document.onkeydown=null;logRound(false,null);P=null;renderMap();};
+  if(t.hint)$('#hintb').onclick=()=>{if(P.answered)return;P.usedHint=true;P.hints++;$('#hintbox').innerHTML=`<div class="hintbox">💡 ${t.hint}<br><span class="muted" style="font-size:14px">(Mit Tipp gibt es keinen XP-Bonus.)</span></div>`;$('#hintb').disabled=true;};
+  INPUT[t.kind](t,$('#inp'));
+}
+function parseNum(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');if(s===''||isNaN(+s))return null;return +s;}
+function numOk(v,t){if(v===null)return false;if(t.tol===0)return Math.abs(v-t.ans)<1e-9;const tol=t.tol||0.02;return Math.abs(v-t.ans)<=Math.max(Math.abs(t.ans)*tol,0.005);}
+/* Zehnerpotenz-Eingabe: getrennte Felder ODER alles in einem Feld (6,02*10^23, 6,02·10^23, 6,02x10^23, 6,02e23, 10^-24) */
+function parseSci(mStr,eStr,neg){
+  let s=String(mStr||'').trim().replace(/\s/g,'').replace(/,/g,'.').replace(/[\u2212\u2013\u2014]/g,'-').replace(/[\u00b7\u00d7\u22c5xX*]/g,'*');
+  let m=s.match(/^([-+]?\d*\.?\d+)\*?10\^\(?([-+]?\d+)\)?$/)||s.match(/^([-+]?\d*\.?\d+)[eE]([-+]?\d+)$/);
+  if(m)return (+m[1])*Math.pow(10,+m[2]);
+  m=s.match(/^10\^\(?([-+]?\d+)\)?$/);if(m)return Math.pow(10,+m[1]);
+  const mant=parseNum(s);if(mant===null)return null;
+  const e=String(eStr||'').trim().replace(/\s/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(e===''||isNaN(+e))return null;
+  let ev=+e;if(neg&&ev>0)ev=-ev;
+  return mant*Math.pow(10,ev);
+}
+/* Eingabe wie am TI-30X Pro (Schul-Taschenrechner): Ziffern, Punkt, (–), EE, delete, clear, enter – für alle Zahlenaufgaben */
+function calcPad(t,el,isSci,check){
+  const st={m:'',mNeg:false,e:null,eNeg:false};let mode='m';
+  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 &nbsp;·&nbsp; <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>12.5</b>. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>';
+  el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
+    <div class="ckeys">${[['7','','dg'],['8','','dg'],['9','','dg'],['del','delete','fn'],['4','','dg'],['5','','dg'],['6','','dg'],['ac','clear','fn'],['1','','dg'],['2','','dg'],['3','','dg'],['exp','EE','fn'],['0','','dg'],[',','.','dg'],['neg','(–)','dg'],['ok','enter','ok']].map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Wie auf deinem TI-30X Pro: ${ex}. <b>enter</b> = Prüfen. Am PC gehen auch die Tasten (E = EE, Minus = (–)).</div>
+    <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
+  const cd=$('#cd');
+  function draw(){
+    const NEG='<span class="cneg">-</span>';
+    const m=(st.mNeg?NEG:'')+(st.m||(st.e===null?'':'1')).replace(',','.');
+    let h=m;
+    if(st.e!==null)h+=`<span class="ce">E</span>${st.eNeg?NEG:''}${st.e}`;
+    h+='<span class="cur"></span>';
+    cd.innerHTML=`<div class="cline">${h}</div><div class="cunit">${t.unit}</div>`;
+  }
+  function value(){
+    const mStr=(st.m||(st.e!==null?'1':'')).replace(',','.');if(mStr===''||mStr==='.'||isNaN(+mStr))return null;
+    let v=+mStr*(st.mNeg?-1:1);if(st.e!==null){if(st.e==='')return null;v*=Math.pow(10,(st.eNeg?-1:1)*(+st.e));}return v;
+  }
+  function press(k){
+    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
+    if(/^[0-9]$/.test(k)){if(mode==='e'){if(st.e.length<3)st.e+=k;}else if(st.m.replace(',','').length<9)st.m+=k;}
+    else if(k===','){if(mode==='m'&&!st.m.includes(','))st.m+=(st.m===''?'0,':',');}
+    else if(k==='neg'){if(mode==='e')st.eNeg=!st.eNeg;else st.mNeg=!st.mNeg;}
+    else if(k==='exp'){if(st.e===null){st.e='';mode='e';}}
+    else if(k==='del'){if(mode==='e'){if(st.e!=='')st.e=st.e.slice(0,-1);else if(st.eNeg)st.eNeg=false;else{st.e=null;mode='m';}}else if(st.m!=='')st.m=st.m.slice(0,-1);else st.mNeg=false;}
+    else if(k==='ac'){st.m='';st.mNeg=false;st.e=null;st.eNeg=false;mode='m';}
+    else if(k==='ok'){const v=value();
+      if(v===null){const msg=$('#scimsg');msg.style.display='block';msg.innerHTML=st.e===''?'Hinter ×10<sup>x</sup> fehlt noch die Hochzahl.':'Bitte zuerst eine Zahl eintippen.';return;}
+      document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);
+      const [ok,extra]=check(v);answer(ok,extra);return;}
+    draw();
+  }
+  el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
+  document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m=',';else if(k==='-'||k==='−')m='neg';else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='ok';
+    if(m){e.preventDefault();press(m);}};
+  draw();
+}
+const INPUT={
+  tap(t,el){const D=DIAG[t.diagram];el.innerHTML=`<div class="curvebox">${drawDiag(D.zones,D.deco,null)}</div><div class="muted" style="font-size:15px">Tippe auf den richtigen Bereich im Schaubild.</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');
+      el.querySelector('.curvebox').innerHTML=drawDiag(D.zones,D.deco,{sel:v,corr:t.zone},D.overlay);const nm=(D.zones.find(q=>q[0]===v)||[])[1];answer(v===t.zone,`Du hast „${nm}“ angetippt.`);}));},
+
+  match(t,el){const sel=t.rows.map(()=>-1);
+    el.innerHTML=`<div class="mrows">${t.rows.map((r,i)=>`<div class="mrow" data-r="${i}"><div class="ml">${r.l}</div><div class="mopts">${t.opts.map((o,j)=>`<button type="button" class="mo" data-r="${i}" data-o="${j}">${o}</button>`).join('')}</div></div>`).join('')}</div><button class="btn green" id="chk" disabled>Prüfen</button>`;
+    el.querySelectorAll('.mo').forEach(b=>b.onclick=()=>{if(P.answered)return;const r=+b.dataset.r,o=+b.dataset.o;sel[r]=o;el.querySelectorAll(`.mo[data-r="${r}"]`).forEach(x=>x.classList.toggle('sel',+x.dataset.o===o));$('#chk').disabled=sel.includes(-1);});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=true;t.rows.forEach((r,i)=>{const good=sel[i]===r.a;if(!good)ok=false;el.querySelector(`.mrow[data-r="${i}"]`).classList.add(good?'right':'wrong');
+      el.querySelectorAll(`.mo[data-r="${i}"]`).forEach(x=>{x.disabled=true;if(+x.dataset.o===r.a)x.classList.add('corr');});});$('#chk').disabled=true;answer(ok,ok?'':'Grün umrandet = richtige Zuordnung.');};},
+  cloze(t,el){const fill=t.ans.map(()=>null);
+    function draw(){let k=0;const txt=t.text.replace(/\[[^\]]+\]/g,()=>{const i=k++;const v=fill[i];return `<button type="button" class="slot ${v!==null?'full':''}" data-s="${i}">${v!==null?t.pool[v]:'&nbsp;'}</button>`;});
+      el.innerHTML=`<div class="ctext">${txt}</div><div class="cpool">${t.pool.map((w,i)=>`<button type="button" class="cw" data-w="${i}" ${fill.includes(i)?'disabled':''}>${w}</button>`).join('')}</div><button class="btn green" id="chk" ${fill.includes(null)?'disabled':''}>Prüfen</button>`;
+      el.querySelectorAll('.cw').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=fill.indexOf(null);if(i<0)return;fill[i]=+b.dataset.w;draw();});
+      el.querySelectorAll('.slot').forEach(b=>b.onclick=()=>{if(P.answered)return;fill[+b.dataset.s]=null;draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;let ok=true;el.querySelectorAll('.slot').forEach(b=>{const i=+b.dataset.s;const good=t.pool[fill[i]]===t.ans[i];if(!good)ok=false;b.classList.add(good?'right':'wrong');b.disabled=true;});
+        el.querySelectorAll('.cw').forEach(b=>b.disabled=true);$('#chk').disabled=true;let k2=0;const full=t.text.replace(/\[([^\]]+)\]/g,(_,w)=>`<b>${w}</b>`);answer(ok,'');P.tasks[P.i].sol=(ok?'':'Richtig heißt es: ')+full;$('#fb .sol').innerHTML=(ok?'':'Richtig heißt es: ')+full;};}
+    draw();},
+  curve(t,el){el.innerHTML=`<div class="curvebox">${curveSvg(null,true)}</div><div class="muted" style="font-size:15px">Tippe auf den passenden Abschnitt der Kurve (die gestrichelten Bereiche).</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');el.querySelector('.curvebox').innerHTML=curveSvg({sel:v,corr:t.zone},false);answer(v===t.zone,`Du hast ${ZNAME[v]} angetippt.`);}));},
+  multi(t,el){const sel=new Set();
+    el.innerHTML=`<div class="chips">${t.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;sel.has(i)?sel.delete(i):sel.add(i);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;const ok=sel.size===t.ans.length&&t.ans.every(a=>sel.has(a));
+      el.querySelectorAll('.chip').forEach(b=>{const i=+b.dataset.i,inA=t.ans.includes(i);b.classList.remove('sel');if(sel.has(i))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = hat gefehlt, rot = passt nicht.');};},
+  write(t,el){el.innerHTML=`<textarea id="wt" class="wt" placeholder="Schreib deine Antwort hier – oder auf ein Blatt Papier, wie in der Klassenarbeit."></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn blue" id="show">Musterlösung zeigen</button></div><div id="wres"></div>`;
+    $('#show').onclick=()=>{if(P.answered)return;const txt=' '+norm($('#wt').value)+' ';$('#show').disabled=true;$('#wt').readOnly=true;
+      const hits=t.keys.map(([l,kws])=>kws.some(k=>txt.includes(norm(k))));
+      $('#wres').innerHTML=`<div class="sol" style="margin-top:12px"><b>Musterlösung:</b><br>${t.model}</div>
+        <div class="checkbox-panel"><b>Was hattest du?</b><div class="muted" style="font-size:15px;margin-bottom:6px">Hake ehrlich ab, was in deiner Antwort vorkommt${$('#wt').value.trim()?' (erkannte Begriffe sind schon angehakt, bitte prüfen)':''}. Ab <b>${t.need} von ${t.keys.length}</b> Punkten ist die Aufgabe geschafft.</div>
+        ${t.keys.map(([l],i)=>`<label class="chk"><input type="checkbox" data-wk="${i}" ${hits[i]?'checked':''}> ${l}</label>`).join('')}
+        <button class="btn green" id="eval" style="margin-top:10px">Auswerten</button></div>`;
+      $('#eval').onclick=()=>{if(P.answered)return;const n=[...el.querySelectorAll('input[data-wk]')].filter(x=>x.checked).length;el.querySelectorAll('input[data-wk]').forEach(x=>x.disabled=true);$('#eval').disabled=true;
+        t.sol=`Du hattest <b>${n} von ${t.keys.length}</b> Schlüsselpunkten.`+(n>=t.need?' Stark, so gibt es in der Klassenarbeit Punkte!':` Für „geschafft“ brauchst du ${t.need}. Lies die Musterlösung noch einmal und merk dir die fehlenden Punkte.`);
+        answer(n>=t.need,'');};};},
+
+  num(t,el){calcPad(t,el,false,v=>[numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`]);},
+  sci(t,el){calcPad(t,el,true,v=>[Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`]);},
+  mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
+    el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
+      el.querySelectorAll('[data-i]').forEach(x=>{x.disabled=true;if(+x.dataset.i===t.correct)x.classList.add('right');});if(!ok)b.classList.add('wrong');answer(ok,'');});},
+  tf(t,el){el.innerHTML=`<div class="row"><button class="btn green" data-v="1" style="min-width:140px">✔ Wahr</button><button class="btn red" data-v="0" style="min-width:140px">✘ Falsch</button></div>`;
+    el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(P.answered)return;const v=b.dataset.v==='1';el.querySelectorAll('[data-v]').forEach(x=>x.disabled=true);answer(v===t.ans,`Richtig ist: <b>${t.ans?'Wahr':'Falsch'}</b>`);});},
+  grid(t,el){const sel=new Set();
+    el.innerHTML=`<div class="elgrid">${t.items.map(s=>`<button class="el" data-s="${s}">${s}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{if(P.answered)return;const s=b.dataset.s;sel.has(s)?sel.delete(s):sel.add(s);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=sel.size===t.ans.length&&t.ans.every(s=>sel.has(s));
+      el.querySelectorAll('[data-s]').forEach(b=>{const s=b.dataset.s,inA=t.ans.includes(s);b.classList.remove('sel');if(sel.has(s))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = vergessen, rot = falsch ausgewählt.');};},
+  bal(t,el){const sp=t.r.concat(t.p);const co=sp.map(()=>1);const nr=t.r.length;
+    const elems=[];sp.forEach(f=>Object.keys(parseF(f)).forEach(e=>{if(!elems.includes(e))elems.push(e);}));
+    function counts(side){const c={};sp.forEach((f,k)=>{if((k<nr)!==(side==='L'))return;const p=parseF(f);for(const e in p)c[e]=(c[e]||0)+p[e]*co[k];});return c;}
+    function blocks(e,n){if(n>24)return `<span class="cnt">${n}</span>`;return `<span class="cnt">${n}</span>`+`<span class="blk" style="background:${ECOL[e]||'#888'}"></span>`.repeat(n);}
+    function draw(){
+      let h='<div class="bal">';sp.forEach((f,k)=>{if(k===nr)h+='<span class="op">→</span>';else if(k>0)h+='<span class="op">+</span>';
+        h+=`<div class="sp"><div class="st"><button data-k="${k}" data-d="1">▲</button><button data-k="${k}" data-d="-1">▼</button></div><span class="co">${co[k]}</span><span>${fx(f)}</span></div>`;});
+      h+='</div>';const L=counts('L'),R=counts('R');
+      h+=`<table class="atoms"><tr><th>Atom</th><th>links</th><th>rechts</th></tr>${elems.map(e=>{const ok=L[e]===R[e];const cls=t.noColor?'':(ok?'okc':'badc');return `<tr><td><b>${e}</b> <span class="muted">${EN[e]||''}</span></td><td class="${cls}">${blocks(e,L[e]||0)}</td><td class="${cls}">${blocks(e,R[e]||0)}</td></tr>`;}).join('')}</table>
+      <button class="btn green" id="chk">Prüfen</button>`;
+      el.innerHTML=h;
+      el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(P.answered)return;const k=+b.dataset.k;co[k]=Math.max(1,Math.min(9,co[k]+(+b.dataset.d)));draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;const L=counts('L'),R=counts('R');const bal=elems.every(e=>L[e]===R[e]);const g=co.reduce((a,b)=>gcd(a,b));
+        el.querySelectorAll('[data-k]').forEach(b=>b.disabled=true);$('#chk').disabled=true;
+        answer(bal&&g===1,bal&&g!==1?'Ausgeglichen, aber nicht mit den <b>kleinstmöglichen</b> Zahlen. Alle Koeffizienten lassen sich noch kürzen!':(bal?'':'Noch nicht ausgeglichen. Vergleiche links und rechts in der Tabelle.'));};
+    }
+    draw();},
+  order(t,el){const pool=shuffle(t.steps.map((s,i)=>i));const chosen=[];
+    function draw(){el.innerHTML=`<div class="orderlist">${chosen.map((i,k)=>`<div class="item"><b>${k+1}.</b>${t.steps[i]}</div>`).join('')}</div>
+      <div class="orderpool">${pool.filter(i=>!chosen.includes(i)).map(i=>`<button class="btn" style="text-align:left;background:#4a4a55" data-i="${i}">${t.steps[i]}</button>`).join('')}</div>
+      <div class="row"><button class="btn small" id="rs">↺ Zurücksetzen</button>${chosen.length===t.steps.length?'<button class="btn green" id="chk">Prüfen</button>':''}</div>`;
+      el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;chosen.push(+b.dataset.i);draw();});
+      $('#rs').onclick=()=>{if(P.answered)return;chosen.length=0;draw();};
+      const c=$('#chk');if(c)c.onclick=()=>{if(P.answered)return;const ok=chosen.every((v,k)=>v===k);c.disabled=true;$('#rs').disabled=true;answer(ok,'');};}
+    draw();}
+};
+function answer(ok,extra){
+  if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
+  P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
+  if(ok){P.combo++;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+    gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();S.stats['k_'+t.kind]=(S.stats['k_'+t.kind]||0)+1;if(t.kind==='num'&&/curvebox/.test(t.q))S.stats.curveNum=(S.stats.curveNum||0)+1;}
+  else{P.combo=0;if(P.boss)P.hearts--;}
+  P.res.push(ok);if(gain)gainXP(gain);
+  const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
+  $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
+    `<div class="sol">${!ok&&extra?extra+'<br>':''}${t.sol||''}</div><div class="row" style="margin-top:12px"><button class="btn ${ok?'green':'blue'}" id="next">${last?'Ergebnis ▶':'Weiter ▶'}</button></div>`;
+  const hb=$('#hintb');if(hb)hb.disabled=true;
+  save();checkAch();
+  const n=$('#next');n.onclick=()=>{if(last)finish();else{P.i++;renderTask();}};
+  setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
+  document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
+}
+function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Tiefen-Expedition',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
+  right:P.res.filter(Boolean).length,total:P.res.length,planned:P.tasks.length,stars:stars,secs:Math.round(P.secs),hints:P.hints,done:done});}
+function finish(){
+  document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
+  touchStreak();
+  let h='';
+  if(P.boss){
+    const won=P.hearts>0;
+    logRound(true,null);
+    if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
+    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Der Magma-Titan ist erkaltet!':'Der Magma-Titan war zu heiß …'}</h2>
+     <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
+     <p class="muted">${won?'Stark! Das war fast schon Klassenarbeits-Niveau.':'Schau dir die Lösungswege nochmal an und trainiere die Welten, in denen es gehakt hat. Dann nochmal!'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Nochmal kämpfen</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(won)confetti(90);
+  }else{
+    const st=right===total?3:right>=total-1?2:right>=Math.ceil(total*0.6)?1:0;
+    const prev=S.stars[P.world]||0;
+    S.stars[P.world]=Math.max(prev,st);S.plays[P.world]=(S.plays[P.world]||0)+1;
+    logRound(true,st);
+    if(st===3&&P.hints===0)S.stats.nohint++;
+    if(st)gainXP(st*10);
+    h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>
+     <p>${right} von ${total} richtig${st?` · <b style="color:var(--gold)">+${st*10} XP</b> Sternbonus`:''}${st>prev&&prev>0?' · neuer Rekord!':''}</p>
+     <p class="muted">${st===3?'Perfekt! Diese Welt hast du im Griff.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Neue Runde</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(st===3)confetti(70);
+  }
+  const wid=P.world;save();checkAch();view.innerHTML=h;window.scrollTo(0,0);
+  $('#again').onclick=()=>{wid==='boss'?startBoss():startWorld(wid);};$('#tomap').onclick=()=>{P=null;renderMap();};
+}
+
+/* ============ Erfolge ============ */
+function renderAch(){
+  const got=H.countApp(APP),G=H.get();
+  view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 27 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
+  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=H.has(APP,id);return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>
+  <div class="panel" style="margin-top:22px"><h2>🌍 Meta-Erfolge (über alle Lern-Apps)</h2><p class="muted">Jede Lern-App hat ihren eigenen Rang und eigene Erfolge. Diese Meta-Erfolge sammelst du über alle Apps hinweg, im Lern-Hub steht deine ganze Trophäen-Vitrine.</p></div>
+  <div class="achs">${H.globalList().map(([id,ic,n,d,,hid])=>{const g=!!G.ach['hub:'+id];if(hid&&!g){ic='❓';n='???';d='Versteckter Erfolg. Wird später enthüllt …';}return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:(hid?'❓':'🔒')}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+}
+
+/* ============ Spickzettel ============ */
+function renderSheet(){
+  if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
+  view.innerHTML=`<div class="panel"><h2>📜 Lernzettel</h2><p>Das Wichtigste auf einen Blick. Tipp: Zeichne die Schaubilder (Schichten, Subduktion, Vulkan) selbst einmal aus dem Kopf nach.</p></div>
+  <div class="sheet">
+   <div class="card"><h3>Aufbau der Erde</h3><p><b>Lithosphäre</b> = Erdkruste + oberster Erdmantel: starr, ca. 100 km, in Platten zerbrochen.<br><b>Asthenosphäre</b>: darunter, zähplastisch, darauf gleiten die Platten.</p><table><tr><td></td><td><b>ozeanisch</b></td><td><b>kontinental</b></td></tr><tr><td>Dicke</td><td>5–10 km</td><td>30–70 km</td></tr><tr><td>Dichte</td><td>höher (schwer)</td><td>geringer (leicht)</td></tr><tr><td>Gestein</td><td>Basalt</td><td>granitisch</td></tr><tr><td>Alter</td><td>jung (≤ ca. 200 Mio. J.)</td><td>teils über 3 Mrd. J.</td></tr></table></div>
+   <div class="card"><h3>Plattengrenzen</h3><p><b>divergierend</b> = auseinander → <b>konstruktiv</b> (neue Kruste): Rift, Mittelozeanischer Rücken (Island).</p><p><b>konvergierend</b> = aufeinander zu → <b>destruktiv</b> (Kruste wird vernichtet): Subduktion, Tiefseegraben (Anden). Kontinent + Kontinent → Kollision, Faltengebirge (Himalaya).</p><p>Tempo: wenige cm pro Jahr (1 cm/Jahr = 10 km in 1 Mio. Jahren).</p></div>
+   <div class="card"><h3>Antriebe</h3><p><b>Plattenzug</b>: abtauchende, schwere Platte zieht den Rest nach (stärkster Antrieb).<br><b>Rückendruck</b>: am Mittelozeanischen Rücken werden die Platten auseinandergedrückt, sie gleiten ab.<br><b>Asthenosphärenantrieb</b>: Konvektionsströme nehmen die Platten durch Reibung mit.</p><p>Energie: Wärme im Erdinneren.</p></div>
+   <div class="card"><h3>Wilson-Zyklus</h3><p>1. kontinentales Rift (Ostafrika) → 2. ozeanisches Rift (Rotes Meer) → 3. seafloor spreading am Mittelozeanischen Rücken (Atlantik) → 4. Subduktion, Ozean schrumpft (Pazifik) → 5. Kollision → 6. Suturzone, Deformation, Faltengebirge (Himalaya) → von vorn.</p><p><b>Recycling:</b> Kruste entsteht am Rücken und verschwindet in der Subduktionszone.</p></div>
+   <div class="card"><h3>Subduktionszone</h3><p>Dichtere ozeanische Platte taucht ab → <b>Tiefseegraben</b> (Marianengraben ca. 11 km).<br><b>Wadati-Benioff-Zone</b>: schräg abtauchende Zone der Erdbebenherde (bis ca. 700 km).<br>In ca. 100 km Tiefe wird Wasser frei → Gestein schmilzt → Magma → Vulkane.<br><b>Ring of fire</b>: Vulkan- und Erdbebengürtel rund um den Pazifik.</p></div>
+   <div class="card"><h3>Vulkanismus</h3><p><b>Magma</b> (innen) / <b>Lava</b> (außen) · Magmakammer · Schlot · Krater · Aschewolke · pyroklastischer Strom.</p><p><b>Pluton</b>: in der Kruste erstarrtes Magma (z. B. Granit).<br><b>Hot Spot</b>: ortsfester Aufstieg heißen Mantelmaterials, unabhängig von Plattengrenzen → Inselkette (Hawaii).</p><p><b>Schichtvulkan</b>: zähflüssig, explosiv, steil (Subduktion). <b>Schildvulkan</b>: dünnflüssig, ruhig, flach (Hot Spot).</p></div>
+  </div>`;
+}
+
+/* ============ Spielstand ============ */
+function renderSave(){
+  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,app:APP,state:S,profil:H.exportData()}))));}catch(e){}
+  view.innerHTML=`<div class="panel"><h2>💾 Spielstand</h2>
+   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(H.get().name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
+   <p class="muted">Dein Fortschritt wird automatisch auf diesem Gerät gespeichert. Der Speichercode enthält diese App <b>und</b> dein Hub-Profil (Name, Serie, Trophäen-Vitrine, Meta-Erfolge). Für ein anderes Gerät oder zur Sicherheit kopierst du ihn und fügst ihn dort unter „Laden“ ein.</p>
+   <h3>Speichercode</h3><textarea class="code" id="code" readonly>${code}</textarea>
+   <div class="row" style="margin-top:8px"><button class="btn blue small" id="copy">📋 Kopieren</button><span id="copymsg" class="muted"></span></div>
+   <h3 style="margin-top:20px">Laden</h3><textarea class="code" id="imp" placeholder="Speichercode hier einfügen"></textarea>
+   <div class="row" style="margin-top:8px"><button class="btn green small" id="load">Laden</button><span id="loadmsg"></span></div>
+   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Diese App zurücksetzen</button><div id="rsbox"></div></div>`;
+  $('#nmsave').onclick=()=>{H.setName($('#nm2').value.trim());updateHeader();};
+  $('#copy').onclick=()=>{const ta=$('#code');try{navigator.clipboard.writeText(ta.value).then(()=>$('#copymsg').textContent='Kopiert!',()=>{ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';});}catch(e){ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';}};
+  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(o.v===2){H.importData(o.profil);S=merge(defState(),o.state);lastRank=rankIdx(S.xp);}else if(typeof o.xp==='number'){S=merge(defState(),o);migrate(true);}else throw 0;save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
+  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Rang, Sterne und Erfolge dieser App löschen? (Meta-Erfolge im Hub bleiben erhalten.) <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
+    $('#rsyes').onclick=()=>{S=defState();const G=H.get();Object.keys(G.ach).forEach(k=>{if(k.indexOf(APP+':')===0)delete G.ach[k];});H.importData(G);lastRank=0;save();registerApp();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
+}
+
+/* ============ Start ============ */
+/* Alten Spielstand (vor dem gemeinsamen Profil) einmalig übernehmen */
+function migrate(force){const G=H.get();if(!force&&(S.migrated||!(S.xp>0)))return;
+  if(force||!G.xpByApp[APP]){G.xp+=S.xp;G.xpByApp[APP]=(G.xpByApp[APP]||0)+S.xp;}
+  if(S.name&&!G.name)G.name=S.name;
+  if(S.streak&&S.streak.days>(G.streak.days||0))G.streak=S.streak;
+  if(S.ach)ACH.forEach(([id,ic,n,d])=>{if(S.ach[id]&&!G.ach[APP+':'+id])G.ach[APP+':'+id]={t:S.ach[id],app:APP,icon:ic,name:n,desc:d};});
+  H.importData(G);S.migrated=true;save();}
+migrate(false);
+oreStrip();updateHeader();renderMap();checkAch();H.checkGlobal();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
+</script>
+</body>
+</html>
