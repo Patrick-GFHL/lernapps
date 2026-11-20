@@ -500,18 +500,156 @@ const wrU=()=>writeT('<b>Urteilsbildung:</b> Formuliere in 2 bis 3 Sätzen eine 
   '<b>Beispiel dafür (aus der Musterlösung):</b> „Eine gesetzliche Masernimpfpflicht in Gemeinschaftseinrichtungen ist befürwortenswert, da Masern hochansteckend sind und schwere Komplikationen wie Gehirnentzündungen auslösen können. Zwar greift eine Impfpflicht in die persönliche Freiheit und das Selbstbestimmungsrecht der Eltern ein, jedoch wiegt der solidarische Gesundheitsschutz für Kleinkinder und immungeschwächte Menschen durch die Herdenimmunität schwerer.“<br><br><b>Beispiel dagegen (ebenfalls richtig):</b> „Ich bin gegen eine gesetzliche Pflicht. Zwar schützt eine hohe Impfquote durch Herdenimmunität auch Kleinkinder, aber eine Pflicht greift stark in die Freiheit und das Selbstbestimmungsrecht der Eltern ein. Deshalb sollte man eher auf Aufklärung und freiwillige Angebote setzen.“',
   'Bauplan: Entscheidung + „weil …“ (Hauptargument) + „Zwar … (Gegenargument), aber/jedoch …“',4);
 
+
+/* ============ Ergänzungen aus dem Schulbuch (Immunbiologie S. 164–179) ============ */
+/* ---------- Tippbare Bakterienzelle ---------- */
+function bShape(z,extra){const [id,,fill,sh]=z;
+  if(sh.startsWith('R:')){const [x,y,w,h,r]=sh.slice(2).split(',');return `<rect data-z="${id}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" ${extra}/>`;}
+  if(sh.startsWith('E:')){const [cx,cy,rx,ry]=sh.slice(2).split(',');return `<ellipse data-z="${id}" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;}
+  if(sh.startsWith('P:'))return `<path data-z="${id}" d="${sh.slice(2)}" fill="none" stroke="${fill}" stroke-width="7" stroke-linecap="round" style="cursor:pointer"/>`;
+  return `<polygon data-z="${id}" points="${sh}" fill="${fill}" ${extra}/>`;}
+const BAK=[
+ ['ge','Geißel','#7a6a5a','P:M284,100 q10 -14 20 0 t20 0',[310,84],null],
+ ['ge','','#7a6a5a','P:M66,138 q-8 16 -22 20 t-22 22',[0,0]],
+ ['sh','Schleimhülle','#bcd9b0','R:38,46,246,108,54',[60,28],[70,56]],
+ ['zw','Zellwand','#e2b45a','R:50,58,222,84,42',[300,150],[267,104]],
+ ['zm','Zellmembran','#b98fd0','R:61,69,200,62,31',[300,172],[256,108]],
+ ['zp','Zellplasma','#f3efd2','R:72,80,178,40,20',[110,186],[100,112]],
+ ['dna','genetisches Material','#c0508a','E:160,100,34,11',[160,104]]];
+function bakSvg(st){
+  let s=`<svg viewBox="0 0 340 200" class="diag" xmlns="http://www.w3.org/2000/svg">`;
+  BAK.forEach(z=>{let ex='stroke="rgba(0,0,0,.45)" stroke-width="1" style="cursor:pointer"';
+    if(st){if(z[0]===st.corr)ex='stroke="#5fbf3a" stroke-width="4"';else if(z[0]===st.sel)ex='stroke="#e05a47" stroke-width="4"';}
+    s+=bShape(z,ex);});
+  s+=`<path d="M110 100 q10 -10 20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#fff" stroke-width="1.5" style="pointer-events:none" opacity=".7"/>`;
+  if(st)BAK.forEach(z=>{if(!z[1])return;const [x,y]=z[4];if(z[5])s+=`<line x1="${x}" y1="${y-4}" x2="${z[5][0]}" y2="${z[5][1]}" stroke="#fff" stroke-width="1" style="pointer-events:none"/>`;const hi=z[0]===st.corr;s+=`<text x="${x}" y="${y}" font-size="${hi?12:10}" font-weight="${hi?700:400}" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke" style="pointer-events:none">${z[1]}</text>`;});
+  return s+'</svg>';
+}
+const TAP_BAK=[
+ ['zw','Tippe auf die <b>Zellwand</b>.','Die <b>Zellwand</b> gibt der Bakterienzelle Form und Stabilität.'],
+ ['zm','Tippe auf die <b>Zellmembran</b>.','Die <b>Zellmembran</b> umgibt das Zellplasma.'],
+ ['dna','Tippe auf das <b>genetische Material</b>.','Das genetische Material liegt <b>frei im Zellplasma</b>, es gibt keinen Zellkern.'],
+ ['ge','Tippe auf eine <b>Geißel</b>.','<b>Geißeln</b> drehen sich wie eine Schiffsschraube und dienen der Fortbewegung.'],
+ ['sh','Tippe auf die <b>Schleimhülle</b>.','Die <b>Schleimhülle</b> liegt ganz außen.'],
+ ['zp','Tippe auf das <b>Zellplasma</b>.','Das wässrige <b>Zellplasma</b> füllt die Zelle aus.']];
+const gTapBak=()=>{const [z,q,e]=pick(TAP_BAK);return {kind:'tapb',zone:z,q:`<b>Bau einer Bakterienzelle:</b> ${q}`,sol:e};};
+
+/* ---------- Welt: Erreger-Labor (Bakterien & Viren) ---------- */
+const BV=[['Besteht aus einer Zelle mit Zellwand und Zellmembran',0],['Besteht nur aus einer Eiweißhülle mit genetischem Material',1],['Vermehrt sich selbst durch Zellteilung',0],['Kann sich nur in Wirtszellen vermehren',1],['Hat einen eigenen Stoffwechsel',0],['Hat keinen eigenen Stoffwechsel',1],['Kann mit Antibiotika bekämpft werden',0],['Antibiotika wirken nicht',1],['Etwa zehnmal kleiner als eine Körperzelle',0],['Noch viel kleiner, gemessen in Nanometern',1],['Gilt als Lebewesen',0],['Gilt nicht als Lebewesen',1]];
+const gBVSort=()=>sortT('Bakterium oder Virus? Ordne zu.',BV,5,['Bakterium','Virus'],'<b>Bakterien:</b> eigene Zellen, Stoffwechsel, Zellteilung, Antibiotika wirken.<br><b>Viren:</b> nur Eiweißhülle und Erbgut, kein Stoffwechsel, vermehren sich nur in Wirtszellen, Antibiotika wirken nicht.');
+const ORDER_VIR=['Das Virus heftet sich mit seinen Oberflächenproteinen an einen passenden Rezeptor der Wirtszelle (Schlüssel-Schloss-Prinzip)','Das genetische Material des Virus gelangt in die Wirtszelle','Das Virus-Erbgut übernimmt die Kontrolle über den Stoffwechsel der Zelle','Die Zelle produziert Virusbestandteile','Die Bestandteile setzen sich zu neuen Viren zusammen, die freigesetzt werden und weitere Zellen befallen'];
+const gOrderVir=()=>orderT('<b>Vermehrung von Grippeviren:</b> Bring die Schritte in die richtige Reihenfolge.',ORDER_VIR);
+const FORM=[['Kokken','kugelförmig'],['Stäbchen','stäbchenförmig, z. B. Salmonellen'],['Spirillen','schraubenförmig gewunden']];
+const gForm=()=>pairT('Welche Form haben die Bakterien?',FORM,3,FORM.map(f=>`<b>${f[0]}:</b> ${f[1]}`).join('<br>'));
+function gTeilung(){const h=pick([1,2,3,4,5]);const n=Math.pow(2,h*3);
+  return num(`Ein Bakterium teilt sich unter idealen Bedingungen <b>alle 20 Minuten</b>. Wie viele Bakterien sind nach <b>${h} Stunde${h>1?'n':''}</b> aus einem Bakterium entstanden?`,n,'Bakterien',
+  `${h} h = ${h*3} Teilungen (3 pro Stunde). Bei jeder Teilung verdoppelt sich die Zahl: 2<sup>${h*3}</sup> = <b>${n.toLocaleString('de-DE')}</b> Bakterien.`,'Pro Stunde 3 Teilungen. Jede Teilung verdoppelt: 1 → 2 → 4 → 8 … Mit der Taste ^ geht 2^Anzahl.',{tol:0});}
+const MC_ER=[
+ {q:'Warum gelten Viren nicht als Lebewesen?',c:['Sie haben keinen eigenen Stoffwechsel und können sich nicht selbst vermehren','Weil sie zu klein sind','Weil sie keine Farbe haben','Weil sie nur im Winter vorkommen'],e:'Viren brauchen <b>Wirtszellen</b>, allein sind sie nicht lebensfähig.'},
+ {q:'Wo liegt das genetische Material bei Bakterien?',c:['Frei im Zellplasma, es gibt keinen Zellkern','In einem Zellkern','In der Zellwand','In den Geißeln'],e:'Bakterien haben <b>keinen Zellkern</b>.'},
+ {q:'Wie vermehren sich Bakterien?',c:['Durch Zellteilung, ungeschlechtlich: Aus einer Zelle werden zwei gleiche','Nur in Wirtszellen','Durch Eier','Durch Paarung zweier Bakterien'],e:'<b>Zellteilung</b>, kein Geschlechtspartner nötig, die Tochterzellen sind genetisch gleich.'},
+ {q:'Warum befallen Viren nur bestimmte Zelltypen?',c:['Ihre Oberflächenproteine passen nach dem Schlüssel-Schloss-Prinzip nur zu bestimmten Wirtszellen','Weil andere Zellen zu groß sind','Zufall','Weil sie Augen haben'],e:'<b>Schlüssel-Schloss-Prinzip</b> zwischen Virusprotein und Rezeptor.'},
+ {q:'Wofür brauchen Bakterien Geißeln?',c:['Zur Fortbewegung, sie drehen sich wie eine Schiffsschraube','Zur Verdauung','Zur Vermehrung','Als Schutzhülle'],e:'<b>Geißeln</b> = Antrieb.'},
+ {q:'Sind alle Bakterien gefährlich?',c:['Nein, die meisten sind harmlos und manche sogar nützlich, z. B. Darmbakterien','Ja, alle machen krank','Nur die im Boden','Nur die auf der Haut'],e:'Darmbakterien helfen z. B. bei der <b>Verdauung</b>.'},
+ {q:'Wie ernähren sich Bakterien von großen Nährstoffen?',c:['Sie geben Verdauungsenzyme nach außen ab, die die Nährstoffe in kleine Bausteine zerlegen','Sie fressen die Nährstoffe als Ganzes','Sie betreiben Fotosynthese','Gar nicht'],e:'Nur die kleinen Bausteine gelangen durch die <b>Zellmembran</b>.'}
+];
+const wrViren=()=>writeT('<b>Erkläre</b>, warum Viren keine Lebewesen sind, und <b>vergleiche</b> sie mit Bakterien.',
+  [['Viren haben keinen eigenen Stoffwechsel',['stoffwechsel']],['Viren vermehren sich nur in Wirtszellen',['wirtszell','wirt']],['Viren bestehen nur aus Eiweißhülle und genetischem Material, keine Zelle',['eiweiss','protein','huelle','keine zelle','keine zellen']],['Bakterien sind Zellen mit eigenem Stoffwechsel',['bakterien']],['Bakterien vermehren sich selbst durch Zellteilung',['zellteilung','teilen']],['Antibiotika wirken nur gegen Bakterien',['antibiotik']]],
+  'Viren sind keine Lebewesen, weil sie <b>keinen eigenen Stoffwechsel</b> haben und sich <b>nicht selbst vermehren</b> können. Sie bestehen nur aus einer <b>Eiweißhülle</b> mit genetischem Material im Inneren und brauchen zur Vermehrung <b>Wirtszellen</b>, deren Stoffwechsel sie übernehmen. <b>Bakterien</b> dagegen sind eigenständige Zellen mit Zellwand, Zellmembran und eigenem Stoffwechsel. Sie vermehren sich selbst durch <b>Zellteilung</b>. Gegen Bakterien helfen <b>Antibiotika</b>, gegen Viren nicht.',
+  'Stichworte: Stoffwechsel, Wirtszelle, Eiweißhülle, Zellteilung, Antibiotika.',4);
+
+/* ---------- Welt: Seuchen-Akte (Krankheiten & Antibiotika) ---------- */
+const KRANK=[['Salmonellen','Bakterien z. B. auf Geflügel und Eiern, Brech-Durchfall, erst ab über 70 °C abgetötet'],['Borrelien','Bakterien, die Zecken übertragen. Typisch ist die Wanderröte um den Stich'],['Tetanus (Wundstarrkrampf)','Bakterien aus dem Boden gelangen über Wunden in den Körper, ihre Giftstoffe schädigen Nervenzellen'],['FSME','Viren, die Zecken übertragen, können eine Hirnhautentzündung auslösen'],['Grippe','Viren, Tröpfcheninfektion, Symptome treten plötzlich und heftig auf']];
+const gKrank=()=>pairT('Ordne jeder Krankheit die passende Beschreibung zu.',KRANK,4,KRANK.map(k=>`<b>${k[0]}:</b> ${k[1]}`).join('<br>'));
+const ORDER_RES=['Unter vielen Bakterien einer Art ist zufällig ein resistentes Bakterium','Ein Antibiotikum tötet die nicht resistenten Bakterien ab','Die Behandlung wird zu früh abgebrochen','Das resistente Bakterium überlebt und vermehrt sich ohne Konkurrenz','Es entsteht eine Kolonie, gegen die dieses Antibiotikum nicht mehr wirkt'];
+const gOrderRes=()=>orderT('<b>Resistente Bakterien:</b> Wie entstehen sie? Bring die Schritte in die richtige Reihenfolge.',ORDER_RES);
+const MC_K=[
+ {q:'Wer entdeckte 1928 das Penicillin?',c:['Alexander Fleming','Charles Darwin','Emil von Behring','August Weismann'],e:'<b>Alexander Fleming</b> bemerkte, dass um einen Schimmelpilz keine Bakterien wuchsen.'},
+ {q:'Wie wirkt Penicillin?',c:['Es blockiert Enzyme für die Querwand bei der Zellteilung, die Bakterien platzen','Es tötet Viren','Es stärkt die Fresszellen','Es senkt das Fieber'],e:'Ohne Querwand <b>platzen</b> die Bakterien bei der Teilung.'},
+ {q:'Was zeigt ein „Hemmhof“ auf einer Bakterienplatte?',c:['Dort hat ein Antibiotikum das Bakterienwachstum verhindert','Dort wachsen besonders viele Bakterien','Dort ist ein Virus','Dort ist die Platte kaputt'],e:'Im <b>Hemmhof</b> wachsen keine Bakterien.'},
+ {q:'Warum sollte man eine Antibiotika-Behandlung nicht zu früh abbrechen?',c:['Sonst überleben resistente Bakterien und vermehren sich','Weil das Medikament sonst verdirbt','Weil man sonst Fieber bekommt','Das ist egal'],e:'Konsequent und lange genug behandeln, sonst entstehen <b>Resistenzen</b>.'},
+ {q:'Warum hilft ein Antibiotikum nicht gegen Grippe?',c:['Grippe wird durch Viren verursacht, Antibiotika wirken nur gegen Bakterien','Weil Grippe zu harmlos ist','Weil es zu langsam wirkt','Es hilft doch'],e:'Antibiotika schädigen nur <b>Bakterien</b>.'},
+ {q:'Woran erkennt man eine echte Grippe im Unterschied zur Erkältung?',c:['Die Symptome treten plötzlich und heftig auf, das Fieber ist höher','Man hat nur Schnupfen','Sie dauert nur einen Tag','Man bekommt kein Fieber'],e:'Echte Grippe: <b>plötzlich, heftig, hohes Fieber</b>.'},
+ {q:'Warum sollte man eine Zecke möglichst schnell entfernen?',c:['Borrelien werden meist erst 8 bis 12 Stunden nach dem Stich übertragen','Weil Zecken sonst wachsen','Weil sie sonst Eier legen','Das ist nicht wichtig'],e:'Je früher die Zecke weg ist, desto geringer das <b>Risiko einer Borreliose</b>.'},
+ {q:'Warum muss Geflügelfleisch gut durchgegart werden?',c:['Salmonellen werden erst bei über 70 °C abgetötet','Damit es besser schmeckt','Weil es sonst zäh ist','Einfrieren reicht auch'],e:'<b>Einfrieren tötet Salmonellen nicht ab</b>, Erhitzen über 70 °C schon.'},
+ {q:'Was sind multiresistente Bakterien?',c:['Bakterien, gegen die mehrere Antibiotika nicht mehr wirken','Besonders harmlose Bakterien','Viren','Bakterien mit vielen Geißeln'],e:'Sie sind vor allem in <b>Krankenhäusern</b> ein Problem.'}
+];
+const wrRes=()=>writeT('<b>Erkläre</b>, wie Bakterien entstehen, die gegen ein Antibiotikum resistent sind, und was man dagegen tun kann.',
+  [['Einzelne Bakterien sind zufällig resistent',['zufaell','einzeln','resistent']],['Antibiotikum tötet die nicht resistenten ab',['abget','toet','nicht resistent']],['Behandlung zu früh abgebrochen',['frueh','abgebrochen','abbrechen']],['Resistente überleben und vermehren sich ohne Konkurrenz',['vermehr','ueberleb','konkurrenz']],['Antibiotika nur wenn nötig, dann konsequent und lange genug',['konsequent','lange genug','nur wenn','noetig','zu ende']]],
+  'Unter den Bakterien einer Art gibt es einzelne Zellen, die durch ein bestimmtes Antibiotikum nicht geschädigt werden (<b>resistent</b>). Das Antibiotikum tötet zuerst die nicht resistenten Bakterien ab. Wird die Behandlung <b>zu früh abgebrochen</b>, überleben die resistenten Bakterien und vermehren sich ohne die Konkurrenz ihrer Artgenossen. Deshalb sollten Antibiotika nur wenn nötig eingesetzt werden, dann aber <b>konsequent und lange genug</b>.',
+  'Stichworte: zufällig resistent, die anderen sterben, zu früh abgebrochen, vermehren sich, konsequent einnehmen.',3);
+
+/* ---------- Welt: Angeborene Abwehr ---------- */
+const gBarr=()=>multiT('Welche gehören zu den <b>Barrieren</b> der angeborenen Abwehr? <b>Wähle alle passenden.</b>',['Haut','Schleimhäute','Tränenflüssigkeit','Magensäure','Antikörper','T-Killerzellen','Gedächtniszellen'],[0,1,2,3],'<b>Barrieren:</b> Haut, Schleimhäute (Schleim hält Erreger fest), Tränenflüssigkeit und Nasenschleim, saures Milieu im Magen. Antikörper, T-Killer- und Gedächtniszellen gehören zur <b>erworbenen</b> Abwehr.');
+const gZeichen=()=>multiT('Welches sind die <b>vier Anzeichen einer Entzündung</b>? <b>Wähle alle passenden.</b>',['Rötung','Schwellung','Wärme','Schmerz','Husten','Juckreiz','Kälte'],[0,1,2,3],'Die vier Anzeichen: <b>Rötung, Schwellung, Wärme, Schmerz</b>.');
+const SIG=[['Der Blutfluss in den Kapillaren wird erhöht','Rötung und Wärme'],['Die Blutgefäßwände werden durchlässiger, Blutflüssigkeit tritt aus','Schwellung'],['Nervenendigungen von Schmerznerven werden aktiviert','Schmerz'],['Fresszellen werden angelockt und treten aus den Kapillaren aus','Bekämpfung der Bakterien']];
+const gSig=()=>pairT('Signalstoffe bei der Entzündung: Welche Wirkung führt zu welchem Anzeichen?',SIG,4,SIG.map(x=>`${x[0]} → <b>${x[1]}</b>`).join('<br>'));
+const ORDER_ENTZ=['Ein Splitter verletzt die Haut, Bakterien gelangen in den Körper','Die Bakterien vermehren sich, Zellen geben Signalstoffe ab','Blutfluss steigt, Kapillarwände werden durchlässiger, Fresszellen wandern zum Entzündungsort','Fresszellen erkennen die Bakterien als fremd, nehmen sie auf und verdauen sie','Es entsteht Eiter aus toten Fresszellen und Bakterienresten, die Entzündung klingt ab'];
+const gOrderEntz=()=>orderT('<b>Entzündungsreaktion:</b> Bring die Schritte in die richtige Reihenfolge.',ORDER_ENTZ);
+const MC_AG=[
+ {q:'Woraus besteht Eiter?',c:['Aus abgestorbenen Fresszellen und Resten von Bakterien','Aus Antikörpern','Aus Viren','Aus roten Blutkörperchen'],e:'Eiter = <b>tote Fresszellen + Bakterienreste</b>.'},
+ {q:'Warum nennt man die Entzündungsreaktion „unspezifisch“?',c:['Fresszellen erkennen alle Bakterien als fremd und bekämpfen nicht gezielt bestimmte Arten','Weil sie nie funktioniert','Weil sie nur gegen Viren wirkt','Weil sie erst nach Jahren beginnt'],e:'<b>Unspezifisch</b> = gegen alle Erreger gleich.'},
+ {q:'Warum heißt sie „angeborene“ Immunantwort?',c:['Sie ist von Geburt an vorhanden und läuft immer gleich ab','Weil man sie bei der Geburt bekommt und dann verliert','Weil sie nur bei Babys wirkt','Weil sie vererbt wird wie die Augenfarbe'],e:'Angeboren und <b>immer gleich</b>, im Gegensatz zur erworbenen Abwehr.'},
+ {q:'Wie erkennen Fresszellen Bakterien?',c:['Mit Rezeptoren in der Zellmembran, die nach dem Schlüssel-Schloss-Prinzip auf Bakterienstrukturen passen','Am Geruch','An der Farbe','Zufällig'],e:'<b>Rezeptoren</b> passen wie ein Schlüssel zum Schloss.'},
+ {q:'Warum greifen Immunzellen normalerweise nicht unsere eigenen Körperzellen an?',c:['Körperzellen haben andere Oberflächenstrukturen, die nicht zu den Rezeptoren passen','Weil Körperzellen zu groß sind','Weil Körperzellen sich verstecken','Das tun sie ständig'],e:'Schlüssel-Schloss-Prinzip: Nur <b>fremde</b> Strukturen passen.'}
+];
+const wrEntz=()=>writeT('<b>Erkläre</b> die vier Anzeichen einer Entzündung durch die Wirkungen der Signalstoffe.',
+  [['Erhöhter Blutfluss → Rötung',['roet','blutfluss','durchblut']],['Erhöhter Blutfluss → Wärme',['waerm','warm']],['Durchlässige Gefäßwände, Flüssigkeit tritt aus → Schwellung',['schwell','durchlaess','fluessigkeit']],['Schmerznerven werden aktiviert → Schmerz',['schmerz','nerv']],['Fresszellen werden angelockt',['fresszell']]],
+  'Bei einer Entzündung geben Zellen <b>Signalstoffe</b> ab. Sie erhöhen den <b>Blutfluss</b> in den Kapillaren, deshalb ist die Stelle <b>gerötet und warm</b>. Die Blutgefäßwände werden <b>durchlässiger</b>, Blutflüssigkeit und Fresszellen treten aus, die Stelle <b>schwillt an</b>. Außerdem werden Nervenendigungen von <b>Schmerznerven</b> aktiviert, deshalb <b>schmerzt</b> die Stelle. Die angelockten <b>Fresszellen</b> beseitigen die Bakterien.',
+  'Bauplan: Signalstoff-Wirkung → Anzeichen (Rötung, Wärme, Schwellung, Schmerz).',4);
+
+/* ---------- Welt: Pollen-Alarm (Allergien) ---------- */
+const ORDER_ALL=['Erster Kontakt: Pollen gelangen in Atemwege und Schleimhäute','B-Zellen bilden Antikörper gegen die Pollen (Sensibilisierung)','Die Antikörper lagern sich an Mastzellen an','Zweiter Kontakt: Pollen binden an die Antikörper auf den Mastzellen','Die Mastzellen schütten Histamin aus: tränende Augen, laufende Nase (Heuschnupfen)'];
+const gOrderAll=()=>orderT('<b>Allergie:</b> Wie entsteht Heuschnupfen? Bring die Schritte in die richtige Reihenfolge.',ORDER_ALL);
+const MC_AL=[
+ {q:'Was ist eine Allergie?',c:['Eine Reaktion des Immunsystems auf eigentlich harmlose Stoffe (Allergene)','Eine Infektion mit Viren','Eine Vergiftung','Eine angeborene Krankheit'],e:'Allergie = <b>unerwünschte Immunreaktion</b> auf Harmloses.'},
+ {q:'Welcher Signalstoff löst die allergischen Beschwerden aus?',c:['Histamin','Insulin','Penicillin','Adrenalin'],e:'<b>Histamin</b> aus den Mastzellen.'},
+ {q:'Was passiert in der Sensibilisierungsphase?',c:['B-Zellen bilden Antikörper gegen das Allergen, diese setzen sich auf Mastzellen','Man bekommt sofort Heuschnupfen','Man wird immun','Die Pollen werden vernichtet'],e:'Beim <b>ersten</b> Kontakt merkt man noch nichts.'},
+ {q:'Warum ist ein anaphylaktischer Schock so gefährlich?',c:['Die Reaktion betrifft den ganzen Körper, der Blutdruck sinkt dramatisch','Weil er nur die Haut betrifft','Weil er Fieber macht','Er ist harmlos'],e:'<b>Lebensgefährlich</b>, sofort einen Arzt rufen!'},
+ {q:'Warum ist eine Laktoseintoleranz keine Allergie?',c:['Dabei fehlt ein Verdauungsenzym, das Immunsystem ist nicht beteiligt','Weil sie nur Erwachsene haben','Weil Milch kein Allergen ist','Sie ist doch eine Allergie'],e:'Allergie = <b>Immunsystem</b>. Bei der Laktoseintoleranz kann Milchzucker nicht verdaut werden.'},
+ {q:'Warum reagieren nicht alle Menschen allergisch auf Pollen?',c:['Nur bei manchen Menschen bildet das Immunsystem Antikörper gegen Pollen (Sensibilisierung)','Weil manche keine Nase haben','Weil Pollen nur manche erreichen','Alle reagieren gleich'],e:'Ohne <b>Sensibilisierung</b> keine allergische Reaktion.'},
+ {q:'Wie stellt der Arzt fest, worauf jemand allergisch ist?',c:['Mit einem Allergietest: Stoffe werden in die Haut geritzt, eine Rötung zeigt die Allergie','Mit einem Fiebermessen','Mit einem Röntgenbild','Mit einem Sehtest'],e:'<b>Allergietest</b> auf der Haut.'},
+ {q:'Warum stehen im Pollenflugkalender vor allem windbestäubte Pflanzen?',c:['Ihre Pollen werden in großen Mengen mit der Luft transportiert und eingeatmet','Weil sie am schönsten blühen','Weil Insekten sie meiden','Zufall'],e:'Windbestäuber geben <b>riesige Pollenmengen</b> in die Luft ab.'}
+];
+const TF_AL=[['Eine Allergie hat man von Geburt an.',false,'Falsch: Sie entwickelt sich im Laufe des Lebens.'],['Bei der Hyposensibilisierung gewöhnt man den Körper allmählich an das Allergen.',true,'Richtig, das ist allerdings langwierig.'],['Mastzellen wirken mit ihren Antikörpern wie Antennen für Pollen.',true,'Richtig, nach dem Schlüssel-Schloss-Prinzip.'],['Beim ersten Pollenkontakt bekommt man sofort Heuschnupfen.',false,'Falsch: Der erste Kontakt führt zur Sensibilisierung, die Reaktion kommt erst beim nächsten Kontakt.']];
+const wrAll=()=>writeT('<b>Erkläre</b>, wie es zu einer allergischen Reaktion auf Pollen kommt und warum nicht alle Menschen allergisch reagieren.',
+  [['Erster Kontakt: Sensibilisierung',['sensibil','erst']],['B-Zellen bilden Antikörper gegen Pollen',['antikoerper','b-zell']],['Antikörper sitzen auf Mastzellen',['mastzell']],['Erneuter Kontakt: Pollen binden an die Antikörper',['erneut','zweit','wieder']],['Histamin wird ausgeschüttet → Beschwerden',['histamin']],['Nur bei manchen Menschen reagiert das Immunsystem so',['nicht alle','manche','nur bei','unterschiedlich']]],
+  'Beim ersten Kontakt bilden bei manchen Menschen <b>B-Zellen Antikörper gegen die Pollen</b>, diese lagern sich an <b>Mastzellen</b> an (<b>Sensibilisierung</b>). Gelangen erneut Pollen in den Körper, binden sie an diese Antikörper. Die Mastzellen schütten dann <b>Histamin</b> aus, das zu tränenden Augen und geschwollenen Nasenschleimhäuten führt (Heuschnupfen). Nicht alle Menschen reagieren allergisch, weil das Immunsystem <b>nur bei manchen</b> überhaupt Antikörper gegen die harmlosen Pollen bildet.',
+  'Stichworte: Sensibilisierung, B-Zellen, Antikörper, Mastzellen, erneuter Kontakt, Histamin, nur manche.',4);
+
+/* ---------- Zusätzliche Fragen für bestehende Welten ---------- */
+const AK_SVG=`<div class="curvebox"><svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg"><line x1="30" y1="130" x2="330" y2="130" stroke="#a9a7a0"/><line x1="30" y1="10" x2="30" y2="130" stroke="#a9a7a0"/>
+ <path d="M30 128 Q80 112 100 96 L160 120" fill="none" stroke="#e05a47" stroke-width="3"/><text x="70" y="90" font-size="11" fill="#e05a47">Erstinfektion</text>
+ <line x1="175" y1="10" x2="175" y2="130" stroke="#55545c" stroke-dasharray="4 3"/>
+ <path d="M180 128 Q192 40 205 22 L320 70" fill="none" stroke="#4fa3e0" stroke-width="3"/><text x="215" y="20" font-size="11" fill="#4fa3e0">Zweitinfektion</text>
+ <text x="180" y="146" font-size="10" fill="#a9a7a0" text-anchor="middle">Tage nach Infektion</text><text x="8" y="70" font-size="10" fill="#a9a7a0" transform="rotate(-90 8 70)">Antikörper</text></svg></div>`;
+MC_A.push(
+ {q:AK_SVG+'Warum steigt die Antikörpermenge bei einer <b>Zweitinfektion</b> mit demselben Erreger schneller und höher an?',c:['Gedächtniszellen erkennen den Erreger sofort, die Antikörperproduktion startet viel früher','Weil der Erreger schwächer ist','Weil noch Fieber im Körper ist','Weil Antibiotika helfen'],e:'Die <b>Gedächtniszellen</b> überdauern Jahre, deshalb wird man meist gar nicht mehr krank.'},
+ {q:'Warum wären Antikörper allein gegen eine Virusinfektion nicht ausreichend?',c:['Viren in Körperzellen sind für Antikörper nicht erreichbar, dafür braucht man T-Killerzellen','Weil Antikörper zu langsam schwimmen','Weil Viren keine Antigene haben','Sie wären ausreichend'],e:'Viren <b>in</b> Zellen bekämpfen die <b>T-Killerzellen</b>.'},
+ {q:'Warum bekommt man Windpocken meist nur einmal im Leben?',c:['Nach der ersten Erkrankung bleiben Gedächtniszellen, man ist immun','Weil das Virus danach ausstirbt','Weil Kinder stärker sind','Zufall'],e:'<b>Immunität</b> durch Gedächtniszellen.'}
+);
+MC_I.push(
+ {q:'Was ist der Unterschied zwischen Lebend- und Totimpfstoff?',c:['Lebendimpfstoff enthält abgeschwächte Erreger, Totimpfstoff nur Bestandteile bzw. abgetötete Erreger','Totimpfstoff enthält fertige Antikörper','Es gibt keinen Unterschied','Lebendimpfstoff ist eine passive Impfung'],e:'Beides sind <b>aktive</b> Immunisierungen.'},
+ {q:'Wie werden Antikörper für die passive Immunisierung gewonnen?',c:['Einem Tier (z. B. Pferd) werden abgeschwächte Erreger gespritzt, aus seinem Blut gewinnt man die Antikörper','Man stellt sie aus Schimmelpilzen her','Aus Pflanzen','Man nimmt sie aus dem eigenen Blut'],e:'So gewann <b>Emil von Behring</b> 1890 ein Heilserum gegen Diphtherie.'},
+ {q:'Wie verhindert eine hohe Durchimpfungsrate Epidemien?',c:['Erreger finden kaum Menschen, die sie anstecken können, so sind auch Ungeimpfte geschützt','Geimpfte töten die Erreger in der Luft','Die Erreger werden schwächer','Gar nicht'],e:'Wenn zu wenige geimpft sind, drohen <b>Epidemien</b> (z. B. Diphtherie in Osteuropa 1995).'}
+);
+
 /* ============ Welten ============ */
 const W=[
+ {id:'erreger',name:'Erreger-Labor',icon:'🔬',topic:'Krankheitserreger: Bau und Vermehrung von Bakterien und Viren',build:()=>shuffle([gTapBak(),gBVSort(),gOrderVir(),gTeilung(),poolMC(pick(MC_ER))]).concat([wrViren()])},
+ {id:'seuche',name:'Seuchen-Akte',icon:'💊',topic:'Bakterien und Viren als Krankheitserreger · Antibiotika · Resistenz',build:()=>shuffle([gKrank(),gOrderRes(),gForm(),poolMC(pick(MC_K)),poolMC(pick(MC_K))]).concat([wrRes()])},
  {id:'verlauf',name:'Fieber-Wachturm',icon:'🌡️',topic:'Verlauf einer Grippeinfektion · Fieberkurve · Inkubationszeit',build:()=>shuffle([gCurveZone(),gCurveNum(),gPhaseMatch(),poolMC(pick(MC_V)),tfT(...pick(TF_V))]).concat([wrTemp()])},
- {id:'impf',name:'Impf-Schmiede',icon:'💉',topic:'Aktive und passive Immunisierung',build:()=>shuffle([gImpfSort(),gImpfCloze(),poolMC(pick(MC_I)),poolMC(pick(MC_I))]).concat([pick([wrAktiv,wrPassiv])()])},
+ {id:'angeboren',name:'Mauerwacht',icon:'🧱',topic:'Angeborene Immunantwort · Barrieren · Entzündungsreaktion',build:()=>shuffle([gBarr(),gZeichen(),gSig(),gOrderEntz(),poolMC(pick(MC_AG))]).concat([wrEntz()])},
  {id:'abwehr',name:'Abwehr-Kaserne',icon:'🛡️',topic:'Spezifische Immunantwort · B-Zellen · T-Killerzellen · Antikörper',build:()=>shuffle([gCellMatch(),gHumZell(),gOrderIm(),poolMC(pick(MC_A)),gImCloze()]).concat([pick([wrB,wrT])()])},
+ {id:'impf',name:'Impf-Schmiede',icon:'💉',topic:'Aktive und passive Immunisierung',build:()=>shuffle([gImpfSort(),gImpfCloze(),poolMC(pick(MC_I)),poolMC(pick(MC_I))]).concat([pick([wrAktiv,wrPassiv])()])},
+ {id:'allergie',name:'Pollen-Alarm',icon:'🌼',topic:'Unerwünschte Immunreaktionen: Allergien',build:()=>shuffle([gOrderAll(),poolMC(pick(MC_AL)),poolMC(pick(MC_AL)),tfT(...pick(TF_AL))]).concat([wrAll()])},
  {id:'lamarck',name:'Lamarcks Turm',icon:'🦒',topic:'Lamarck: Gebrauch/Nichtgebrauch · Vererbung erworbener Eigenschaften',build:()=>shuffle([gOrderL(),poolMC(pick(MC_L)),gLCloze(),tfT(...pick(TF_L))]).concat([wrL()])},
  {id:'darwin',name:'Darwins Insel',icon:'🏝️',topic:'Darwin: Variabilität · Überproduktion · natürliche Selektion',build:()=>shuffle([gOrderD(),gDefMatch(),gLDSort(),poolMC(pick(MC_D))]).concat([wrD()])},
  {id:'weismann',name:'Mäuse-Labor',icon:'🐭',topic:'Weismanns Versuch · Widerlegung Lamarcks',build:()=>shuffle([gOrderW(),poolMC(pick(MC_W.slice(0,4))),gWNum(),tfT(...pick(TF_W)),poolMC(MC_W[4])]).concat([wrW()])},
  {id:'urteil',name:'Rat der Werte',icon:'⚖️',topic:'Tatsachen, Werte und begründetes Urteil (Masernimpfpflicht)',build:()=>shuffle([gFVSort(),gPCSort(),pick([gValMatch,gValMulti])(),poolMC(pick(MC_U)),gOrderU()]).concat([wrU()])}
 ];
 function bossBuild(){
-  const g=[[gCurveZone,'verlauf'],[gPhaseMatch,'verlauf'],[gImpfSort,'impf'],[()=>poolMC(pick(MC_I)),'impf'],[gCellMatch,'abwehr'],[gOrderIm,'abwehr'],[()=>poolMC(pick(MC_L)),'lamarck'],[gLDSort,'darwin'],[()=>poolMC(pick(MC_W.slice(0,4))),'weismann'],[gFVSort,'urteil']];
+  const g=[[gTapBak,'erreger'],[gKrank,'seuche'],[gCurveZone,'verlauf'],[gSig,'angeboren'],[gCellMatch,'abwehr'],[gOrderIm,'abwehr'],[gImpfSort,'impf'],[gOrderAll,'allergie'],[()=>poolMC(pick(MC_L)),'lamarck'],[gLDSort,'darwin'],[()=>poolMC(pick(MC_W.slice(0,4))),'weismann'],[gFVSort,'urteil']];
   return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
 }
 
@@ -541,7 +679,11 @@ const ACH=[
  ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
  ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
  ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
- ['s21','🌟','Alle Sterne','Alle 21 Sterne gesammelt.',()=>starsTotal()>=21],
+ ['s33','🌟','Alle Sterne','Alle 33 Sterne gesammelt.',()=>starsTotal()>=33],
+ ['erreger','🔬','Mikroskop-Profi','Erreger-Labor mit 3 Sternen.',()=>(S.stars.erreger||0)>=3],
+ ['seuche','💊','Seuchen-Detektiv','Seuchen-Akte geschafft (mind. 1 Stern).',()=>(S.stars.seuche||0)>=1],
+ ['angeboren','🧱','Mauerwächter','Mauerwacht mit 3 Sternen.',()=>(S.stars.angeboren||0)>=3],
+ ['allergie','🌼','Heuschnupfen-Held','Pollen-Alarm geschafft (mind. 1 Stern).',()=>(S.stars.allergie||0)>=1],
  ['all','🏰','Festung komplett','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
  ['iron','⛓️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
  ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
@@ -597,22 +739,22 @@ function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn
 H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
 let lastRank=rankIdx(S.xp);
 function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
-function registerApp(){H.registerApp({id:APP,name:'Immun-Festung',icon:'🛡️',fach:'Biologie',klasse:9,achTotal:ACH.length,maxStars:21,stars:starsTotal()});}
+function registerApp(){H.registerApp({id:APP,name:'Immun-Festung',icon:'🛡️',fach:'Biologie',klasse:9,achTotal:ACH.length,maxStars:33,stars:starsTotal()});}
 
 /* ============ Karte ============ */
 function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
 function renderMap(){
-  const unlocked=worldsDone()>=5;
+  const unlocked=worldsDone()>=7;
   let h='';
   if(!H.get().name){
     h+=`<div class="panel"><h2>Willkommen, Verteidiger!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
   }
   h+=`<div class="panel intro"><h2>Biologie Kl. 9 · Immunbiologie &amp; Evolution</h2>
   <p>Deine Festung wird angegriffen! Jede Welt ist ein Thema aus der Klassenarbeit, jede richtige Antwort wehrt einen Erreger ab 🦠. Eine Runde hat 5–6 Aufgaben, die letzte ist immer eine <b>Schreibaufgabe</b> wie in der Klassenarbeit.</p>
-  <p class="muted">Bei Schreibaufgaben vergleichst du deine Antwort mit der Musterlösung und hakst ehrlich ab, was du hattest. Wenn du in 5 Welten mindestens einen Stern hast, greift das Supervirus an.</p></div>
+  <p class="muted">Bei Schreibaufgaben vergleichst du deine Antwort mit der Musterlösung und hakst ehrlich ab, was du hattest. Wenn du in 7 Welten mindestens einen Stern hast, greift das Supervirus an.</p></div>
   <div class="worlds">`;
   W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">WELT ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
-  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🧪</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Das Supervirus</div><div class="tp">${unlocked?'10 gemischte Aufgaben, 3 Herzen. Hält deine Festung?':`🔒 Noch ${5-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🧪</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Das Supervirus</div><div class="tp">${unlocked?'12 gemischte Aufgaben, 3 Herzen. Hält deine Festung?':`🔒 Noch ${7-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
   view.innerHTML=h;
   view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
   $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
@@ -621,8 +763,8 @@ function renderMap(){
 
 /* ============ Spiel ============ */
 let P=null;
-function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false,secs:0};renderTask();}
-function startBoss(){P={world:'boss',name:'Das Supervirus',icon:'🧪',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:(S.curCombo||0),hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Das Supervirus',icon:'🧪',tasks:bossBuild(),i:0,res:[],combo:(S.curCombo||0),hints:0,boss:true,hearts:3,secs:0};renderTask();}
 function bossSvg(hp){
   const c=hp>=3?'#56c24a':hp===2?'#c9b03a':hp===1?'#e0473a':'#555';
   const sp=[[13,0],[13,24],[0,13],[24,13],[4,4],[22,4],[4,22],[22,22]].map(([x,y])=>`<rect x="${x}" y="${y}" width="3" height="3" fill="${c}"/>`).join('');
@@ -664,10 +806,10 @@ function calcEval(str){
   let i=0;const s=str;
   function peek(){return s[i];}
   function num(){const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e~?\d+)?/);if(!m)throw 0;i+=m[0].length;return parseFloat(m[0].replace('~','-'));}
-  function factor(){const c=peek();
-    if(c==='~'){i++;return -factor();}
+  function primary(){const c=peek();
     if(c==='('){i++;const v=expr();if(peek()===')')i++;return v;}  // fehlende ")" am Ende wie beim TI ergänzen
     return num();}
+  function factor(){if(peek()==='~'){i++;return -factor();}const b=primary();if(peek()==='^'){i++;return Math.pow(b,factor());}return b;}
   function term(){let v=factor();while(peek()==='*'||peek()==='/'){const o=s[i++];const w=factor();v=o==='*'?v*w:v/w;}return v;}
   function expr(){let v=term();while(peek()==='+'||peek()==='-'){const o=s[i++];const w=term();v=o==='+'?v+w:v-w;}return v;}
   try{const v=expr();if(i!==s.length||!isFinite(v))return null;return v;}catch(e){return null;}
@@ -677,13 +819,13 @@ function calcFmt(v){if(v===0)return '0';const a=Math.abs(v);
   return {m:String(Math.round(v*1e9)/1e9),e:null};}
 function calcPad(t,el,isSci,check){
   let tok=[],ans=null,done=false;
-  const OP={'+':'+','-':'−','*':'×','/':'÷'};
+  const OP={'+':'+','-':'−','*':'×','/':'÷','^':'^'};
   const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 · <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>2 × 56 + 3 × 16</b>, dann <b>enter</b>';
-  const keys=[['del','delete','fn w2'],['ac','clear','fn w2'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
+  const keys=[['del','delete','fn'],['ac','clear','fn'],['^','^','op'],['sq','x²','op'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
   el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
     <div class="ckeys">${keys.map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
     <button type="button" class="btn green" id="calcok" style="width:100%;margin-top:10px;font-size:20px">✔ Ergebnis prüfen</button>
-    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>.</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>, Hochzahlen mit <b>^</b> (z. B. 2^15).</div>
     <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
   const cd=$('#cd');
   const isOp=x=>x in OP;
@@ -708,6 +850,7 @@ function calcPad(t,el,isSci,check){
     else if(k==='neg'){tok.push('neg');}
     else if(k==='exp'){if(!last||isOp(last)||last==='('||last==='neg')tok.push('1');tok.push('E');}
     else if(isOp(k)){if(!tok.length&&ans!==null){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}const l2=tok[tok.length-1];if(l2&&isOp(l2))tok[tok.length-1]=k;else if(tok.length)tok.push(k);}
+    else if(k==='sq'){if(last&&/[0-9.)]/.test(last)){tok.push('^','2');}}
     else if(k==='('){if(last&&(/[0-9.)]/.test(last)))tok.push('*');tok.push('(');}
     else if(k===')'){tok.push(')');}
     else if(k==='del'){if(done){done=false;}else tok.pop();}
@@ -726,12 +869,16 @@ function calcPad(t,el,isSci,check){
   document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
     if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m='.';else if(k==='+')m='+';else if(k==='*'||k==='x'||k==='X')m='*';else if(k==='/'||k===':')m='/';
     else if(k==='-'){const last=tok[tok.length-1];m=(!tok.length&&!done)||isOp(last)||last==='('||last==='E'?'neg':'-';}
-    else if(k==='('||k===')')m=k;else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='('||k===')')m=k;else if(k==='^')m='^';else if(k==='e'||k==='E')m='exp';
     else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='enter';
     if(m){e.preventDefault();press(m);}};
   draw();
 }
 const INPUT={
+  tapb(t,el){el.innerHTML=`<div class="curvebox">${bakSvg(null)}</div><div class="muted" style="font-size:15px">Tippe auf den richtigen Teil der Bakterienzelle.</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');
+      el.querySelector('.curvebox').innerHTML=bakSvg({sel:v,corr:t.zone});const nm=(BAK.find(q=>q[0]===v)||[])[1];answer(v===t.zone,`Du hast „${nm}“ angetippt.`);}));},
+
   match(t,el){const sel=t.rows.map(()=>-1);
     el.innerHTML=`<div class="mrows">${t.rows.map((r,i)=>`<div class="mrow" data-r="${i}"><div class="ml">${r.l}</div><div class="mopts">${t.opts.map((o,j)=>`<button type="button" class="mo" data-r="${i}" data-o="${j}">${o}</button>`).join('')}</div></div>`).join('')}</div><button class="btn green" id="chk" disabled>Prüfen</button>`;
     el.querySelectorAll('.mo').forEach(b=>b.onclick=()=>{if(P.answered)return;const r=+b.dataset.r,o=+b.dataset.o;sel[r]=o;el.querySelectorAll(`.mo[data-r="${r}"]`).forEach(x=>x.classList.toggle('sel',+x.dataset.o===o));$('#chk').disabled=sel.includes(-1);});
@@ -807,9 +954,9 @@ const INPUT={
 function answer(ok,extra){
   if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
   P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
-  if(ok){P.combo++;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+  if(ok){P.combo++;S.curCombo=P.combo;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
     gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();S.stats['k_'+t.kind]=(S.stats['k_'+t.kind]||0)+1;if(t.kind==='num'&&/curvebox/.test(t.q))S.stats.curveNum=(S.stats.curveNum||0)+1;}
-  else{P.combo=0;if(P.boss)P.hearts--;}
+  else{P.combo=0;S.curCombo=0;if(P.boss)P.hearts--;}
   P.res.push(ok);if(gain)gainXP(gain);
   const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
   $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
@@ -866,6 +1013,11 @@ function renderSheet(){
   if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
   view.innerHTML=`<div class="panel"><h2>📜 Lernzettel</h2><p>Das Wichtigste auf einen Blick. Tipp: Schreib dir die Fachbegriffe selbst auf Karteikarten.</p></div>
   <div class="sheet">
+   <div class="card"><h3>Bakterien</h3><p>Zelle mit Zellwand, Zellmembran, Zellplasma, genetischem Material (frei, kein Zellkern), oft Geißeln und Schleimhülle. Eigener Stoffwechsel, Vermehrung durch <b>Zellteilung</b> (ungeschlechtlich, bis alle 20 min → 2<sup>n</sup>). Formen: Kokken, Stäbchen, Spirillen. Die meisten sind harmlos oder nützlich.</p></div>
+   <div class="card"><h3>Viren</h3><p>Nur Eiweißhülle + genetisches Material, <b>keine Zellen</b>, kein Stoffwechsel → keine Lebewesen. Vermehrung nur in <b>Wirtszellen</b>: Andocken (Schlüssel-Schloss) → Erbgut in die Zelle → übernimmt Stoffwechsel → Zelle baut neue Viren → Freisetzung.</p></div>
+   <div class="card"><h3>Krankheiten &amp; Antibiotika</h3><p><b>Salmonellen</b> (über 70 °C abgetötet), <b>Borrelien</b> (Zecken, Wanderröte), <b>Tetanus</b> (Wunden, Gift schädigt Nerven), <b>FSME</b> (Viren, Zecken), <b>Grippe</b> (Viren, plötzlich und heftig).</p><p><b>Fleming 1928: Penicillin</b> blockiert den Querwandbau, Bakterien platzen. Antibiotika wirken <b>nur gegen Bakterien</b>. <b>Resistenz:</b> zu früh abgebrochen → resistente überleben und vermehren sich.</p></div>
+   <div class="card"><h3>Angeborene Abwehr</h3><p><b>Barrieren:</b> Haut, Schleimhäute, Tränen/Nasenschleim, Magensäure.<br><b>Entzündung:</b> Signalstoffe → mehr Blutfluss (Rötung, Wärme), durchlässige Kapillaren (Schwellung), Schmerznerven (Schmerz), Fresszellen angelockt. Eiter = tote Fresszellen + Bakterienreste. Unspezifisch, immer gleich.</p></div>
+   <div class="card"><h3>Allergie</h3><p>Reaktion auf eigentlich harmlose Stoffe (Allergene). <b>Sensibilisierung:</b> B-Zellen bilden Antikörper gegen Pollen, die sich an <b>Mastzellen</b> setzen. Erneuter Kontakt → Mastzellen schütten <b>Histamin</b> aus → Heuschnupfen. Gefährlich: <b>anaphylaktischer Schock</b>. Laktoseintoleranz ist keine Allergie.</p></div>
    <div class="card"><h3>Verlauf einer Infektion</h3><p><b>Inkubationszeit:</b> Erreger vermehren sich unbemerkt, keine Symptome.<br><b>Krankheitsphase:</b> Symptome, hohes Fieber (Kurve: Tag 3–4 steil auf 40 °C).<br><b>Genesung:</b> Temperatur sinkt langsam (Tag 4–10) auf ca. 36,8 °C.</p><p>Kurve beschreiben: Anfangswert → Anstieg (wann, wie schnell, wie hoch) → Abfall (wie, bis wann).</p></div>
    <div class="card"><h3>Aktiv vs. passiv</h3><table><tr><td></td><td><b>aktiv</b></td><td><b>passiv</b></td></tr><tr><td>gespritzt</td><td>abgeschwächte/abgetötete Erreger</td><td>fertige Antikörper</td></tr><tr><td>Antikörper</td><td>bildet der Körper selbst</td><td>von Tieren/Spendern</td></tr><tr><td>Wirkung</td><td>nach einiger Zeit</td><td>sofort</td></tr><tr><td>Dauer</td><td>lange (Gedächtniszellen)</td><td>kurz (werden abgebaut)</td></tr><tr><td>Einsatz</td><td>vorbeugend</td><td>Notfall (Tetanus, Tollwut)</td></tr></table></div>
    <div class="card"><h3>Spezifische Immunantwort</h3><p><b>Fresszellen</b> präsentieren Antigene → <b>T-Helferzellen</b> werden aktiviert und aktivieren:</p><p><b>B-Zellen</b> (humoral): teilen sich, bilden <b>Antikörper</b> → verklumpen Viren. Es entstehen Gedächtniszellen.<br><b>T-Killerzellen</b> (zellulär): <b>zerstören befallene Körperzellen</b> → Virusvermehrung stoppt.</p><p>Antigen + Antikörper = Schlüssel-Schloss-Prinzip.</p></div>

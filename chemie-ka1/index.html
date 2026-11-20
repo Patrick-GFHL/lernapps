@@ -729,8 +729,8 @@ function renderMap(){
 
 /* ============ Spiel ============ */
 let P=null;
-function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:0,hints:0,boss:false,secs:0};renderTask();}
-function startBoss(){P={world:'boss',name:'Der Störfall-Reaktor',icon:'🚨',tasks:bossBuild(),i:0,res:[],combo:0,hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:(S.curCombo||0),hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Der Störfall-Reaktor',icon:'🚨',tasks:bossBuild(),i:0,res:[],combo:(S.curCombo||0),hints:0,boss:true,hearts:3,secs:0};renderTask();}
 function bossSvg(hp){
   const lamp=hp>=3?'#e0473a':hp===2?'#f2a03c':hp===1?'#f2c94c':'#56c24a';
   const steam=hp>0?`<rect x="9" y="0" width="3" height="3" fill="#cfd3da"/><rect x="15" y="1" width="3" height="2" fill="#cfd3da"/><rect x="12" y="2" width="2" height="2" fill="#e8eaee"/>`:'';
@@ -774,10 +774,10 @@ function calcEval(str){
   let i=0;const s=str;
   function peek(){return s[i];}
   function num(){const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e~?\d+)?/);if(!m)throw 0;i+=m[0].length;return parseFloat(m[0].replace('~','-'));}
-  function factor(){const c=peek();
-    if(c==='~'){i++;return -factor();}
+  function primary(){const c=peek();
     if(c==='('){i++;const v=expr();if(peek()===')')i++;return v;}  // fehlende ")" am Ende wie beim TI ergänzen
     return num();}
+  function factor(){if(peek()==='~'){i++;return -factor();}const b=primary();if(peek()==='^'){i++;return Math.pow(b,factor());}return b;}
   function term(){let v=factor();while(peek()==='*'||peek()==='/'){const o=s[i++];const w=factor();v=o==='*'?v*w:v/w;}return v;}
   function expr(){let v=term();while(peek()==='+'||peek()==='-'){const o=s[i++];const w=term();v=o==='+'?v+w:v-w;}return v;}
   try{const v=expr();if(i!==s.length||!isFinite(v))return null;return v;}catch(e){return null;}
@@ -787,13 +787,13 @@ function calcFmt(v){if(v===0)return '0';const a=Math.abs(v);
   return {m:String(Math.round(v*1e9)/1e9),e:null};}
 function calcPad(t,el,isSci,check){
   let tok=[],ans=null,done=false;
-  const OP={'+':'+','-':'−','*':'×','/':'÷'};
+  const OP={'+':'+','-':'−','*':'×','/':'÷','^':'^'};
   const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 · <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>2 × 56 + 3 × 16</b>, dann <b>enter</b>';
-  const keys=[['del','delete','fn w2'],['ac','clear','fn w2'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
+  const keys=[['del','delete','fn'],['ac','clear','fn'],['^','^','op'],['sq','x²','op'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
   el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
     <div class="ckeys">${keys.map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
     <button type="button" class="btn green" id="calcok" style="width:100%;margin-top:10px;font-size:20px">✔ Ergebnis prüfen</button>
-    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>.</div>
+    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>, Hochzahlen mit <b>^</b> (z. B. 2^15).</div>
     <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
   const cd=$('#cd');
   const isOp=x=>x in OP;
@@ -818,6 +818,7 @@ function calcPad(t,el,isSci,check){
     else if(k==='neg'){tok.push('neg');}
     else if(k==='exp'){if(!last||isOp(last)||last==='('||last==='neg')tok.push('1');tok.push('E');}
     else if(isOp(k)){if(!tok.length&&ans!==null){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}const l2=tok[tok.length-1];if(l2&&isOp(l2))tok[tok.length-1]=k;else if(tok.length)tok.push(k);}
+    else if(k==='sq'){if(last&&/[0-9.)]/.test(last)){tok.push('^','2');}}
     else if(k==='('){if(last&&(/[0-9.)]/.test(last)))tok.push('*');tok.push('(');}
     else if(k===')'){tok.push(')');}
     else if(k==='del'){if(done){done=false;}else tok.pop();}
@@ -836,7 +837,7 @@ function calcPad(t,el,isSci,check){
   document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
     if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m='.';else if(k==='+')m='+';else if(k==='*'||k==='x'||k==='X')m='*';else if(k==='/'||k===':')m='/';
     else if(k==='-'){const last=tok[tok.length-1];m=(!tok.length&&!done)||isOp(last)||last==='('||last==='E'?'neg':'-';}
-    else if(k==='('||k===')')m=k;else if(k==='e'||k==='E'||k==='^')m='exp';
+    else if(k==='('||k===')')m=k;else if(k==='^')m='^';else if(k==='e'||k==='E')m='exp';
     else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='enter';
     if(m){e.preventDefault();press(m);}};
   draw();
@@ -884,9 +885,9 @@ const INPUT={
 function answer(ok,extra){
   if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
   P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
-  if(ok){P.combo++;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+  if(ok){P.combo++;S.curCombo=P.combo;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
     gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();}
-  else{P.combo=0;if(P.boss)P.hearts--;}
+  else{P.combo=0;S.curCombo=0;if(P.boss)P.hearts--;}
   P.res.push(ok);if(gain)gainXP(gain);
   const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
   $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
