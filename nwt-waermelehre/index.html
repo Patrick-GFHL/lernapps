@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eis &amp; Feuer – NWT Wärmelehre</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lern-Hub">
+<meta name="theme-color" content="#17171c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17171c; --panel:#2b2b33; --panel2:#35353f; --line:#0b0b0e;
+  --text:#f1efe6; --muted:#a9a7a0; --green:#5fbf3a; --green-d:#3c8a20;
+  --gold:#f2c94c; --red:#e05a47; --blue:#4fa3e0; --dia:#4ee6e0; --stone:#7d7d7d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Atkinson Hyperlegible',ui-monospace,Menlo,Consolas,monospace;font-size:19px;line-height:1.45;
+  background-image:linear-gradient(rgba(255,255,255,.025) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.025) 2px,transparent 2px);
+  background-size:32px 32px;min-height:100vh}
+h1,h2,h3,.pix{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400;letter-spacing:.5px}
+h1{font-size:18px;margin:0;line-height:1.5}
+h2{font-size:15px;margin:0 0 14px;line-height:1.6}
+h3{font-size:12px;margin:0 0 8px;line-height:1.6}
+sub,sup{font-size:.7em;line-height:0}
+button{font-family:inherit;font-size:18px;color:var(--text);cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 14px 60px}
+
+/* ore strip */
+.ores{display:flex;overflow:hidden;height:44px;border-bottom:4px solid var(--line)}
+.ore{flex:0 0 44px;height:44px;position:relative;background:#6f6f6f;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.28),inset 4px 4px 0 rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:rgba(0,0,0,.55)}
+.ore i{position:absolute;width:8px;height:8px}
+/* header */
+header.top{background:#202027;border-bottom:4px solid var(--line)}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;background:var(--green);box-shadow:inset -4px -4px 0 var(--green-d),inset 4px 4px 0 rgba(255,255,255,.3);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px}
+.player{display:flex;align-items:center;gap:12px;flex:1;min-width:260px}
+.rank{display:flex;align-items:center;gap:8px;font-weight:700}
+.rankblock{width:22px;height:22px;border:3px solid var(--line);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.35)}
+.xpbar{flex:1;min-width:120px;height:18px;background:#111;border:3px solid var(--line);position:relative}
+.xpbar>div{height:100%;background:linear-gradient(#8ff05a,#5fbf3a);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);transition:width .5s}
+.xptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-shadow:1px 1px 0 #000}
+.streak{font-weight:700;white-space:nowrap}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;max-width:980px;margin:0 auto}
+
+/* buttons */
+.btn{background:#6d6d78;border:3px solid var(--line);padding:9px 16px;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.22);text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{box-shadow:inset 4px 4px 0 rgba(0,0,0,.35)}
+.btn:disabled{filter:grayscale(1) brightness(.7);cursor:default}
+.btn.green{background:var(--green)}
+.btn.gold{background:#c99a1e}
+.btn.red{background:#b6412f}
+.btn.blue{background:#3b7fb8}
+.btn.small{font-size:16px;padding:6px 12px}
+.btn.on{background:var(--green)}
+
+/* panels */
+.panel{background:var(--panel);border:4px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.3),inset 4px 4px 0 rgba(255,255,255,.07);padding:18px;margin:16px 0}
+.muted{color:var(--muted)}
+.intro p{margin:6px 0}
+
+/* world map */
+.worlds{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.world{background:var(--panel2);border:4px solid var(--line);padding:14px;text-align:left;display:flex;gap:12px;align-items:flex-start;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.08);transition:transform .1s}
+.world:hover{transform:translateY(-3px)}
+.world .ic{font-size:36px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line);flex:0 0 52px}
+.world .nm{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.6;margin-bottom:4px}
+.world .tp{font-size:15px;color:var(--muted);line-height:1.3}
+.stars{color:var(--gold);font-size:20px;letter-spacing:2px;margin-top:6px}
+.stars .off{color:#55545c}
+.world.boss{grid-column:1/-1;background:#3a2346}
+.world.locked{filter:grayscale(.8);opacity:.75}
+.num-badge{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted)}
+.tag{display:inline-block;font-size:13px;background:#5a4a1e;border:2px solid var(--line);padding:0 6px;margin-top:4px}
+
+/* play */
+.playtop{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.prog{flex:1;display:flex;gap:4px;min-width:180px}
+.prog span{flex:1;height:16px;background:#111;border:3px solid var(--line)}
+.prog span.ok{background:var(--green)}
+.prog span.bad{background:var(--red)}
+.prog span.cur{background:#777}
+.hearts{font-size:22px;letter-spacing:2px}
+.combo{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gold)}
+.q{font-size:21px;margin:6px 0 16px}
+.q .eq{display:inline-block;background:#1d1d23;border:3px solid var(--line);padding:6px 12px;margin:8px 0;font-size:22px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input.in{font-family:inherit;font-size:22px;width:170px;padding:8px 10px;background:#111;color:var(--text);border:3px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.6)}
+input.in.exp{width:80px}
+input.in:focus{outline:3px solid var(--blue)}
+.unit{font-size:21px}
+.choices{display:grid;gap:10px}
+.choices .btn{text-align:left;font-size:18px;padding:12px 14px;background:#4a4a55}
+.choices .btn.right{background:var(--green)}
+.choices .btn.wrong{background:var(--red)}
+.fb{margin-top:16px}
+.fb .ok,.fb .bad{font-family:'Press Start 2P',monospace;font-size:12px;padding:10px 12px;border:3px solid var(--line);margin-bottom:10px;line-height:1.6}
+.fb .ok{background:var(--green-d)}
+.fb .bad{background:#8a3328}
+.sol{background:#1d1d23;border:3px solid var(--line);padding:12px 14px;font-size:18px}
+.sol ol{margin:4px 0;padding-left:22px}
+.hintbox{margin-top:12px;background:#4a3f1c;border:3px solid var(--line);padding:10px 12px;font-size:17px}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.taskhead .pix{font-size:10px;color:var(--muted)}
+
+/* element grid */
+.elgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:14px}
+.el{height:64px;font-family:'Press Start 2P',monospace;font-size:15px;background:#5b5b66;border:3px solid var(--line);
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.2)}
+.el.sel{background:var(--blue)}
+.el.right{background:var(--green)}
+.el.wrong{background:var(--red)}
+.el.miss{outline:4px dashed var(--gold);outline-offset:-8px}
+
+/* balance */
+.bal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:24px;margin:6px 0 14px}
+.sp{display:flex;align-items:center;gap:6px;background:#1d1d23;border:3px solid var(--line);padding:6px 8px}
+.sp .co{font-family:'Press Start 2P',monospace;font-size:16px;min-width:26px;text-align:center;color:var(--gold)}
+.sp .st{display:flex;flex-direction:column;gap:3px}
+.sp .st button{width:34px;height:26px;padding:0;font-size:16px;line-height:1;background:#5b5b66;border:2px solid var(--line)}
+.op{font-size:26px;color:var(--muted)}
+table.atoms{border-collapse:collapse;width:100%;font-size:17px;margin-bottom:12px}
+table.atoms td,table.atoms th{border:3px solid var(--line);padding:5px 8px;text-align:left;vertical-align:middle}
+table.atoms th{background:#1d1d23;font-weight:600}
+.blk{display:inline-block;width:13px;height:13px;margin:1px;border:2px solid rgba(0,0,0,.6)}
+.cnt{font-weight:700;margin-right:6px}
+td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
+
+/* order */
+.orderpool,.orderlist{display:grid;gap:8px;margin-bottom:12px}
+.orderlist .item{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.orderlist .item b{color:var(--gold);margin-right:8px}
+
+/* result */
+.result{text-align:center}
+.bigstars{font-size:58px;color:var(--gold);letter-spacing:6px;margin:10px 0}
+.bigstars .off{color:#4d4c55}
+.bigstars span{display:inline-block;animation:pop .45s both}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.boss-art{display:flex;justify-content:center;margin:6px 0 4px}
+
+/* achievements */
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ach{display:flex;gap:12px;align-items:center;background:var(--panel2);border:4px solid var(--line);padding:10px 12px}
+.ach .ai{font-size:30px;width:50px;height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line)}
+.ach .an{font-weight:700;font-size:18px}
+.ach .ad{font-size:15px;color:var(--muted);line-height:1.3}
+.ach.locked .ai{filter:grayscale(1) brightness(.5)}
+.ach.locked .an{color:var(--muted)}
+.ach.got{background:#2f3a28}
+
+/* cheat sheet */
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:#f3ead2;color:#2a2418;border:4px solid var(--line);padding:14px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.12)}
+.card h3{color:#5a3d12}
+.card .f{font-size:21px;margin:4px 0}
+.card table{border-collapse:collapse;width:100%;font-size:16px}
+.card td{border:2px solid #b9a77a;padding:2px 6px}
+
+/* toast */
+#toasts{position:fixed;top:12px;right:12px;display:flex;flex-direction:column;gap:10px;z-index:50;pointer-events:none}
+.toast{background:#212126;border:4px solid var(--line);box-shadow:0 0 0 3px #6d6d78;padding:10px 14px;display:flex;gap:12px;align-items:center;min-width:260px;max-width:340px;animation:tin .4s both}
+.toast .ti{font-size:30px}
+.toast .tt{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);line-height:1.6}
+.toast .tn{font-weight:700}
+.toast.out{animation:tout .4s both}
+@keyframes tin{from{transform:translateX(120%)}to{transform:none}}
+@keyframes tout{to{transform:translateX(130%)}}
+.confetti{position:fixed;top:-20px;width:12px;height:12px;z-index:40;pointer-events:none;border:2px solid rgba(0,0,0,.5);animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+
+.calc{max-width:420px}
+.cdisp{background:#a9b89c;color:#14180f;border:6px solid #1c1c1f;border-radius:6px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.22);padding:8px 12px;min-height:76px;font-size:30px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;margin-bottom:12px;word-break:break-all;display:flex;flex-direction:column;justify-content:space-between}
+.cdisp .cline{text-align:left;min-height:1.2em;letter-spacing:.5px}
+.cdisp .ce{font-size:.78em;margin:0 1px}
+.cdisp .cneg{font-size:.8em;position:relative;top:-.12em;margin-right:1px}
+.cdisp .cunit{text-align:right;font-size:.55em;color:#3b4630}
+.cdisp .cur{display:inline-block;width:.5em;height:.95em;margin-left:2px;background:#2a3320;vertical-align:-.1em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.calc .ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;background:#141416;border:4px solid var(--line);border-radius:10px;padding:12px}
+.ck{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:600;height:54px;color:#fff;background:#2a2a2e;border:none;border-radius:9px;box-shadow:0 4px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);cursor:pointer;touch-action:manipulation}
+.ck:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+.ck.dg{background:#e9e9ec;color:#111}
+.ck.fn{background:#1f1f22;font-size:19px}
+.ck.w2{grid-column:span 2}
+.ck.op{background:#6f8796;font-size:24px}
+.cdisp .cres{text-align:right;font-size:.95em;min-height:1.1em}
+.cdisp .cop{margin:0 3px}
+.ck.ok{background:#6f8796;font-size:19px}
+.ck.op{background:#3a3d44;font-size:24px}
+.ck.go{background:var(--green);font-size:19px}
+.ck.wide{grid-column:span 2}
+.cdisp .cres{text-align:right;font-size:1em;min-height:1.15em;font-weight:700}
+.cdisp .cline{font-size:.8em;word-break:break-all}
+.ck:disabled{filter:grayscale(1) brightness(.7)}
+
+.curvebox{background:#1d1d23;border:3px solid var(--line);padding:6px;margin:8px 0;max-width:520px}
+.curvebox svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.mrows{display:grid;gap:10px;margin-bottom:12px}
+.mrow{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.mrow.right{border-color:var(--green)}.mrow.wrong{border-color:var(--red)}
+.ml{font-size:18px;margin-bottom:6px}
+.mopts{display:flex;flex-wrap:wrap;gap:6px}
+.mo,.cw,.chip{font-family:inherit;font-size:16px;color:var(--text);background:#4a4a55;border:3px solid var(--line);padding:6px 10px;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.12);text-align:left}
+.mo.sel,.chip.sel{background:var(--blue)}
+.mo.corr{outline:3px solid var(--green);outline-offset:-3px}
+.mo:disabled,.cw:disabled{cursor:default}
+.cw:disabled{opacity:.35}
+.ctext{font-size:20px;line-height:2.1;background:#1d1d23;border:3px solid var(--line);padding:10px 12px;margin-bottom:12px}
+.slot{font-family:inherit;font-size:17px;min-width:110px;color:var(--text);background:#2b2b33;border:2px dashed #8a8a96;padding:2px 8px;margin:0 2px;cursor:pointer;vertical-align:middle}
+.slot.full{border-style:solid;background:#3b5e86}
+.slot.right{background:var(--green-d);border-color:var(--green)}.slot.wrong{background:#8a3328;border-color:var(--red)}
+.cpool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip.right{background:var(--green)}.chip.wrong{background:var(--red)}.chip.miss{outline:3px dashed var(--gold);outline-offset:-5px}
+.wt{width:100%;min-height:130px;font-family:inherit;font-size:18px;background:#111;color:var(--text);border:3px solid var(--line);padding:10px}
+.checkbox-panel{background:#1d1d23;border:3px solid var(--line);padding:12px;margin-top:12px}
+label.chk{display:flex;gap:10px;align-items:flex-start;font-size:17px;padding:5px 0;cursor:pointer}
+label.chk input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
+.prog span.ok,.prog span.bad{background:#2b2b33}
+textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
+.inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
+@media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="ores" id="ores"></div>
+<header class="top">
+  <div class="hrow">
+    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">🌡</div><h1>Eis &amp; Feuer</h1></div>
+    <div class="player">
+      <div class="rank" id="rank"></div>
+      <div class="xpbar"><div id="xpfill" style="width:0"></div><div class="xptxt" id="xptxt"></div></div>
+      <div class="streak" id="streak"></div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="btn small" data-nav="map">🗺 Karte</button>
+    <button class="btn small" data-nav="ach" id="navach">🏆 Erfolge</button>
+    <button class="btn small" data-nav="sheet">📜 Lernzettel</button>
+    <button class="btn small" data-nav="save">💾 Spielstand</button>
+  </nav>
+</header>
+<main class="wrap" id="view"></main>
+<div id="toasts"></div>
+
+<script src="../shared/profil.js"></script>
+<script>
+"use strict";
+/* ============ Daten ============ */
+const KEY='nwtWaerme_v1';
+const A={H:1,C:12,N:14,O:16,Na:23,Mg:24,Al:27,S:32,Cl:35.5,Ca:40,Fe:56,Cu:63.5,Zn:65};
+const EN={H:'Wasserstoff',C:'Kohlenstoff',N:'Stickstoff',O:'Sauerstoff',Na:'Natrium',Mg:'Magnesium',Al:'Aluminium',S:'Schwefel',Cl:'Chlor',Ca:'Calcium',Fe:'Eisen',Cu:'Kupfer',Zn:'Zink'};
+const NAMES={H2O:'Wasser',CO2:'Kohlenstoffdioxid',O2:'Sauerstoff',H2:'Wasserstoff',N2:'Stickstoff',Cl2:'Chlor',NaCl:'Natriumchlorid',CH4:'Methan',NH3:'Ammoniak',MgO:'Magnesiumoxid',FeS:'Eisensulfid',HCl:'Chlorwasserstoff',H2SO4:'Schwefelsäure',CaCO3:'Calciumcarbonat',Al2O3:'Aluminiumoxid',Fe2O3:'Eisenoxid',CuO:'Kupferoxid',C2H6O:'Ethanol',ZnCl2:'Zinkchlorid',Cu2S:'Kupfersulfid',C3H8:'Propan',AlCl3:'Aluminiumchlorid',FeCl3:'Eisenchlorid',MgCl2:'Magnesiumchlorid',NaOH:'Natriumhydroxid',CO:'Kohlenstoffmonooxid',Cu2O:'rotes Kupferoxid',Na2O:'Natriumoxid',CaCl2:'Calciumchlorid',Fe:'Eisen',Mg:'Magnesium',C:'Kohlenstoff',Cu:'Kupfer',Al:'Aluminium',S:'Schwefel',Zn:'Zink',Na:'Natrium'};
+const ECOL={H:'#f4f4f4',O:'#e0473a',C:'#3a3a3a',N:'#3f7be0',Cl:'#56c24a',Na:'#9b59d0',Mg:'#c9c9d6',Al:'#a9b4bf',S:'#f2d23c',Ca:'#e8e2c8',Fe:'#b8693a',Cu:'#d9813f',Zn:'#7f97a8'};
+const NA=6.022e23, U=1.66e-24;
+
+/* ============ Helfer ============ */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const r2=x=>Math.round(x*100)/100;
+function fmt(x,d=2){const p=Math.pow(10,d);return (Math.round(x*p)/p).toLocaleString('de-DE',{maximumFractionDigits:d});}
+function sci(x){let e=Math.floor(Math.log10(Math.abs(x)));let m=x/Math.pow(10,e);m=Math.round(m*100)/100;if(m>=10){m=m/10;e++;}return fmt(m,2)+' · 10<sup>'+e+'</sup>';}
+const fx=f=>f.replace(/(\d+)/g,'<sub>$1</sub>');
+const nm=f=>NAMES[f]||f;
+function parseF(f){const c={};f.replace(/([A-Z][a-z]?)(\d*)/g,(_,e,n)=>{c[e]=(c[e]||0)+(n?+n:1);return '';});return c;}
+function molar(f){const c=parseF(f);let s=0;for(const e in c)s+=A[e]*c[e];return Math.round(s*10)/10;}
+function breakdown(f){const c=parseF(f);return Object.keys(c).map(e=>(c[e]>1?c[e]+' · ':'')+fmt(A[e],1)+' u').join(' + ');}
+function coefHtml(c,f){return (c>1?c+' ':'')+fx(f);}
+function eqHtml(sp,nr){const l=sp.slice(0,nr).map(s=>coefHtml(s[1],s[0])).join(' + ');const r=sp.slice(nr).map(s=>coefHtml(s[1],s[0])).join(' + ');return l+' → '+r;}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+
+/* ============ Aufgaben-Bausteine ============ */
+function num(q,ans,unit,sol,hint,o){return Object.assign({kind:'num',q,ans,unit,sol,hint},o||{});}
+function sciT(q,ans,unit,sol,hint,o){return Object.assign({kind:'sci',q,ans,unit,sol,hint},o||{});}
+function mc(q,choices,e,o){const idx=shuffle(choices.map((_,i)=>i));return Object.assign({kind:'mc',q,choices:idx.map(i=>choices[i]),correct:idx.indexOf(0),sol:e},o||{});}
+const poolMC=p=>mc(p.q,p.c,p.e);
+
+/* ============ NWT-Inhalte: Wärmelehre (Buch S. 6–73) ============ */
+const norm=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function tfT(q,a,e){return {kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e};}
+function matchT(q,rows,opts,sol,o){return Object.assign({kind:'match',q,rows,opts,sol},o||{});}
+function sortT(q,pool,n,opts,sol){const rows=pickN(pool,n).map(([l,a])=>({l,a}));return matchT(q,rows,opts,sol);}
+function pairT(q,pairs,n,sol){const sel=pickN(pairs,n);const opts=shuffle(sel.map(p=>p[1]));return matchT(q,sel.map(p=>({l:p[0],a:opts.indexOf(p[1])})),opts,sol);}
+function clozeT(q,text,distract,sol,o){const ans=[];text.replace(/\[([^\]]+)\]/g,(_,w)=>{ans.push(w);return '';});return Object.assign({kind:'cloze',q,text,ans,pool:shuffle(ans.concat(distract)),sol},o||{});}
+function orderT(q,steps,sol){return {kind:'order',q,steps,sol:sol||'<ol>'+steps.map(s=>'<li>'+s+'</li>').join('')+'</ol>'};}
+function writeT(q,keys,model,hint,need){return {kind:'write',q,keys,model,hint,need:need||Math.ceil(keys.length*0.6),sol:''};}
+function multiT(q,opts,ans,sol){const idx=shuffle(opts.map((_,i)=>i));return {kind:'multi',q,opts:idx.map(i=>opts[i]),ans:ans.map(a=>idx.indexOf(a)),sol};}
+const CL_HINT='Tippe auf ein Wort, es wandert in die nächste freie Lücke. Tippe auf eine Lücke, um sie wieder zu leeren.';
+const de=(x,d)=>fmt(x,d===undefined?2:d);
+
+/* ---------- Tippbares Schaubild: Thermosflasche ---------- */
+function shape(z,extra){const [id,,fill,sh]=z;return `<polygon data-z="${id}" points="${sh}" fill="${fill}" ${extra}/>`;}
+function drawDiag(zones,deco,st,overlay){
+  let s=`<svg viewBox="0 0 340 200" class="diag" xmlns="http://www.w3.org/2000/svg">`+(deco.pre||'');
+  zones.forEach(z=>{let ex='stroke="rgba(0,0,0,.45)" stroke-width="1" style="cursor:pointer"';
+    if(st){if(z[0]===st.corr)ex='stroke="#5fbf3a" stroke-width="4"';else if(z[0]===st.sel)ex='stroke="#e05a47" stroke-width="4"';else ex='stroke="rgba(0,0,0,.45)" stroke-width="1"';}
+    s+=shape(z,ex);});
+  s+=(deco.post||'');
+  if(st)zones.forEach(z=>{const [x,y]=z[4];const hi=z[0]===st.corr;s+=`<text x="${x}" y="${y}" font-size="${hi?12:10}" font-weight="${hi?700:400}" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke" style="pointer-events:none">${z[1]}</text>`;});
+  return s+'</svg>';
+}
+const DIAG={thermos:{zones:[
+  ['au','Außenhülle','#4f6b3a','110,30 230,30 230,192 110,192',[275,180]],
+  ['va','Vakuum','#1d1d23','120,40 220,40 220,182 120,182',[275,120]],
+  ['sp','verspiegelte Glaswand','#c9d2dc','127,47 213,47 213,175 127,175',[62,110]],
+  ['in','heißer Tee','#9a5a2a','134,54 206,54 206,168 134,168',[170,115]],
+  ['ve','Verschluss','#5a5a62','140,6 200,6 200,40 140,40',[260,22]]],deco:{pre:'',post:''}}};
+function tapT(d,zone,q,sol){return {kind:'tap',diagram:d,zone,q,sol};}
+const TAP_TH=[
+ ['sp','Welches Bauteil der Thermosflasche verringert die Energieabgabe durch <b>Wärmestrahlung</b>? Tippe es an.','Die <b>verspiegelte Glaswand</b> reflektiert die Wärmestrahlung zurück ins Innere.'],
+ ['va','Welches Bauteil verhindert <b>Wärmeleitung und Konvektion</b> durch die Wand? Tippe es an.','Im <b>Vakuum</b> gibt es keine Teilchen, also weder Wärmeleitung noch Konvektion.'],
+ ['ve','Welches Bauteil verhindert, dass warme Luft nach oben entweicht (<b>Konvektion</b>)? Tippe es an.','Der <b>Verschluss</b> aus Kunststoff hält die warme Luft drin und leitet Wärme schlecht.']];
+const gTap=()=>{const [z,q,e]=pick(TAP_TH);return tapT('thermos',z,`<b>Thermosflasche:</b> ${q}`,e);};
+
+/* ---------- Welt 1: Frost-Tundra (Temperatur, Ausdehnung, Kelvin) ---------- */
+function gKelvin(){
+  if(Math.random()<.5){const t=pick([-40,-18,-10,0,15,20,37,100,250]);return num(`Rechne <b>${t} °C</b> in Kelvin um.`,t+273.15,'K',`T = ϑ + 273,15 = ${t} + 273,15 = <b>${de(t+273.15)} K</b>`,'T (in K) = ϑ (in °C) + 273,15',{tol:0.001});}
+  const T=pick([0,73,173,255,273,288,300,310,373]);return num(`Rechne <b>${T} K</b> in Grad Celsius um.`,T-273.15,'°C',`ϑ = T − 273,15 = ${T} − 273,15 = <b>${de(T-273.15)} °C</b>`,'ϑ = T − 273,15. Ergebnis kann negativ sein: Taste (–).',{tol:0.001});
+}
+const MC_T=[
+ {q:'Bei welcher Temperatur liegt der absolute Nullpunkt?',c:['−273,15 °C (0 K)','0 °C','−100 °C','−459 °C'],e:'Absoluter Nullpunkt: <b>−273,15 °C = 0 K</b>. Kälter geht es nicht.'},
+ {q:'Was passiert im Teilchenmodell am absoluten Nullpunkt?',c:['Die Teilchen bewegen sich (fast) nicht mehr','Die Teilchen bewegen sich am schnellsten','Die Teilchen werden größer','Die Teilchen verschwinden'],e:'Temperatur = Maß für die Teilchenbewegung. Bei 0 K ist die Bewegung minimal.'},
+ {q:'Warum dehnen sich Körper beim Erwärmen aus?',c:['Die Teilchen bewegen sich heftiger und brauchen mehr Platz','Die Teilchen werden größer','Es kommen neue Teilchen hinzu','Die Teilchen werden leichter'],e:'Die Teilchen selbst wachsen nicht, sie <b>bewegen sich heftiger</b> und halten mehr Abstand.'},
+ {q:'Was dehnt sich bei gleicher Temperaturerhöhung am stärksten aus?',c:['Gase','Flüssigkeiten','Festkörper','Alle gleich'],e:'Gase dehnen sich viel stärker aus als Flüssigkeiten und Festkörper. Alle Gase dehnen sich nahezu <b>gleich</b> aus.'},
+ {q:'Wovon hängt die Volumenzunahme beim Erwärmen ab?',c:['Vom Stoff, vom Aggregatzustand, von der Temperaturerhöhung und vom Anfangsvolumen','Nur von der Farbe','Nur von der Masse','Von nichts'],e:'Je größer Temperaturerhöhung und Anfangsvolumen, desto größer die Volumenzunahme. Stoff und Aggregatzustand spielen auch mit.'},
+ {q:'Wie groß ist ein Temperaturunterschied von 10 °C in Kelvin?',c:['10 K','283 K','263 K','1 K'],e:'Ein Grad Celsius und ein Kelvin sind <b>gleich groß</b>. Nur der Nullpunkt ist verschoben.'},
+ {q:'Warum lässt man an Brücken Dehnungsfugen?',c:['Das Material dehnt sich im Sommer aus und zieht sich im Winter zusammen','Damit Regen abläuft','Damit sie leichter sind','Aus Kostengründen'],e:'Ohne Fugen würden Spannungen durch die <b>Ausdehnung</b> das Bauwerk beschädigen.'}];
+const AGG=[['fest','Teilchen sitzen auf festen Plätzen und schwingen nur'],['flüssig','Teilchen sind verschiebbar, halten aber zusammen'],['gasförmig','Teilchen bewegen sich frei und schnell im ganzen Raum']];
+const gAgg=()=>pairT('Aggregatzustände im Teilchenmodell: Ordne zu.',AGG,3,AGG.map(a=>`<b>${a[0]}:</b> ${a[1]}`).join('<br>'));
+const TF_T=[['Wasser dehnt sich beim Erwärmen von 0 °C auf 4 °C nicht aus, sondern zieht sich zusammen (Anomalie des Wassers).',true,'Richtig: Wasser hat bei 4 °C die größte Dichte.'],['Negative Kelvin-Temperaturen gibt es nicht.',true,'Richtig: 0 K ist die tiefste mögliche Temperatur.'],['Bei Abkühlung vergrößert sich das Volumen der meisten Stoffe.',false,'Falsch: Bei Temperaturerniedrigung verringert sich das Volumen.']];
+const wrT=()=>writeT('<b>Erkläre</b> mithilfe des Teilchenmodells, warum sich Körper beim Erwärmen ausdehnen und was am absoluten Nullpunkt passiert.',
+ [['Temperatur hängt mit der Teilchenbewegung zusammen',['bewegung','bewegen']],['Beim Erwärmen bewegen sich die Teilchen heftiger/schneller',['heftig','schneller','staerker']],['Sie brauchen mehr Platz, Abstand wird größer',['platz','abstand','ausdehn']],['Absoluter Nullpunkt: −273,15 °C bzw. 0 K',['273','0 k','null']],['Dort bewegen sich die Teilchen kaum noch',['kaum','nicht mehr','still','ruhe']]],
+ 'Die Temperatur eines Körpers hängt mit der <b>Bewegung seiner Teilchen</b> zusammen. Beim Erwärmen bewegen sich die Teilchen <b>heftiger</b>, stoßen stärker aneinander und brauchen <b>mehr Platz</b>: Der Körper dehnt sich aus. Je kälter es wird, desto langsamer werden die Teilchen. Am <b>absoluten Nullpunkt (−273,15 °C = 0 K)</b> bewegen sie sich praktisch nicht mehr, kälter geht es nicht.',
+ 'Stichworte: Teilchenbewegung, heftiger, mehr Platz, −273,15 °C, 0 K, kaum Bewegung.',3);
+
+/* ---------- Welt 2: Schmelz-Höhle (spezifische Wärmekapazität, Schmelzen, Verdampfen) ---------- */
+const CST=[['Wasser',4.2],['Aluminium',0.90],['Eisen',0.45],['Kupfer',0.38]];
+function gCap(){
+  const [s,c]=pick(CST),m=pick([0.2,0.5,1,1.5,2,3]),dT=pick([5,10,20,25,40,50,80]);const E=c*m*dT;
+  if(Math.random()<.6)return num(`Wie viel Energie braucht man, um <b>${de(m)} kg ${s}</b> um <b>${dT} K</b> zu erwärmen?<br><span class="muted">c(${s}) = ${de(c)} kJ/(kg·K)</span>`,E,'kJ',
+   `ΔE = c · m · ΔT = ${de(c)} kJ/(kg·K) · ${de(m)} kg · ${dT} K = <b>${de(E,1)} kJ</b>`,'ΔE = c · m · ΔT');
+  return num(`${s} (${de(m)} kg) nimmt <b>${de(E,1)} kJ</b> auf. Um wie viel Kelvin steigt die Temperatur?<br><span class="muted">c(${s}) = ${de(c)} kJ/(kg·K)</span>`,dT,'K',
+   `ΔT = ΔE : (c · m) = ${de(E,1)} kJ : (${de(c)} · ${de(m)}) kJ/K = <b>${dT} K</b>`,'ΔE = c · m · ΔT nach ΔT umstellen: ΔT = ΔE / (c · m)');
+}
+function gMelt(){const m=pick([10,20,50,100,200,500]);const E=0.33*m;
+  return num(`Wie viel Energie braucht man, um <b>${m} g Eis</b> von 0 °C zu schmelzen?<br><span class="muted">Schmelzwärme von Eis: 0,33 kJ/g</span>`,E,'kJ',`ΔE = 0,33 kJ/g · ${m} g = <b>${de(E,1)} kJ</b>. Die Temperatur bleibt dabei 0 °C!`,'Energie pro Gramm mal Masse.');}
+function gCapRate(){const L=pick([1,2,3,5]);const E=4.2*L*(100-20);
+  return num(`Wie viel Energie braucht ein Wasserkocher, um <b>${L} Liter Wasser</b> von 20 °C auf 100 °C zu erhitzen? (1 L Wasser ≈ 1 kg)<br><span class="muted">c(Wasser) = 4,2 kJ/(kg·K)</span>`,E,'kJ',`ΔT = 80 K → ΔE = 4,2 · ${L} · 80 kJ = <b>${de(E,0)} kJ</b>`,'Erst ΔT ausrechnen (Endtemperatur − Anfangstemperatur), dann ΔE = c · m · ΔT.');}
+const MC_W=[
+ {q:'Was gibt die spezifische Wärmekapazität c an?',c:['Wie viel Energie man braucht, um 1 kg eines Stoffes um 1 K zu erwärmen','Wie heiß ein Stoff höchstens werden kann','Wie schnell ein Stoff schmilzt','Wie gut ein Stoff Wärme leitet'],e:'c = Energie pro kg und pro Kelvin, z. B. Wasser 4,2 kJ/(kg·K).'},
+ {q:'Warum eignet sich Wasser gut als Wärmespeicher (z. B. Wärmflasche)?',c:['Es hat eine sehr große spezifische Wärmekapazität','Es ist durchsichtig','Es leitet Wärme besonders gut','Es ist schwerer als Metall'],e:'Wasser speichert pro kg und Kelvin besonders viel Energie: <b>4,2 kJ/(kg·K)</b>.'},
+ {q:'Was passiert mit der Temperatur, während Eis schmilzt?',c:['Sie bleibt bei 0 °C, die Energie wird zum Schmelzen gebraucht','Sie steigt gleichmäßig','Sie sinkt','Sie springt auf 100 °C'],e:'Die zugeführte Energie löst die Teilchen aus ihren festen Plätzen. Die Temperatur bleibt <b>konstant</b>.'},
+ {q:'Warum kühlt Schwitzen den Körper?',c:['Beim Verdunsten des Schweißes wird dem Körper viel Energie entzogen','Schweiß ist kalt','Die Poren lassen kalte Luft herein','Weil man dabei weniger isst'],e:'Verdunsten braucht viel Energie. Sie stammt aus der Haut, die dadurch abkühlt.'},
+ {q:'Warum kocht Wasser auf der Zugspitze schon bei etwa 90 °C?',c:['Der Luftdruck ist dort geringer, und der Siedepunkt sinkt mit dem Druck','Weil es dort kälter ist','Weil das Wasser dort salziger ist','Weil die Sonne näher ist'],e:'Weniger Druck = <b>niedrigere Siedetemperatur</b>. Im Dampfdruckkochtopf ist es umgekehrt.'},
+ {q:'Wie funktioniert ein Dampfdruckkochtopf?',c:['Der Druck steigt, deshalb siedet Wasser erst über 100 °C und das Essen gart schneller','Er kühlt das Wasser','Er senkt den Druck','Er verdampft das Wasser schneller bei 80 °C'],e:'Höherer Druck → <b>höherer Siedepunkt</b> → höhere Temperatur → kürzere Garzeit.'},
+ {q:'Was ist Verdunsten?',c:['Übergang von flüssig zu gasförmig unterhalb der Siedetemperatur','Schmelzen von Eis','Kondensieren von Dampf','Sieden bei 100 °C'],e:'Verdunsten passiert auch weit unter 100 °C, z. B. bei Pfützen.'},
+ {q:'Woher hat ein Handwärmer (Knick-Plättchen) seine Energie?',c:['Die Flüssigkeit wird fest und gibt dabei die beim Schmelzen gespeicherte Energie ab','Aus einer Batterie','Aus der Luft','Durch Reibung des Plättchens'],e:'Beim Erstarren wird die Energie frei, die beim „Aufladen“ im heißen Wasser zum Schmelzen zugeführt wurde.'}];
+const gCapCloze=()=>clozeT(CL_HINT,'Die Energie, die man zum Erwärmen braucht, berechnet man mit ΔE = [c] · [m] · ΔT. Für Wasser gilt c = [4,2] kJ/(kg·K). Beim Schmelzen bleibt die [Temperatur] gleich.',['ρ','0,33','Masse·Zeit','Dichte'],'');
+const wrW=()=>writeT('<b>Erkläre</b>, warum man nach dem Sport im nassen T-Shirt schnell friert, und wie Schwitzen die Körpertemperatur regelt.',
+ [['Schweiß/Wasser verdunstet',['verdunst']],['Verdunsten benötigt viel Energie',['energie']],['Energie wird dem Körper/der Haut entzogen',['entzogen','haut','koerper']],['Dadurch kühlt der Körper ab',['kuehl','kalt','abkuehl','friert']],['Wind/trockene Luft verstärkt das Verdunsten',['wind','luft','trocken','feucht']]],
+ 'Schweiß bzw. das Wasser im T-Shirt <b>verdunstet</b>. Für das Verdunsten wird <b>viel Energie</b> benötigt. Diese Energie wird der Haut, also dem <b>Körper entzogen</b>, der dadurch <b>abkühlt</b>. Wind verstärkt das Verdunsten, deshalb friert man im Wind besonders. Bei Hitze nutzt der Körper genau diesen Effekt, um seine Temperatur bei etwa 37 °C zu halten.',
+ 'Stichworte: verdunsten, braucht Energie, wird dem Körper entzogen, kühlt ab, Wind.',3);
+
+/* ---------- Welt 3: Wärme-Pfade (Leitung, Konvektion, Strahlung, Fließgleichgewicht) ---------- */
+const UEB=[['Ein Metalllöffel im heißen Tee wird am Stiel heiß',0],['Ein Kupferstab: Die Wachskugeln fallen nacheinander ab',0],['Barfuß fühlen sich Fliesen kälter an als Teppich',0],['Warme Luft steigt über der Kerze auf',1],['Der Golfstrom bringt warmes Wasser nach Europa',1],['Ein Ventilator kühlt durch strömende Luft',1],['Die Heizung erwärmt die Luft im ganzen Raum',1],['Die Sonne erwärmt die Erde durch das leere Weltall',2],['Ein glühender Draht gibt Energie ab, die man auf der Haut spürt',2],['Eine Rettungsdecke reflektiert die Körperwärme zurück',2]];
+const gUeb=()=>sortT('Welche Art der thermischen Energieübertragung ist das?',UEB,5,['Wärmeleitung','Konvektion','Wärmestrahlung'],'<b>Wärmeleitung:</b> im Stoff, ohne dass er strömt (Metalle gut, Gase schlecht).<br><b>Konvektion:</b> strömende Gase oder Flüssigkeiten nehmen Energie mit.<br><b>Wärmestrahlung:</b> elektromagnetische Strahlung, braucht keine Materie.');
+const MC_U=[
+ {q:'In welche Richtung wird Energie von selbst thermisch übertragen?',c:['Vom wärmeren zum kälteren Körper','Vom kälteren zum wärmeren Körper','In beide Richtungen gleich','Nur nach oben'],e:'Von selbst immer <b>von warm nach kalt</b>. Antrieb ist der Temperaturunterschied.'},
+ {q:'Welche Art der Energieübertragung funktioniert auch im Vakuum?',c:['Wärmestrahlung','Wärmeleitung','Konvektion','Keine'],e:'Strahlung braucht <b>keine Materie</b>, so kommt die Sonnenenergie zu uns.'},
+ {q:'Warum friert man in kaltem Wasser schnell, obwohl Wasser ein schlechter Wärmeleiter ist?',c:['Durch Konvektion wird das erwärmte Wasser ständig durch kaltes ersetzt','Weil Wasser Kälte abstrahlt','Weil Wasser ein guter Wärmeleiter ist','Weil die Haut nass wird'],e:'Die Strömung (<b>Konvektion</b>) transportiert die Energie ab, viel besser als Luft.'},
+ {q:'Was versteht man unter einem Fließgleichgewicht?',c:['Ein Körper gibt genauso viel Energie ab, wie er aufnimmt, die Energie im Körper bleibt konstant','Ein Fluss fließt gleichmäßig','Energie geht nur in eine Richtung','Ein Körper nimmt keine Energie auf'],e:'Aufnahme = Abgabe → <b>konstante Temperatur</b>, z. B. unser Körper bei 37 °C.'},
+ {q:'Warum ist eine Doppelglasscheibe besser als eine dicke Einzelscheibe?',c:['Die Luft- bzw. Gasschicht dazwischen leitet Wärme sehr schlecht','Weil Glas Wärme besonders gut leitet','Weil sie mehr Licht reinlässt','Ist sie nicht'],e:'Gase sind <b>schlechte Wärmeleiter</b>. Moderne Fenster haben eine Edelgasfüllung und eine reflektierende Schicht gegen Wärmestrahlung.'},
+ {q:'Wie viel seiner Energie gibt der ruhig sitzende Mensch etwa durch Wärmestrahlung ab?',c:['etwa 50 %','etwa 5 %','etwa 90 %','gar nichts'],e:'Rund <b>die Hälfte</b>, deshalb hilft die Rettungsdecke so gut.'},
+ {q:'Warum messen Wetterstationen die Temperatur immer im Schatten?',c:['In der Sonne würde die Strahlung das Thermometer zusätzlich erwärmen','Weil es im Schatten genauer regnet','Damit niemand das Thermometer klaut','Das ist Zufall'],e:'Sonst würde man die <b>Strahlung</b> mitmessen statt der Lufttemperatur.'},
+ {q:'Was passiert, wenn man der Modell-Dose „Kleidung“ anzieht?',c:['Im Fließgleichgewicht stellt sich eine höhere Temperatur ein','Die Temperatur sinkt','Die Dose nimmt keine Energie mehr auf','Nichts'],e:'Die Energieabgabe wird gehemmt, die enthaltene Energie im Gleichgewicht ist <b>größer</b>.'}];
+const gUebCloze=()=>clozeT(CL_HINT,'Metalle sind [gute] Wärmeleiter, Gase sind [schlechte] Wärmeleiter. Bei der [Konvektion] führen strömende Gase oder Flüssigkeiten Energie mit sich. Wärmestrahlung ist [elektromagnetische] Strahlung und braucht keine Materie.',['akustische','Leitung','gleiche'],'');
+const wrU=()=>writeT('<b>Erläutere</b> am Beispiel der Thermosflasche, wie Wärmeleitung, Konvektion und Wärmestrahlung verhindert werden.',
+ [['Vakuum verhindert Wärmeleitung',['vakuum']],['Vakuum/Verschluss verhindert Konvektion',['konvektion','verschluss']],['Verspiegelte Innenfläche reflektiert die Wärmestrahlung',['spiegel','reflekt']],['Kork/Kunststoff sind schlechte Wärmeleiter',['kork','kunststoff','schlecht']]],
+ 'Zwischen den beiden Glaswänden ist ein <b>Vakuum</b>. Ohne Teilchen gibt es dort weder <b>Wärmeleitung</b> noch <b>Konvektion</b>. Die Glaswände sind <b>verspiegelt</b> und reflektieren die <b>Wärmestrahlung</b> zurück ins Innere. Der <b>Verschluss</b> aus Kunststoff verhindert, dass warme Luft nach oben entweicht (Konvektion). Kork und Kunststoff an den Auflagestellen sind <b>schlechte Wärmeleiter</b>.',
+ 'Für jede der drei Übertragungsarten ein Bauteil nennen.',3);
+
+/* ---------- Welt 4: Sonnen-Wüste (Strahlung, Solarkonstante, Stefan-Boltzmann, Treibhaus) ---------- */
+function gS(){const P=pick([0.7,1.4,2.1,2.8]),a=pick([2,4,5,10]);const A=(a/100)**2;const S=P/A;
+  return num(`Ein geschwärzter Würfel mit <b>${a} cm</b> Kantenlänge nimmt senkrecht von der Sonne eine Strahlungsleistung von <b>${de(P,1)} W</b> auf. Wie groß ist die Strahlungsintensität S?`,S,'W/m²',
+   `A = (${de(a/100)} m)² = ${de(A,6)} m²<br>S = P / A = ${de(P,1)} W : ${de(A,6)} m² = <b>${de(S,0)} W/m²</b>`,'S = P / A. Achtung: cm in m umrechnen (4 cm = 0,04 m), dann quadrieren.');}
+function gSA(){const A=pick([2,4,5,10,20]);const S=pick([500,800,1000]);
+  return num(`Ein Solarkollektor hat <b>${A} m²</b> Fläche. Die Sonne strahlt mit <b>${S} W/m²</b> senkrecht darauf. Welche Strahlungsleistung trifft auf den Kollektor?`,A*S,'W',`P = S · A = ${S} W/m² · ${A} m² = <b>${de(A*S,0)} W</b>`,'S = P / A nach P umstellen: P = S · A');}
+function gT4(){const f=pick([2,3]);return num(`Die absolute Temperatur eines Körpers wird ver-${f===2?'doppelt':'dreifacht'}. Um welchen Faktor steigt die abgestrahlte Leistung (Stefan-Boltzmann)?`,Math.pow(f,4),'-fach',`S = σ · T⁴ → Faktor ${f}⁴ = <b>${Math.pow(f,4)}</b>`,'P ~ T⁴: den Faktor hoch 4 nehmen (Taste ^).',{tol:0});}
+const MC_S=[
+ {q:'Wie groß ist die Solarkonstante S<sub>E</sub>?',c:['1370 W/m²','137 W/m²','13 700 W/m²','5,67 W/m²'],e:'Strahlungsintensität der Sonne <b>oberhalb der Atmosphäre: 1370 W/m²</b>.'},
+ {q:'Warum rechnet man bei der Sonneneinstrahlung mit der Querschnittsfläche der Erde (Kreis) statt mit der ganzen Oberfläche?',c:['Die Sonne bestrahlt nur eine Seite, entscheidend ist die Fläche, die sie „sieht“','Weil die Erde eine Scheibe ist','Weil die Atmosphäre den Rest abschirmt','Zufall'],e:'Die Strahlung trifft die Erde wie auf einen <b>Kreis</b> mit dem Erdradius. Abgestrahlt wird aber über die ganze Kugeloberfläche (4πr²).'},
+ {q:'Was sagt das Gesetz von Stefan und Boltzmann?',c:['Je höher die Temperatur, desto mehr wird abgestrahlt: S = σ · T⁴','Energie fließt von kalt nach warm','S = P · A','Die Temperatur der Erde ist konstant 15 °C'],e:'<b>S = σ · T⁴</b> mit σ = 5,67 · 10⁻⁸ W/(m²·K⁴). T in Kelvin!'},
+ {q:'Welche Durchschnittstemperatur hätte die Erde ohne Atmosphäre ungefähr?',c:['−18 °C','+15 °C','0 °C','−273 °C'],e:'Rechnung mit Stefan-Boltzmann: <b>255 K ≈ −18 °C</b>. Wie auf dem Mond.'},
+ {q:'Warum ist es auf der Erde im Mittel etwa +15 °C statt −18 °C?',c:['Die Atmosphäre hemmt die Energieabgabe (natürlicher Treibhauseffekt)','Weil der Erdkern heizt','Weil die Sonne näher ist als beim Mond','Wegen der Ozeane allein'],e:'Der <b>natürliche Treibhauseffekt</b> macht die Erde lebensfreundlich.'},
+ {q:'Wie viel Prozent der Sonnenstrahlung werden von Atmosphäre und Erdoberfläche reflektiert?',c:['etwa 30 %','etwa 70 %','etwa 5 %','100 %'],e:'Rund 30 % gehen direkt zurück ins All, 70 % werden aufgenommen.'},
+ {q:'Was bedeutet Strahlungsgleichgewicht der Erde?',c:['Die Erde gibt genauso viel Energie ins Weltall ab, wie sie von der Sonne aufnimmt','Die Erde nimmt keine Energie auf','Die Sonne strahlt gleichmäßig','Tag und Nacht sind gleich lang'],e:'Aufnahme = Abgabe, nur durch <b>Strahlung</b>, weil im Weltall nichts leitet.'},
+ {q:'Was bewirkt ein Temperaturanstieg um 19 % bei der Abstrahlung?',c:['Die abgestrahlte Leistung verdoppelt sich','Sie steigt um 19 %','Sie halbiert sich','Nichts'],e:'1,19⁴ ≈ 2: Wegen <b>P ~ T⁴</b> wirkt sich ein kleiner Temperaturanstieg stark aus.'}];
+const ORDER_TH=['Sonnenstrahlung (sichtbares Licht) kommt durch die Atmosphäre','Die Erdoberfläche absorbiert die Strahlung und erwärmt sich','Die Erdoberfläche strahlt Infrarotstrahlung ab','Treibhausgase in der Atmosphäre absorbieren die Infrarotstrahlung','Die Atmosphäre strahlt einen Teil zurück zur Erdoberfläche, es wird wärmer'];
+const gOrderTH=()=>orderT('<b>Treibhauseffekt:</b> Bring die Schritte in die richtige Reihenfolge.',ORDER_TH);
+const wrS=()=>writeT('<b>Erkläre</b> den natürlichen Treibhauseffekt. Warum ist es auf der Erde wärmer als auf dem Mond (−18 °C), obwohl beide gleich weit von der Sonne entfernt sind?',
+ [['Erde befindet sich im Strahlungsgleichgewicht',['gleichgewicht']],['Erdoberfläche strahlt Infrarot ab',['infrarot','abstrahl','strahlt']],['Atmosphäre absorbiert diese Strahlung',['atmosphaere','absorb']],['Atmosphäre strahlt einen Teil zur Erde zurück',['zurueck']],['Dadurch höhere Temperatur (ca. 15 °C statt −18 °C)',['15','waermer','hoeher']],['Der Mond hat keine Atmosphäre',['mond','keine atmosph']]],
+ 'Die Erde nimmt Energie von der Sonne auf und gibt im <b>Strahlungsgleichgewicht</b> genauso viel als <b>Infrarotstrahlung</b> wieder ab. Anders als der Mond hat die Erde eine <b>Atmosphäre</b>. Sie <b>absorbiert</b> einen großen Teil der Infrarotstrahlung der Erdoberfläche und strahlt einen Teil davon <b>zurück zur Erde</b>. So wird die Energieabgabe gehemmt und es stellt sich eine <b>höhere Temperatur</b> ein: etwa +15 °C statt −18 °C. Das nennt man den natürlichen Treibhauseffekt.',
+ 'Stichworte: Strahlungsgleichgewicht, Infrarot, Atmosphäre absorbiert, strahlt zurück, 15 °C statt −18 °C, Mond ohne Atmosphäre.',4);
+
+/* ---------- Welt 5: Klima-Gletscher (anthropogener Treibhauseffekt) ---------- */
+const MC_K=[
+ {q:'Was versteht man unter dem anthropogenen Treibhauseffekt?',c:['Die vom Menschen verursachte Verstärkung des Treibhauseffekts, vor allem durch Verbrennung fossiler Brennstoffe','Den natürlichen Treibhauseffekt','Die Erwärmung durch stärkere Sonnenstrahlung','Die Erwärmung durch Vulkane'],e:'anthropogen = <b>vom Menschen ausgehend</b>. Hauptursache: CO<sub>2</sub> aus Kohle, Öl und Gas.'},
+ {q:'Um wie viel ist die Durchschnittstemperatur der Erde von 1880 bis 2016 gestiegen?',c:['etwa 1,2 K','etwa 12 K','etwa 0,1 K','etwa 5 K'],e:'Rund <b>1,2 K</b>. Klingt wenig, hat aber schon weitreichende Folgen.'},
+ {q:'Woher weiß man, wie warm es vor 400 000 Jahren war?',c:['Aus Eisbohrkernen aus der Antarktis (indirekte Messung)','Aus alten Thermometern','Aus Satellitenbildern','Gar nicht'],e:'Die Zusammensetzung des Eises verrät die Temperatur, eine <b>indirekte Messung</b>.'},
+ {q:'Wo ist der größte Energiespeicher auf der Erdoberfläche?',c:['Die Ozeane','Die Atmosphäre','Die Wälder','Die Gletscher'],e:'Deshalb misst man den <b>„ocean heat content“</b>, die gespeicherte Energie der Ozeane.'},
+ {q:'Was besagt das „Zwei-Grad-Ziel“?',c:['Bis 2100 soll die Durchschnittstemperatur höchstens um 2,0 K gegenüber vorindustrieller Zeit steigen','Es soll um 2 Grad kälter werden','Jedes Jahr darf es 2 Grad wärmer werden','Heizungen auf 2 Grad stellen'],e:'Davon sind schon <b>1,2 K „aufgebraucht“</b>. Erreichbar praktisch nur mit Szenario RCP 2.6.'},
+ {q:'Was bedeutet das Szenario RCP 8.5?',c:['Die Welt wirtschaftet weiter wie bisher, die Temperatur steigt um weitere ca. 3,6 K','Alle Emissionen werden sofort gestoppt','Die Temperatur sinkt','Das Zwei-Grad-Ziel wird erreicht'],e:'„Weiter so“ → etwa <b>+3,6 K</b> zusätzlich bis 2100.'},
+ {q:'Warum steigt der Meeresspiegel durch schmelzendes Meereis kaum, durch schmelzende Gletscher aber schon?',c:['Meereis schwimmt schon im Wasser, Gletscher-Eis liegt an Land und kommt neu hinzu','Weil Meereis salzig ist','Weil Gletscher wärmer sind','Er steigt in beiden Fällen gleich'],e:'Das zeigt der Versuch mit den zwei Bechergläsern: Eis auf dem Stein (Land) erhöht den Wasserstand, schwimmendes Eis kaum.'},
+ {q:'Wie können Klimamodelle beweisen, dass der Mensch die Erwärmung verursacht?',c:['Ohne den menschlichen Einfluss berechnet, zeigen sie keine Erwärmung, mit ihm stimmen sie mit den Messwerten überein','Gar nicht','Weil Computer immer recht haben','Durch Umfragen'],e:'Man kann den Menschen im Modell <b>„ausschalten“</b>. Dann gäbe es die globale Erwärmung nicht.'},
+ {q:'Wie prüft man, ob ein Klimamodell geeignet ist?',c:['Man lässt es die Vergangenheit (z. B. 1900 bis heute) berechnen und vergleicht mit gemessenen Werten','Man glaubt einfach daran','Man fragt Politiker','Man wartet bis 2100'],e:'Stimmt das Modell mit den Messwerten der Vergangenheit überein, ist es vertrauenswürdiger.'}];
+const FOLG=[['Meeresspiegel stieg um ca. 24 cm',0],['Mehr und stärkere Wirbelstürme',0],['Hitzewelle 2003 mit etwa 70 000 Toten in Europa',0],['Arktisches Meereis 2012 nur noch halb so groß wie 1979',0],['Mehr Verbrennung von Kohle, Öl und Gas',1],['Abholzen von Wäldern',1],['Bevölkerungswachstum und Industrialisierung',1],['Mehr CO<sub>2</sub> in der Atmosphäre',1]];
+const gFolg=()=>sortT('Ursache oder Folge der globalen Erwärmung?',FOLG,5,['Folge','Ursache'],'Ursachen: Verbrennung fossiler Brennstoffe, Abholzung, Industrialisierung → mehr CO<sub>2</sub>. Folgen: Meeresspiegel, Extremwetter, Eisschmelze, Hitzewellen.');
+const TF_K=[['Die Sonneneinstrahlung ist im Zeitraum der Erwärmung bis auf kleine Schwankungen konstant geblieben.',true,'Richtig, die Sonne ist also nicht die Ursache.'],['Am Ende der letzten Eiszeit stieg die Temperatur um 5 K, allerdings über etwa 5000 Jahre.',true,'Richtig. Heute geht es viel schneller: bis 2100 sind es nur etwa 80 Jahre.'],['Kalte Winter in Europa beweisen, dass es keinen Klimawandel gibt.',false,'Falsch: Klima ist der Durchschnitt über lange Zeit und die ganze Erde, nicht ein einzelner Winter.'],['CO<sub>2</sub> absorbiert Infrarotstrahlung sehr gut.',true,'Richtig, das zeigt der Absorptionsversuch mit dem Gasrohr.'],['Weil im Meer mehr CO<sub>2</sub> gelöst ist, werden die Ozeane saurer.',true,'Richtig. Darunter leiden Tiere mit Kalkschalen wie die „sea butterfly“.']];
+const wrK=()=>writeT('<b>Erläutere</b> Ursachen und Folgen des anthropogenen Treibhauseffekts.',
+ [['Verbrennung fossiler Energieträger (Kohle, Öl, Gas)',['fossil','kohle','oel','gas','verbrenn']],['Dabei entsteht CO₂ (Treibhausgas)',['co2','co₂','kohlenstoffdioxid','treibhausgas']],['Treibhausgase absorbieren Infrarotstrahlung, verstärken den Treibhauseffekt',['infrarot','absorb','verstaerk']],['Globale Erwärmung (ca. 1,2 K seit 1880)',['erwaerm','1,2','temperatur']],['Folge: Eisschmelze/Meeresspiegelanstieg',['meeresspiegel','eis','schmelz','gletscher']],['Folge: Extremwetter, Wirbelstürme, Hitzewellen',['sturm','wetter','hitze','hurrikan']]],
+ 'Der Mensch verbrennt <b>fossile Energieträger</b> wie Kohle, Öl und Gas und holzt Wälder ab. Dabei gelangt viel <b>CO<sub>2</sub></b> in die Atmosphäre. Treibhausgase <b>absorbieren Infrarotstrahlung</b> sehr gut und <b>verstärken</b> so den natürlichen Treibhauseffekt. Die Durchschnittstemperatur ist seit 1880 um etwa <b>1,2 K gestiegen</b>. Folgen: Eis schmilzt, der <b>Meeresspiegel</b> stieg um etwa 24 cm, es gibt mehr <b>Extremwetter</b> wie Wirbelstürme und Hitzewellen, die Ozeane werden saurer.',
+ 'Erst Ursachen (fossil, CO₂, Infrarot), dann Folgen (Erwärmung, Meeresspiegel, Extremwetter).',4);
+
+/* ---------- Welt 6: Einbahnstraßen-Schlucht (irreversibel, Entropie) ---------- */
+const REV=[['Eine Tasse heißer Kaffee kühlt ab',0],['Ein Radfahrer bremst aus voller Fahrt',0],['Eine Glühlampe am Akku leuchtet, bis er leer ist',0],['Eine Tasse fällt herunter und zerbricht',0],['Ein Würfelzucker löst sich im Tee auf',0],['Ein Pendel ohne Reibung schwingt hin und her (idealisiert)',1],['Ein Flummi ohne Luftwiderstand und Verformung springt immer gleich hoch (idealisiert)',1],['Ein Elektromotor hebt eine Last, ein Generator holt die Energie zurück (idealisiert)',1]];
+const gRev=()=>sortT('Irreversibel oder (annähernd) reversibel?',REV,5,['irreversibel','reversibel'],'Fast alle realen Vorgänge sind <b>irreversibel</b>, weil Reibung, unelastische Verformung oder elektrischer Widerstand Energie entwerten. Reversibel sind nur idealisierte Vorgänge.');
+function gEntro(){const m=pick([5,10,20,50]);const E=0.33*m*1000;const S=E/273;
+  return num(`Ein Eiswürfel (<b>${m} g</b>, 0 °C = 273 K) schmilzt. Er nimmt dabei ${de(0.33*m,2)} kJ = ${de(E,0)} J auf. Um wie viel nimmt seine Entropie zu?`,S,'J/K',`ΔS = ΔE / T = ${de(E,0)} J : 273 K = <b>${de(S,1)} J/K</b>`,'ΔS = ΔE / T, T in Kelvin, ΔE in Joule.',{tol:0.03});}
+const MC_E=[
+ {q:'Was bedeutet „irreversibel“?',c:['Ein Vorgang läuft niemals von selbst rückwärts ab','Ein Vorgang läuft besonders schnell','Ein Vorgang ist umkehrbar','Ein Vorgang braucht keine Energie'],e:'irreversibel = <b>unumkehrbar</b>. Die übertragene Energie wird dabei entwertet.'},
+ {q:'Was heißt „Energie wird entwertet“?',c:['Energie wird irreversibel übertragen, sie geht nicht verloren, ist aber kaum noch nutzbar','Energie verschwindet','Energie wird teurer','Energie wird erzeugt'],e:'Energie bleibt erhalten, landet aber z. B. als Wärme in der Umgebung und ist <b>nicht mehr nutzbar</b>.'},
+ {q:'Was ist ein abgeschlossenes System?',c:['Ein System, das keine Energie mit der Umgebung austauschen kann','Ein System, das ständig Energie aufnimmt','Ein offener Kühlschrank','Ein System ohne Teilchen'],e:'In einem abgeschlossenen System kann ein abgelaufener irreversibler Vorgang <b>nicht rückgängig</b> gemacht werden.'},
+ {q:'Welche Hauptregel gilt für die Entropie?',c:['Es laufen nur Vorgänge ab, bei denen die Entropie größer wird oder gleich bleibt','Die Entropie nimmt immer ab','Die Entropie ist immer null','Entropie kann man vernichten'],e:'Bei jedem <b>irreversiblen</b> Vorgang wird Entropie <b>erzeugt</b>.'},
+ {q:'Wann enthält ein Körper mehr Entropie?',c:['Je höher seine Temperatur ist (mehr ungeordnete Teilchenbewegung)','Je kälter er ist','Je kleiner er ist','Entropie hängt nicht vom Körper ab'],e:'Man kann sich Entropie als <b>Unordnung</b> vorstellen.'},
+ {q:'Wozu braucht ein Kohlekraftwerk einen Kühlturm?',c:['Um überschüssige Entropie (als Wärme) an die Umgebung abzugeben','Weil zu viel Kohle verbrannt wird','Zur Dekoration','Um Strom zu speichern'],e:'Ohne Abgabe an die kalte Umgebung könnte die Turbine nicht laufen. Der Kühlturm gibt die <b>überschüssige Entropie</b> ab.'},
+ {q:'Wie kann man einen abgelaufenen irreversiblen Vorgang trotzdem rückgängig machen?',c:['Durch einen Eingriff von außen, z. B. Kugel wieder hochheben','Gar nicht, niemals','Durch Abwarten','Durch Kühlen des ganzen Universums'],e:'Durch Eingriffe von außen, also <b>kein abgeschlossenes System</b> mehr.'},
+ {q:'Was treibt den Trinkvogel an?',c:['Das Verdunsten von Wasser am Kopf, ein irreversibler Vorgang','Ein Perpetuum mobile','Eine Batterie','Nichts, er bewegt sich von selbst ewig'],e:'Er braucht das <b>Verdunsten</b>. Ohne Wasser bleibt er stehen.'}];
+const wrE=()=>writeT('<b>Erkläre</b> am Beispiel einer abkühlenden Tasse Tee, warum dieser Vorgang irreversibel ist und was dabei mit der Entropie passiert.',
+ [['Energie geht vom heißen Tee zur kalten Umgebung über',['umgebung','warm nach kalt','kalt']],['Von selbst läuft es nie rückwärts (Tee erwärmt sich nicht von selbst wieder)',['nie','nicht von selbst','rueckwaerts','umgekehrt']],['Entropie des Tees nimmt ab',['tee','abnimmt','nimmt ab']],['Entropie der Umgebung nimmt stärker zu',['umgebung','zunimmt','groesser']],['Insgesamt wird Entropie erzeugt',['erzeugt','insgesamt']]],
+ 'Energie wird von selbst vom <b>heißen Tee zur kalten Umgebung</b> übertragen, niemals umgekehrt. Der Vorgang läuft <b>nicht von selbst rückwärts</b> ab, er ist irreversibel. Die Entropie des Tees <b>nimmt ab</b>, die der kalten Umgebung nimmt aber um einen <b>größeren Betrag zu</b>. Insgesamt wird also <b>Entropie erzeugt</b>. Der umgekehrte Vorgang würde die Entropie verringern und ist deshalb unmöglich.',
+ 'Stichworte: warm → kalt, nie rückwärts, Entropie Tee ab, Umgebung mehr zu, insgesamt erzeugt.',3);
+
+/* ---------- Welt 7: Maschinen-Vulkan (thermische Maschinen, Wirkungsgrad, Wärmepumpe) ---------- */
+function gEta(){
+  const sets=[[900,30],[600,100],[1600,650],[550,50],[400,20],[300,30]];const [t1,t2]=pick(sets);const T1=t1+273,T2=t2+273;const e=(1-T2/T1)*100;
+  return num(`Eine thermische Maschine arbeitet zwischen <b>${t1} °C</b> (heiß) und <b>${t2} °C</b> (kalt). Wie groß ist ihr theoretisch größtmöglicher Wirkungsgrad?`,e,'%',
+   `T₁ = ${t1} + 273 = ${T1} K, T₂ = ${t2} + 273 = ${T2} K<br>η<sub>ideal</sub> = 1 − T₂/T₁ = 1 − ${T2}/${T1} = <b>${de(e,0)} %</b>`,'Erst beide Temperaturen in Kelvin umrechnen! Dann η = 1 − T₂/T₁ und mal 100 für Prozent.',{tol:0.02});}
+function gEtaReal(){const zu=pick([100,200,500,1000]),p=pick([18,25,35,40,45]);const ab=zu*p/100;
+  return num(`Einer Maschine werden <b>${zu} kJ</b> thermisch zugeführt, sie gibt <b>${de(ab,0)} kJ</b> mechanisch ab. Wie groß ist der Wirkungsgrad?`,p,'%',`η = ΔE<sub>mech,ab</sub> / ΔE<sub>therm,zu</sub> = ${de(ab,0)} : ${zu} = <b>${p} %</b>. Die restlichen ${100-p} % gehen als Abwärme an die Umgebung.`,'η = nutzbare Energie / zugeführte Energie, mal 100.',{tol:0.01});}
+function gLz(){const e=pick([1,2,5,10]),f=pick([3,4,5]);
+  return num(`Eine Wärmepumpe bekommt <b>${e} kJ</b> elektrische Energie zugeführt und gibt <b>${e*f} kJ</b> thermische Energie im Haus ab. Wie groß ist ihre Leistungszahl?`,f,'',`Leistungszahl = thermisch genutzte Energie / elektrisch zugeführte Energie = ${e*f} : ${e} = <b>${f}</b>`,'Leistungszahl = abgegebene thermische Energie geteilt durch zugeführte elektrische Energie.',{tol:0});}
+const ORDER_ST=['Expansion: Die heiße Luft dehnt sich aus und drückt den Kolben nach oben','Abkühlung: Der Verdränger schiebt die heiße Luft zur Abkühlung nach oben','Kompression: Die kalte Luft wird vom Kolben zusammengepresst','Erwärmung: Der Verdränger schiebt die kalte Luft zur Erwärmung nach unten'];
+const ORDER_OT=['Ansaugen: Luft wird angesaugt','Verdichten: Benzin wird eingespritzt, das Gemisch wird komprimiert','Arbeiten: Das Gemisch wird gezündet, der Kolben wird nach unten gestoßen','Ausstoßen: Die Verbrennungsgase werden ausgestoßen'];
+const gOrderSt=()=>pick([()=>orderT('<b>Heißluftmotor (Stirlingmotor):</b> Bring die vier Takte in die richtige Reihenfolge.',ORDER_ST),()=>orderT('<b>Benzinmotor:</b> Bring die vier Takte in die richtige Reihenfolge.',ORDER_OT)])();
+const ORDER_KS=['Im Inneren verdampft das Butan bei niedrigem Druck und nimmt Energie auf','Der Kompressor verdichtet das Gas, der Druck steigt','Außen an der Rückwand kondensiert das Butan und gibt Energie an die Umgebung ab','Durch die Drossel sinkt der Druck wieder, der Kreislauf beginnt von vorn'];
+const gOrderKS=()=>orderT('<b>Kühlschrank:</b> Bring den Kreislauf in die richtige Reihenfolge.',ORDER_KS);
+const MC_M=[
+ {q:'Was treibt eine thermische Maschine an?',c:['Der von selbst ablaufende Vorgang der thermischen Energieübertragung von heiß nach kalt','Elektrischer Strom','Magnetismus','Ein Perpetuum mobile'],e:'Ohne Temperaturunterschied läuft keine thermische Maschine.'},
+ {q:'Warum kann eine thermische Maschine nie 100 % Wirkungsgrad haben?',c:['Sie muss einen Teil der Energie als Abwärme an das kalte System abgeben','Weil sie schlecht gebaut ist','Wegen der Farbe','Sie kann es, wenn man sie ölt'],e:'Das gilt <b>prinzipiell</b>: η ≤ 1 − T₂/T₁, und in Wirklichkeit ist er noch kleiner.'},
+ {q:'Wie wird ein Heißluftmotor schneller?',c:['Die heiße Platte stärker heizen oder die kalte Platte stärker kühlen','Gar nicht','Langsamer drehen','Beide Platten gleich warm machen'],e:'Je größer der <b>Temperaturunterschied</b>, desto besser läuft der Motor.'},
+ {q:'Was ist der Hauptvorteil des Stirlingmotors?',c:['Er kann mit jeder Wärmequelle betrieben werden','Er ist leicht und schnell regelbar','Er braucht Benzin','Er hat 100 % Wirkungsgrad'],e:'Jede Wärmequelle geht, z. B. Sonne. Für Autos ist er aber ungeeignet, weil er schwer und schlecht regelbar ist.'},
+ {q:'Wie gilt die Energiebilanz beim Heißluftmotor?',c:['ΔE<sub>mech</sub> = ΔE<sub>therm,zu</sub> − ΔE<sub>therm,ab</sub>','ΔE<sub>mech</sub> = ΔE<sub>therm,zu</sub> + ΔE<sub>therm,ab</sub>','ΔE<sub>mech</sub> = ΔE<sub>therm,zu</sub>','ΔE<sub>mech</sub> = 0'],e:'Mechanisch abgegeben wird die <b>Differenz</b> aus zugeführter und abgegebener thermischer Energie.'},
+ {q:'Was macht ein Kühlschrank Ungewöhnliches?',c:['Er transportiert Energie vom kalten Innenraum zum warmen Außenraum','Er erzeugt Kälte aus dem Nichts','Er vernichtet Energie','Er kühlt mit Eis'],e:'Das geht nicht von selbst, dafür braucht er den <b>Kompressor</b> mit elektrischer Energie.'},
+ {q:'Was ist der Unterschied zwischen Verbrennungs- und Heißluftmotor?',c:['Beim Verbrennungsmotor wird der Treibstoff im Motor selbst verbrannt, beim Heißluftmotor wird von außen geheizt','Es gibt keinen','Der Heißluftmotor braucht Benzin','Der Verbrennungsmotor hat keinen Kolben'],e:'Verbrennungsmotor: <b>innere</b> Verbrennung, leicht, schnell regelbar, aber spezielle Treibstoffe und Abgase.'},
+ {q:'Wie groß ist die Leistungszahl typischer Wärmepumpen?',c:['etwa 4 bis 5','etwa 0,5','etwa 100','genau 1'],e:'Aus 1 kJ Strom werden etwa <b>4 bis 5 kJ</b> Wärme im Haus, der Rest kommt aus der Umgebung (z. B. Erdsonde).'}];
+const wrM=()=>writeT('<b>Begründe</b>, warum der Wirkungsgrad einer thermischen Maschine immer kleiner als 100 % ist, und wie man ihn verbessern kann.',
+ [['Angetrieben durch Energieübertragung von heiß nach kalt',['heiss','kalt']],['Ein Teil muss als Abwärme an das kalte System/die Umgebung abgegeben werden',['abwaerme','abgegeben','umgebung']],['Nur ein Teil wird mechanisch abgegeben',['mechanisch','teil']],['η_ideal = 1 − T₂/T₁',['1 −','1 -','t2','t₂','formel']],['Verbesserung: größerer Temperaturunterschied (heißer heizen / kälter kühlen)',['temperaturunterschied','unterschied','heisser','kaelter','groesser']]],
+ 'Eine thermische Maschine wird durch die <b>Energieübertragung von einem heißen zu einem kalten System</b> angetrieben. Dabei kann sie nur <b>einen Teil</b> der thermisch zugeführten Energie <b>mechanisch</b> abgeben, der Rest muss als <b>Abwärme</b> an das kalte System (meist die Umgebung) abgegeben werden. Der größtmögliche Wirkungsgrad ist <b>η<sub>ideal</sub> = 1 − T₂/T₁</b> (T in Kelvin). Er wird größer, je <b>größer der Temperaturunterschied</b> ist: heißeres heißes System oder kälteres kaltes System.',
+ 'Stichworte: heiß → kalt, Abwärme, nur ein Teil mechanisch, η = 1 − T₂/T₁, größerer Temperaturunterschied.',3);
+
+/* ---------- Welt 8: Kraftwerks-Insel (Energieversorgung) ---------- */
+function gWind(){const pairs=[[5,10],[6,8],[4,8],[6,12],[3,6],[8,10]];const [a,b]=pick(pairs);const f=Math.pow(b/a,3);
+  return num(`Die Windgeschwindigkeit steigt von <b>${a} m/s</b> auf <b>${b} m/s</b>. Um welchen Faktor steigt die Leistung des Windes?<br><span class="muted">P<sub>Wind</sub> = ½ · ρ · A · v³</span>`,f,'-fach',`P ~ v³ → (${b}/${a})³ = <b>${de(f,2)}</b>-fach`,'Nur v ändert sich: Faktor = (v₂ / v₁)³. Mit ^ rechnen.',{tol:0.02});}
+function gKW(){const zu=pick([1000,2000,2500]),p=pick([35,38,40,60]);const el=zu*p/100;
+  return num(`Ein Kraftwerk setzt pro Stunde <b>${zu} MWh</b> Energie aus Brennstoff ein und gibt <b>${de(el,0)} MWh</b> elektrische Energie ab. Wie groß ist der Wirkungsgrad?`,p,'%',`η = ${de(el,0)} : ${zu} = <b>${p} %</b>`,'η = abgegebene elektrische Energie / eingesetzte Energie · 100',{tol:0.01});}
+const KWE=[['Kohlekraftwerk','35 bis 40 %'],['GuD-Kraftwerk mit Erdgas','etwa 60 %'],['Windkraftanlage (Anteil der Windenergie)','etwa 50 % (theoretisch max. 59 %)'],['Blockheizkraftwerk mit Kraft-Wärme-Kopplung','bis zu 90 % insgesamt genutzt']];
+const gKWE=()=>pairT('Welcher (Gesamt-)Wirkungsgrad gehört zu welcher Anlage?',KWE,4,KWE.map(k=>`<b>${k[0]}:</b> ${k[1]}`).join('<br>'));
+const FOSS=[['Braunkohle',0],['Steinkohle',0],['Erdgas',0],['Erdöl',0],['Wind',1],['Sonne (Fotovoltaik, Solarthermie)',1],['Wasserkraft',1],['Biomasse',1]];
+const gFoss=()=>sortT('Fossil oder regenerativ (erneuerbar)?',FOSS,5,['fossil','regenerativ'],'<b>Fossil:</b> begrenzte Vorräte, CO<sub>2</sub>. <b>Regenerativ:</b> nutzt natürliche, von selbst ablaufende irreversible Vorgänge (Wind, fließendes Wasser, Sonnenstrahlung).');
+const MC_V=[
+ {q:'Warum haben Verbrennungskraftwerke einen relativ geringen Wirkungsgrad?',c:['Turbinen sind thermische Maschinen und müssen viel Abwärme abgeben, außerdem braucht das Kraftwerk selbst Energie','Weil sie zu klein sind','Weil der Generator schlecht ist','Haben sie nicht'],e:'Der Generator hat fast 100 %, aber die <b>Turbine</b> ist prinzipiell begrenzt.'},
+ {q:'Warum erreicht ein GuD-Kraftwerk einen höheren Wirkungsgrad?',c:['Die heißen Abgase der Gasturbine erzeugen noch Dampf für eine Dampfturbine, so nutzt es einen größeren Temperaturunterschied','Weil es Kohle verbrennt','Weil es keine Turbine hat','Weil es Wind nutzt'],e:'Zweistufig: <b>Gas- + Dampfturbine</b>.'},
+ {q:'Warum kann eine Windkraftanlage dem Wind nicht die ganze Energie entnehmen?',c:['Die Luft muss die Anlage auch wieder verlassen, man kann sie nicht ganz abbremsen','Weil die Rotoren zu klein sind','Weil Wind keine Energie hat','Sie kann es doch'],e:'Am besten ist es, wenn der Rotor die Luft auf ein <b>Drittel</b> abbremst: theoretisch 59 %.'},
+ {q:'Was ist Kraft-Wärme-Kopplung?',c:['Die gleichzeitige Nutzung der elektrisch und der thermisch abgegebenen Energie (Abwärme zum Heizen)','Ein Windrad mit Heizung','Eine Batterie','Eine Art Motoröl'],e:'So steigt der genutzte Anteil auf bis zu <b>90 %</b>, z. B. Fernwärme oder Blockheizkraftwerke.'},
+ {q:'Was ist die größte Schwierigkeit bei der Windenergie?',c:['Die Windgeschwindigkeit und damit die Leistung schwanken, man braucht Speicher','Windräder sind zu leise','Wind ist zu teuer','Es gibt zu viel Wind'],e:'Deshalb braucht man <b>Speicher</b> wie Pumpspeicher- oder Druckluftspeicherkraftwerke.'},
+ {q:'Warum ist Kohle als Brennstoff problematischer als Erdgas?',c:['Bei Kohle entsteht für die gleiche Energie etwa dreimal so viel CO<sub>2</sub>','Kohle ist teurer','Kohle brennt nicht','Gas ist unendlich verfügbar'],e:'Etwa <b>dreimal so viel CO<sub>2</sub></b> pro Energiemenge.'},
+ {q:'Was bedeutet nachhaltige Energieversorgung?',c:['Sie kann dauerhaft betrieben werden, ohne die Umwelt ernsthaft zu schädigen','Sie ist besonders billig','Sie nutzt nur Kohle','Sie braucht keine Energie'],e:'Physikalisch: Nutzung von natürlicherweise ablaufenden irreversiblen Vorgängen wie Wind, Wasser, Sonne.'},
+ {q:'Wie spart ein Passivhaus Energie?',c:['Sehr gute Dämmung, Lüftung mit Wärmetauscher, große Südfenster mit Wärmeschutzverglasung','Durch eine besonders große Heizung','Durch offene Fenster im Winter','Durch dunkle Wände innen'],e:'Wenig Abgabe, viel Aufnahme von Sonnenenergie. Das <b>Plusenergiehaus</b> erzeugt sogar mehr Energie, als es braucht.'}];
+const wrV=()=>writeT('<b>Erörtere</b> Vor- und Nachteile der Energieversorgung mit fossilen und mit regenerativen Energieträgern.',
+ [['Fossil: große, gut regelbare Leistung',['leistung','regelbar','zuverlaessig','gross']],['Fossil: CO₂ verstärkt den Treibhauseffekt',['co2','co₂','treibhaus','klima']],['Fossil: Vorräte begrenzt, Wirkungsgrad gering (Abwärme)',['begrenzt','vorraete','abwaerme','wirkungsgrad']],['Regenerativ: dauerhaft verfügbar, kaum CO₂',['dauerhaft','erneuerbar','kein co','sauber','nachhaltig']],['Regenerativ: schwankende Leistung, Speicher nötig',['schwank','speicher','wetter']],['Regenerativ: Auswirkungen wie Lärm, Schattenwurf, viele Anlagen nötig',['laerm','schatten','viele anlagen','landschaft']]],
+ '<b>Fossile Kraftwerke</b> liefern eine große, gut planbare Leistung. Sie stoßen aber viel <b>CO<sub>2</sub></b> aus und verstärken so den anthropogenen Treibhauseffekt. Ihre Vorräte sind <b>begrenzt</b>, und als thermische Maschinen geben sie viel Abwärme ab (Kohle 35–40 %). <b>Regenerative Energien</b> wie Wind, Sonne und Wasser stehen <b>dauerhaft</b> zur Verfügung und verursachen im Betrieb kaum CO<sub>2</sub>. Ihre Leistung <b>schwankt</b> jedoch mit dem Wetter, deshalb braucht man Speicher. Außerdem haben auch sie Auswirkungen, z. B. Lärm und Schattenwurf bei Windkraftanlagen. Eine Lösung zwischendurch sind effizientere Anlagen wie GuD-Kraftwerke oder Kraft-Wärme-Kopplung.',
+ 'Je Seite mindestens einen Vorteil und einen Nachteil, am Ende eine Abwägung.',4);
+
+/* ============ Welten ============ */
+const W=[
+ {id:'tundra',name:'Frost-Tundra',icon:'❄️',topic:'Temperatur und Ausdehnung · Teilchenmodell · absoluter Nullpunkt · Kelvin',build:()=>shuffle([gKelvin(),gKelvin(),gAgg(),poolMC(pick(MC_T)),tfT(...pick(TF_T))]).concat([wrT()])},
+ {id:'schmelz',name:'Schmelz-Höhle',icon:'🧊',topic:'Spezifische Wärmekapazität · Schmelzen und Verdampfen · Siedepunkt und Druck',build:()=>shuffle([gCap(),pick([gMelt,gCapRate])(),gCapCloze(),poolMC(pick(MC_W)),poolMC(pick(MC_W))]).concat([wrW()])},
+ {id:'pfade',name:'Wärme-Pfade',icon:'🔥',topic:'Wärmeleitung · Konvektion · Wärmestrahlung · Fließgleichgewicht',build:()=>shuffle([gUeb(),gTap(),gUebCloze(),poolMC(pick(MC_U)),poolMC(pick(MC_U))]).concat([wrU()])},
+ {id:'wueste',name:'Sonnen-Wüste',icon:'☀️',topic:'Strahlungsintensität · Solarkonstante · Stefan-Boltzmann · Energiehaushalt der Erde · Treibhauseffekt',build:()=>shuffle([pick([gS,gSA])(),gT4(),gOrderTH(),poolMC(pick(MC_S)),poolMC(pick(MC_S))]).concat([wrS()])},
+ {id:'gletscher',name:'Klima-Gletscher',icon:'🏔️',topic:'Anthropogener Treibhauseffekt · Klimamodelle · Zwei-Grad-Ziel · Meeresspiegel',build:()=>shuffle([gFolg(),poolMC(pick(MC_K)),poolMC(pick(MC_K)),tfT(...pick(TF_K)),poolMC(pick(MC_K))]).concat([wrK()])},
+ {id:'schlucht',name:'Einbahnstraßen-Schlucht',icon:'↪️',topic:'Irreversible Vorgänge · abgeschlossenes System · Entropie',build:()=>shuffle([gRev(),gEntro(),poolMC(pick(MC_E)),poolMC(pick(MC_E)),poolMC(pick(MC_E))]).concat([wrE()])},
+ {id:'vulkan',name:'Maschinen-Vulkan',icon:'🌋',topic:'Thermische Maschinen · Stirlingmotor · Wirkungsgrad · Kühlschrank und Wärmepumpe',build:()=>shuffle([gEta(),pick([gEtaReal,gLz])(),gOrderSt(),gOrderKS(),poolMC(pick(MC_M))]).concat([wrM()])},
+ {id:'insel',name:'Kraftwerks-Insel',icon:'⚡',topic:'Kraftwerke · Windenergie · Kraft-Wärme-Kopplung · nachhaltige Energieversorgung',build:()=>shuffle([gWind(),gKW(),gKWE(),gFoss(),poolMC(pick(MC_V))]).concat([wrV()])}
+];
+function bossBuild(){
+  const g=[[gKelvin,'tundra'],[gCap,'schmelz'],[gUeb,'pfade'],[gTap,'pfade'],[gS,'wueste'],[()=>poolMC(pick(MC_S)),'wueste'],[gFolg,'gletscher'],[gRev,'schlucht'],[gEta,'vulkan'],[gOrderSt,'vulkan'],[gWind,'insel'],[gFoss,'insel']];
+  return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
+}
+
+/* ============ Ränge & Erfolge ============ */
+const H=window.LernHub, APP='nwt-waermelehre';
+/* Rang gilt nur in dieser App – jede Lern-App startet wieder bei Holz */
+const RANKS=[['Holz',0,'#a0703c'],['Stein',250,'#8a8a8a'],['Kupfer',600,'#d07a45'],['Eisen',1200,'#d8d8d8'],['Gold',2000,'#f2c94c'],['Diamant',3200,'#4ee6e0'],['Netherit',4500,'#4d4246']];
+function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
+const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
+const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
+const K=k=>S.stats['k_'+k]||0;
+const ACH=[
+ ['first','🌡️','Erste Messung','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
+ ['tundra','❄️','Frostfest','Frost-Tundra mit 3 Sternen.',()=>(S.stars.tundra||0)>=3],
+ ['schmelz','🧊','Eisbrecher','Schmelz-Höhle mit 3 Sternen.',()=>(S.stars.schmelz||0)>=3],
+ ['pfade','🔥','Pfadfinder','Wärme-Pfade mit 3 Sternen.',()=>(S.stars.pfade||0)>=3],
+ ['wueste','☀️','Sonnenanbeter','Sonnen-Wüste geschafft (mind. 1 Stern).',()=>(S.stars.wueste||0)>=1],
+ ['gletscher','🏔️','Klimaforscher','Klima-Gletscher geschafft (mind. 1 Stern).',()=>(S.stars.gletscher||0)>=1],
+ ['schlucht','↪️','Kein Zurück','Einbahnstraßen-Schlucht mit 3 Sternen.',()=>(S.stars.schlucht||0)>=3],
+ ['vulkan','🌋','Maschinist','Maschinen-Vulkan geschafft (mind. 1 Stern).',()=>(S.stars.vulkan||0)>=1],
+ ['insel','⚡','Energiewender','Kraftwerks-Insel mit 3 Sternen.',()=>(S.stars.insel||0)>=3],
+ ['calc5','🧮','Formel-Profi','5 Rechenaufgaben richtig.',()=>K('num')>=5],
+ ['calc20','📐','Rechenkünstler','20 Rechenaufgaben richtig.',()=>K('num')>=20],
+ ['tap','🧴','Thermos-Kenner','3 Schaubild-Aufgaben richtig.',()=>K('tap')>=3],
+ ['order5','🔢','Ordnung muss sein','5 Reihenfolgen richtig sortiert.',()=>K('order')>=5],
+ ['match10','🔗','Zuordnungs-Profi','10 Zuordnungsaufgaben richtig.',()=>K('match')>=10],
+ ['write3','✍️','Schreibtalent','3 Schreibaufgaben geschafft.',()=>K('write')>=3],
+ ['write10','📝','Klassenarbeits-ready','10 Schreibaufgaben geschafft.',()=>K('write')>=10],
+ ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
+ ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
+ ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
+ ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
+ ['s12','⭐','Sternensammler','12 Sterne gesammelt.',()=>starsTotal()>=12],
+ ['s24','🌟','Alle Sterne','Alle 24 Sterne gesammelt.',()=>starsTotal()>=24],
+ ['all','🧭','Überlebenskünstler','In jeder Welt mindestens 1 Stern.',()=>worldsDone()>=W.length],
+ ['iron','⛓️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
+ ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
+ ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
+ ['rep','🔁','Wiederholungstäter','Eine Welt 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
+ ['cheat','📜','Gut vorbereitet','Den Lernzettel angeschaut.',()=>S.stats.cheat>=1],
+ ['boss','🛡️','Golem besiegt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
+ ['bossp','👑','Thermisch perfekt','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
+];
+
+/* ============ Spielstand ============ */
+function defState(){return {name:'',xp:0,stars:{},plays:{},ach:{},stats:{correct:0,byWorld:{},bestCombo:0,cheat:0,nohint:0,bossWins:0,bossPerfect:0},streak:{last:'',days:0}};}
+function merge(d,o){for(const k in o){if(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k])&&d[k]&&typeof d[k]==='object')merge(d[k],o[k]);else d[k]=o[k];}return d;}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return merge(defState(),JSON.parse(r));}catch(e){}return defState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function touchStreak(){H.touchStreak();}
+
+/* ============ UI-Grundgerüst ============ */
+const $=s=>document.querySelector(s);
+const view=$('#view');
+function oreStrip(){
+  let h='';for(let i=0;i<40;i++){const f=i/39;
+    const c=f<.4?(i%2?'#bfe6f5':'#9fd3ea'):f<.6?(i%2?'#8a7e74':'#7a6f66'):(i%2?'#e0572b':'#c4502a');
+    const d=f<.4?`<i style="left:10px;top:10px;background:#fff"></i><i style="left:26px;top:26px;background:#e8f7ff"></i>`:f>=.6?`<i style="left:10px;top:12px;background:#ffd68c"></i><i style="left:26px;top:26px;background:#ffb04a"></i>`:'';
+    h+=`<div class="ore" style="background:${c}">${d}</div>`;}
+  $('#ores').innerHTML=h;
+}
+function updateHeader(){
+  const G=H.get(),r=rankIdx(S.xp),cur=RANKS[r],nxt=RANKS[r+1];
+  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${G.name?G.name+' · ':''}${cur[0]}</span>`;
+  const pct=nxt?((S.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
+  $('#xpfill').style.width=Math.min(100,pct)+'%';
+  $('#xptxt').textContent=nxt?`${S.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${S.xp} XP · Höchster Rang!`;
+  $('#streak').textContent=`🔥 ${G.streak.days||0} ${G.streak.days===1?'Tag':'Tage'}`;
+  $('#navach').textContent=`🏆 Erfolge ${H.countApp(APP)}/${ACH.length}`;
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{P=null;go(b.dataset.nav);}));
+function go(v){window.scrollTo(0,0);({map:renderMap,ach:renderAch,sheet:renderSheet,save:renderSave})[v]();}
+
+/* Toasts & Konfetti */
+const tq=[];let tBusy=0;
+function toast(icon,title,name){tq.push([icon,title,name]);if(!tBusy)nextToast();}
+function nextToast(){const t=tq.shift();if(!t){tBusy=0;return;}tBusy=1;const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<div class="ti">${t[0]}</div><div><div class="tt">${t[1]}</div><div class="tn">${t[2]}</div></div>`;$('#toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();nextToast();},400);},2600);}
+function confetti(n){const cols=['#5fbf3a','#f2c94c','#4ee6e0','#e0473a','#3f7be0','#d9813f'];
+  for(let i=0;i<(n||40);i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3800);}}
+function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn])=>{if(!H.has(APP,id)&&fn()){H.unlock(APP,id,ic,name,desc);toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any)confetti(30);updateHeader();}
+H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
+let lastRank=rankIdx(S.xp);
+function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
+function registerApp(){H.registerApp({id:APP,name:'Eis & Feuer',icon:'🌡️',fach:'NWT',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
+
+/* ============ Karte ============ */
+function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
+function renderMap(){
+  const unlocked=worldsDone()>=6;
+  let h='';
+  if(!H.get().name){
+    h+=`<div class="panel"><h2>Willkommen, Überlebender!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
+  }
+  h+=`<div class="panel intro"><h2>NWT Kl. 9 · Wärmelehre</h2>
+  <p>Überlebe vom ewigen Eis bis zum Vulkan! Jede Welt ist ein Kapitel aus dem Buch (S. 6–73). Viele Aufgaben sind <b>Rechenaufgaben mit dem Taschenrechner</b>, die letzte Aufgabe jeder Runde ist eine <b>Schreibaufgabe</b> wie in der Klassenarbeit.</p>
+  <p class="muted">Wenn du in 6 Welten mindestens einen Stern hast, erwacht der Glutfrost-Golem.</p></div>
+  <div class="worlds">`;
+  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">WELT ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🛡️</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Glutfrost-Golem</div><div class="tp">${unlocked?'12 gemischte Aufgaben, 3 Herzen. Hältst du Eis und Feuer stand?':`🔒 Noch ${6-worldsDone()} Welt(en) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  view.innerHTML=h;
+  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
+  $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
+  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){H.setName(v);updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
+}
+
+/* ============ Spiel ============ */
+let P=null;
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:(S.curCombo||0),hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Der Glutfrost-Golem',icon:'🛡️',tasks:bossBuild(),i:0,res:[],combo:(S.curCombo||0),hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function bossSvg(hp){
+  const ice=hp>0?'#9fd3ea':'#666',fire=hp>0?'#ff7a2e':'#777',eye=hp>0?'#fff':'#999';
+  return `<svg width="116" height="116" viewBox="0 0 28 28" shape-rendering="crispEdges">
+   <rect x="6" y="3" width="8" height="19" fill="${ice}"/><rect x="14" y="3" width="8" height="19" fill="${fire}"/>
+   <rect x="6" y="3" width="8" height="2" fill="#e8f7ff"/><rect x="14" y="3" width="8" height="2" fill="#ffd68c"/>
+   <rect x="9" y="8" width="3" height="3" fill="${eye}"/><rect x="16" y="8" width="3" height="3" fill="${eye}"/>
+   <rect x="10" y="15" width="8" height="2" fill="#222"/><rect x="2" y="8" width="4" height="8" fill="${ice}"/><rect x="22" y="8" width="4" height="8" fill="${fire}"/>
+   <rect x="8" y="22" width="4" height="5" fill="${ice}"/><rect x="16" y="22" width="4" height="5" fill="${fire}"/>
+   <rect x="16" y="0" width="2" height="3" fill="${fire}"/><rect x="10" y="1" width="2" height="2" fill="${ice}"/></svg>`;
+}
+function renderTask(){
+  document.onkeydown=null;const t=P.tasks[P.i];P.answered=false;P.usedHint=false;P.taskT=Date.now();
+  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}">${k<P.res.length?(P.res[k]?'🔥':'❄️'):'🌡️'}</span>`;});
+  view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
+   ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
+   ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
+   <div class="panel"><div class="taskhead"><span class="pix">AUFGABE ${P.i+1} / ${P.tasks.length}</span>${t.hint?'<button class="btn small gold" id="hintb">💡 Tipp</button>':''}</div>
+   <div class="q">${t.q}</div><div id="inp"></div><div id="hintbox"></div><div class="fb" id="fb"></div></div>`;
+  $('#quit').onclick=()=>{document.onkeydown=null;logRound(false,null);P=null;renderMap();};
+  if(t.hint)$('#hintb').onclick=()=>{if(P.answered)return;P.usedHint=true;P.hints++;$('#hintbox').innerHTML=`<div class="hintbox">💡 ${t.hint}<br><span class="muted" style="font-size:14px">(Mit Tipp gibt es keinen XP-Bonus.)</span></div>`;$('#hintb').disabled=true;};
+  INPUT[t.kind](t,$('#inp'));
+}
+function parseNum(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');if(s===''||isNaN(+s))return null;return +s;}
+function numOk(v,t){if(v===null)return false;if(t.tol===0)return Math.abs(v-t.ans)<1e-9;const tol=t.tol||0.02;return Math.abs(v-t.ans)<=Math.max(Math.abs(t.ans)*tol,0.005);}
+/* Zehnerpotenz-Eingabe: getrennte Felder ODER alles in einem Feld (6,02*10^23, 6,02·10^23, 6,02x10^23, 6,02e23, 10^-24) */
+function parseSci(mStr,eStr,neg){
+  let s=String(mStr||'').trim().replace(/\s/g,'').replace(/,/g,'.').replace(/[\u2212\u2013\u2014]/g,'-').replace(/[\u00b7\u00d7\u22c5xX*]/g,'*');
+  let m=s.match(/^([-+]?\d*\.?\d+)\*?10\^\(?([-+]?\d+)\)?$/)||s.match(/^([-+]?\d*\.?\d+)[eE]([-+]?\d+)$/);
+  if(m)return (+m[1])*Math.pow(10,+m[2]);
+  m=s.match(/^10\^\(?([-+]?\d+)\)?$/);if(m)return Math.pow(10,+m[1]);
+  const mant=parseNum(s);if(mant===null)return null;
+  const e=String(eStr||'').trim().replace(/\s/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(e===''||isNaN(+e))return null;
+  let ev=+e;if(neg&&ev>0)ev=-ev;
+  return mant*Math.pow(10,ev);
+}
+/* Taschenrechner wie der TI-30X Pro: + − × ÷, Klammern, EE, (–), delete, clear, enter (= ausrechnen), Prüfen */
+/* Taschenrechner wie der TI-30X Pro: Ziffern, Punkt, (–), EE, + − × ÷, Klammern, delete, clear, enter (= ausrechnen) */
+function calcEval(str){
+  // str: Zahlen mit Punkt, e für EE, ~ für Vorzeichen (–), Operatoren + - * /, Klammern
+  let i=0;const s=str;
+  function peek(){return s[i];}
+  function num(){const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e~?\d+)?/);if(!m)throw 0;i+=m[0].length;return parseFloat(m[0].replace('~','-'));}
+  function primary(){const c=peek();
+    if(c==='('){i++;const v=expr();if(peek()===')')i++;return v;}  // fehlende ")" am Ende wie beim TI ergänzen
+    return num();}
+  function factor(){if(peek()==='~'){i++;return -factor();}const b=primary();if(peek()==='^'){i++;return Math.pow(b,factor());}return b;}
+  function term(){let v=factor();while(peek()==='*'||peek()==='/'){const o=s[i++];const w=factor();v=o==='*'?v*w:v/w;}return v;}
+  function expr(){let v=term();while(peek()==='+'||peek()==='-'){const o=s[i++];const w=term();v=o==='+'?v+w:v-w;}return v;}
+  try{const v=expr();if(i!==s.length||!isFinite(v))return null;return v;}catch(e){return null;}
+}
+function calcFmt(v){if(v===0)return '0';const a=Math.abs(v);
+  if(a>=1e10||a<1e-4){let e=Math.floor(Math.log10(a));let m=v/Math.pow(10,e);m=Math.round(m*1e6)/1e6;if(Math.abs(m)>=10){m/=10;e++;}return {m:String(m),e};}
+  return {m:String(Math.round(v*1e9)/1e9),e:null};}
+function calcPad(t,el,isSci,check){
+  let tok=[],ans=null,done=false;
+  const OP={'+':'+','-':'−','*':'×','/':'÷','^':'^'};
+  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 · <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>2 × 56 + 3 × 16</b>, dann <b>enter</b>';
+  const keys=[['del','delete','fn'],['ac','clear','fn'],['^','^','op'],['sq','x²','op'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
+  el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
+    <div class="ckeys">${keys.map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <button type="button" class="btn green" id="calcok" style="width:100%;margin-top:10px;font-size:20px">✔ Ergebnis prüfen</button>
+    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>, Hochzahlen mit <b>^</b> (z. B. 2^15).</div>
+    <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
+  const cd=$('#cd');
+  const isOp=x=>x in OP;
+  function toStr(){return tok.map(x=>x==='E'?'e':x==='neg'?'~':x).join('');}
+  function draw(){
+    const line=tok.map(x=>x==='E'?'<span class="ce">E</span>':x==='neg'?'<span class="cneg">-</span>':isOp(x)?`<span class="cop">${OP[x]}</span>`:x).join('');
+    let res='';if(done&&ans!==null){const f=calcFmt(ans);res=f.m.replace('-','<span class="cneg">-</span>')+(f.e!==null?`<span class="ce">E</span>${f.e<0?'<span class="cneg">-</span>':''}${Math.abs(f.e)}`:'');}
+    cd.innerHTML=`<div class="cline">${line}${done?'':'<span class="cur"></span>'}</div><div class="cres">${res}<span class="cunit">${t.unit}</span></div>`;
+  }
+  function compute(){const v=calcEval(toStr());if(v===null){msg('Die Rechnung ist so nicht vollständig, prüfe Klammern und Rechenzeichen.');return false;}ans=v;done=true;return true;}
+  function msg(m){const x=$('#scimsg');x.style.display='block';x.innerHTML=m;}
+  function press(k){
+    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
+    if(done&&k!=='enter'&&k!=='del'&&k!=='ac'){
+      if(isOp(k)){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}
+      else tok=[];
+      done=false;
+    }
+    const last=tok[tok.length-1];
+    if(/^[0-9]$/.test(k)){if(last===')')tok.push('*');tok.push(k);}
+    else if(k==='.'){if(last===')')tok.push('*');tok.push('.');}
+    else if(k==='neg'){tok.push('neg');}
+    else if(k==='exp'){if(!last||isOp(last)||last==='('||last==='neg')tok.push('1');tok.push('E');}
+    else if(isOp(k)){if(!tok.length&&ans!==null){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}const l2=tok[tok.length-1];if(l2&&isOp(l2))tok[tok.length-1]=k;else if(tok.length)tok.push(k);}
+    else if(k==='sq'){if(last&&/[0-9.)]/.test(last)){tok.push('^','2');}}
+    else if(k==='('){if(last&&(/[0-9.)]/.test(last)))tok.push('*');tok.push('(');}
+    else if(k===')'){tok.push(')');}
+    else if(k==='del'){if(done){done=false;}else tok.pop();}
+    else if(k==='ac'){tok=[];done=false;ans=null;}
+    else if(k==='enter'){if(!tok.length)return;if(done){submit();return;}compute();}
+    draw();
+  }
+  function submit(){
+    if(!P||P.answered)return;
+    if(!done){if(!tok.length){msg('Bitte zuerst eine Zahl oder Rechnung eintippen.');return;}if(!compute())return;draw();}
+    document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);$('#calcok').disabled=true;
+    const [ok,extra]=check(ans);answer(ok,extra);
+  }
+  el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
+  $('#calcok').onclick=submit;
+  document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m='.';else if(k==='+')m='+';else if(k==='*'||k==='x'||k==='X')m='*';else if(k==='/'||k===':')m='/';
+    else if(k==='-'){const last=tok[tok.length-1];m=(!tok.length&&!done)||isOp(last)||last==='('||last==='E'?'neg':'-';}
+    else if(k==='('||k===')')m=k;else if(k==='^')m='^';else if(k==='e'||k==='E')m='exp';
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='enter';
+    if(m){e.preventDefault();press(m);}};
+  draw();
+}
+const INPUT={
+  tap(t,el){const D=DIAG[t.diagram];el.innerHTML=`<div class="curvebox">${drawDiag(D.zones,D.deco,null)}</div><div class="muted" style="font-size:15px">Tippe auf den richtigen Bereich im Schaubild.</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');
+      el.querySelector('.curvebox').innerHTML=drawDiag(D.zones,D.deco,{sel:v,corr:t.zone},D.overlay);const nm=(D.zones.find(q=>q[0]===v)||[])[1];answer(v===t.zone,`Du hast „${nm}“ angetippt.`);}));},
+
+  match(t,el){const sel=t.rows.map(()=>-1);
+    el.innerHTML=`<div class="mrows">${t.rows.map((r,i)=>`<div class="mrow" data-r="${i}"><div class="ml">${r.l}</div><div class="mopts">${t.opts.map((o,j)=>`<button type="button" class="mo" data-r="${i}" data-o="${j}">${o}</button>`).join('')}</div></div>`).join('')}</div><button class="btn green" id="chk" disabled>Prüfen</button>`;
+    el.querySelectorAll('.mo').forEach(b=>b.onclick=()=>{if(P.answered)return;const r=+b.dataset.r,o=+b.dataset.o;sel[r]=o;el.querySelectorAll(`.mo[data-r="${r}"]`).forEach(x=>x.classList.toggle('sel',+x.dataset.o===o));$('#chk').disabled=sel.includes(-1);});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=true;t.rows.forEach((r,i)=>{const good=sel[i]===r.a;if(!good)ok=false;el.querySelector(`.mrow[data-r="${i}"]`).classList.add(good?'right':'wrong');
+      el.querySelectorAll(`.mo[data-r="${i}"]`).forEach(x=>{x.disabled=true;if(+x.dataset.o===r.a)x.classList.add('corr');});});$('#chk').disabled=true;answer(ok,ok?'':'Grün umrandet = richtige Zuordnung.');};},
+  cloze(t,el){const fill=t.ans.map(()=>null);
+    function draw(){let k=0;const txt=t.text.replace(/\[[^\]]+\]/g,()=>{const i=k++;const v=fill[i];return `<button type="button" class="slot ${v!==null?'full':''}" data-s="${i}">${v!==null?t.pool[v]:'&nbsp;'}</button>`;});
+      el.innerHTML=`<div class="ctext">${txt}</div><div class="cpool">${t.pool.map((w,i)=>`<button type="button" class="cw" data-w="${i}" ${fill.includes(i)?'disabled':''}>${w}</button>`).join('')}</div><button class="btn green" id="chk" ${fill.includes(null)?'disabled':''}>Prüfen</button>`;
+      el.querySelectorAll('.cw').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=fill.indexOf(null);if(i<0)return;fill[i]=+b.dataset.w;draw();});
+      el.querySelectorAll('.slot').forEach(b=>b.onclick=()=>{if(P.answered)return;fill[+b.dataset.s]=null;draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;let ok=true;el.querySelectorAll('.slot').forEach(b=>{const i=+b.dataset.s;const good=t.pool[fill[i]]===t.ans[i];if(!good)ok=false;b.classList.add(good?'right':'wrong');b.disabled=true;});
+        el.querySelectorAll('.cw').forEach(b=>b.disabled=true);$('#chk').disabled=true;let k2=0;const full=t.text.replace(/\[([^\]]+)\]/g,(_,w)=>`<b>${w}</b>`);answer(ok,'');P.tasks[P.i].sol=(ok?'':'Richtig heißt es: ')+full;$('#fb .sol').innerHTML=(ok?'':'Richtig heißt es: ')+full;};}
+    draw();},
+  curve(t,el){el.innerHTML=`<div class="curvebox">${curveSvg(null,true)}</div><div class="muted" style="font-size:15px">Tippe auf den passenden Abschnitt der Kurve (die gestrichelten Bereiche).</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');el.querySelector('.curvebox').innerHTML=curveSvg({sel:v,corr:t.zone},false);answer(v===t.zone,`Du hast ${ZNAME[v]} angetippt.`);}));},
+  multi(t,el){const sel=new Set();
+    el.innerHTML=`<div class="chips">${t.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;sel.has(i)?sel.delete(i):sel.add(i);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;const ok=sel.size===t.ans.length&&t.ans.every(a=>sel.has(a));
+      el.querySelectorAll('.chip').forEach(b=>{const i=+b.dataset.i,inA=t.ans.includes(i);b.classList.remove('sel');if(sel.has(i))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = hat gefehlt, rot = passt nicht.');};},
+  write(t,el){el.innerHTML=`<textarea id="wt" class="wt" placeholder="Schreib deine Antwort hier – oder auf ein Blatt Papier, wie in der Klassenarbeit."></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn blue" id="show">Musterlösung zeigen</button></div><div id="wres"></div>`;
+    $('#show').onclick=()=>{if(P.answered)return;const txt=' '+norm($('#wt').value)+' ';$('#show').disabled=true;$('#wt').readOnly=true;
+      const hits=t.keys.map(([l,kws])=>kws.some(k=>txt.includes(norm(k))));
+      $('#wres').innerHTML=`<div class="sol" style="margin-top:12px"><b>Musterlösung:</b><br>${t.model}</div>
+        <div class="checkbox-panel"><b>Was hattest du?</b><div class="muted" style="font-size:15px;margin-bottom:6px">Hake ehrlich ab, was in deiner Antwort vorkommt${$('#wt').value.trim()?' (erkannte Begriffe sind schon angehakt, bitte prüfen)':''}. Ab <b>${t.need} von ${t.keys.length}</b> Punkten ist die Aufgabe geschafft.</div>
+        ${t.keys.map(([l],i)=>`<label class="chk"><input type="checkbox" data-wk="${i}" ${hits[i]?'checked':''}> ${l}</label>`).join('')}
+        <button class="btn green" id="eval" style="margin-top:10px">Auswerten</button></div>`;
+      $('#eval').onclick=()=>{if(P.answered)return;const n=[...el.querySelectorAll('input[data-wk]')].filter(x=>x.checked).length;el.querySelectorAll('input[data-wk]').forEach(x=>x.disabled=true);$('#eval').disabled=true;
+        t.sol=`Du hattest <b>${n} von ${t.keys.length}</b> Schlüsselpunkten.`+(n>=t.need?' Stark, so gibt es in der Klassenarbeit Punkte!':` Für „geschafft“ brauchst du ${t.need}. Lies die Musterlösung noch einmal und merk dir die fehlenden Punkte.`);
+        answer(n>=t.need,'');};};},
+
+  num(t,el){calcPad(t,el,false,v=>[numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`]);},
+  sci(t,el){calcPad(t,el,true,v=>[Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`]);},
+  mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
+    el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
+      el.querySelectorAll('[data-i]').forEach(x=>{x.disabled=true;if(+x.dataset.i===t.correct)x.classList.add('right');});if(!ok)b.classList.add('wrong');answer(ok,'');});},
+  tf(t,el){el.innerHTML=`<div class="row"><button class="btn green" data-v="1" style="min-width:140px">✔ Wahr</button><button class="btn red" data-v="0" style="min-width:140px">✘ Falsch</button></div>`;
+    el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(P.answered)return;const v=b.dataset.v==='1';el.querySelectorAll('[data-v]').forEach(x=>x.disabled=true);answer(v===t.ans,`Richtig ist: <b>${t.ans?'Wahr':'Falsch'}</b>`);});},
+  grid(t,el){const sel=new Set();
+    el.innerHTML=`<div class="elgrid">${t.items.map(s=>`<button class="el" data-s="${s}">${s}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{if(P.answered)return;const s=b.dataset.s;sel.has(s)?sel.delete(s):sel.add(s);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=sel.size===t.ans.length&&t.ans.every(s=>sel.has(s));
+      el.querySelectorAll('[data-s]').forEach(b=>{const s=b.dataset.s,inA=t.ans.includes(s);b.classList.remove('sel');if(sel.has(s))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = vergessen, rot = falsch ausgewählt.');};},
+  bal(t,el){const sp=t.r.concat(t.p);const co=sp.map(()=>1);const nr=t.r.length;
+    const elems=[];sp.forEach(f=>Object.keys(parseF(f)).forEach(e=>{if(!elems.includes(e))elems.push(e);}));
+    function counts(side){const c={};sp.forEach((f,k)=>{if((k<nr)!==(side==='L'))return;const p=parseF(f);for(const e in p)c[e]=(c[e]||0)+p[e]*co[k];});return c;}
+    function blocks(e,n){if(n>24)return `<span class="cnt">${n}</span>`;return `<span class="cnt">${n}</span>`+`<span class="blk" style="background:${ECOL[e]||'#888'}"></span>`.repeat(n);}
+    function draw(){
+      let h='<div class="bal">';sp.forEach((f,k)=>{if(k===nr)h+='<span class="op">→</span>';else if(k>0)h+='<span class="op">+</span>';
+        h+=`<div class="sp"><div class="st"><button data-k="${k}" data-d="1">▲</button><button data-k="${k}" data-d="-1">▼</button></div><span class="co">${co[k]}</span><span>${fx(f)}</span></div>`;});
+      h+='</div>';const L=counts('L'),R=counts('R');
+      h+=`<table class="atoms"><tr><th>Atom</th><th>links</th><th>rechts</th></tr>${elems.map(e=>{const ok=L[e]===R[e];const cls=t.noColor?'':(ok?'okc':'badc');return `<tr><td><b>${e}</b> <span class="muted">${EN[e]||''}</span></td><td class="${cls}">${blocks(e,L[e]||0)}</td><td class="${cls}">${blocks(e,R[e]||0)}</td></tr>`;}).join('')}</table>
+      <button class="btn green" id="chk">Prüfen</button>`;
+      el.innerHTML=h;
+      el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(P.answered)return;const k=+b.dataset.k;co[k]=Math.max(1,Math.min(9,co[k]+(+b.dataset.d)));draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;const L=counts('L'),R=counts('R');const bal=elems.every(e=>L[e]===R[e]);const g=co.reduce((a,b)=>gcd(a,b));
+        el.querySelectorAll('[data-k]').forEach(b=>b.disabled=true);$('#chk').disabled=true;
+        answer(bal&&g===1,bal&&g!==1?'Ausgeglichen, aber nicht mit den <b>kleinstmöglichen</b> Zahlen. Alle Koeffizienten lassen sich noch kürzen!':(bal?'':'Noch nicht ausgeglichen. Vergleiche links und rechts in der Tabelle.'));};
+    }
+    draw();},
+  order(t,el){const pool=shuffle(t.steps.map((s,i)=>i));const chosen=[];
+    function draw(){el.innerHTML=`<div class="orderlist">${chosen.map((i,k)=>`<div class="item"><b>${k+1}.</b>${t.steps[i]}</div>`).join('')}</div>
+      <div class="orderpool">${pool.filter(i=>!chosen.includes(i)).map(i=>`<button class="btn" style="text-align:left;background:#4a4a55" data-i="${i}">${t.steps[i]}</button>`).join('')}</div>
+      <div class="row"><button class="btn small" id="rs">↺ Zurücksetzen</button>${chosen.length===t.steps.length?'<button class="btn green" id="chk">Prüfen</button>':''}</div>`;
+      el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;chosen.push(+b.dataset.i);draw();});
+      $('#rs').onclick=()=>{if(P.answered)return;chosen.length=0;draw();};
+      const c=$('#chk');if(c)c.onclick=()=>{if(P.answered)return;const ok=chosen.every((v,k)=>v===k);c.disabled=true;$('#rs').disabled=true;answer(ok,'');};}
+    draw();}
+};
+function answer(ok,extra){
+  if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
+  P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
+  if(ok){P.combo++;S.curCombo=P.combo;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+    gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();S.stats['k_'+t.kind]=(S.stats['k_'+t.kind]||0)+1;if(t.kind==='num'&&/curvebox/.test(t.q))S.stats.curveNum=(S.stats.curveNum||0)+1;}
+  else{P.combo=0;S.curCombo=0;if(P.boss)P.hearts--;}
+  P.res.push(ok);if(gain)gainXP(gain);
+  const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
+  $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
+    `<div class="sol">${!ok&&extra?extra+'<br>':''}${t.sol||''}</div><div class="row" style="margin-top:12px"><button class="btn ${ok?'green':'blue'}" id="next">${last?'Ergebnis ▶':'Weiter ▶'}</button></div>`;
+  const hb=$('#hintb');if(hb)hb.disabled=true;
+  save();checkAch();
+  const n=$('#next');n.onclick=()=>{if(last)finish();else{P.i++;renderTask();}};
+  setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
+  document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
+}
+function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Eis & Feuer',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
+  right:P.res.filter(Boolean).length,total:P.res.length,planned:P.tasks.length,stars:stars,secs:Math.round(P.secs),hints:P.hints,done:done});}
+function finish(){
+  document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
+  touchStreak();
+  let h='';
+  if(P.boss){
+    const won=P.hearts>0;
+    logRound(true,null);
+    if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
+    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Der Glutfrost-Golem ist zerfallen!':'Der Golem war stärker …'}</h2>
+     <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
+     <p class="muted">${won?'Stark! Das war fast schon Klassenarbeits-Niveau.':'Schau dir die Lösungswege nochmal an und trainiere die Welten, in denen es gehakt hat. Dann nochmal!'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Nochmal kämpfen</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(won)confetti(90);
+  }else{
+    const st=right===total?3:right>=total-1?2:right>=Math.ceil(total*0.6)?1:0;
+    const prev=S.stars[P.world]||0;
+    S.stars[P.world]=Math.max(prev,st);S.plays[P.world]=(S.plays[P.world]||0)+1;
+    logRound(true,st);
+    if(st===3&&P.hints===0)S.stats.nohint++;
+    if(st)gainXP(st*10);
+    h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>
+     <p>${right} von ${total} richtig${st?` · <b style="color:var(--gold)">+${st*10} XP</b> Sternbonus`:''}${st>prev&&prev>0?' · neuer Rekord!':''}</p>
+     <p class="muted">${st===3?'Perfekt! Diese Welt hast du im Griff.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Neue Runde</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(st===3)confetti(70);
+  }
+  const wid=P.world;save();checkAch();view.innerHTML=h;window.scrollTo(0,0);
+  $('#again').onclick=()=>{wid==='boss'?startBoss():startWorld(wid);};$('#tomap').onclick=()=>{P=null;renderMap();};
+}
+
+/* ============ Erfolge ============ */
+function renderAch(){
+  const got=H.countApp(APP),G=H.get();
+  view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 27 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
+  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=H.has(APP,id);return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>
+  <div class="panel" style="margin-top:22px"><h2>🌍 Meta-Erfolge (über alle Lern-Apps)</h2><p class="muted">Jede Lern-App hat ihren eigenen Rang und eigene Erfolge. Diese Meta-Erfolge sammelst du über alle Apps hinweg, im Lern-Hub steht deine ganze Trophäen-Vitrine.</p></div>
+  <div class="achs">${H.globalList().map(([id,ic,n,d,,hid])=>{const g=!!G.ach['hub:'+id];if(hid&&!g){ic='❓';n='???';d='Versteckter Erfolg. Wird später enthüllt …';}return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:(hid?'❓':'🔒')}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+}
+
+/* ============ Spickzettel ============ */
+function renderSheet(){
+  if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
+  view.innerHTML=`<div class="panel"><h2>📜 Lernzettel Wärmelehre</h2><p>Nach dem „Grundwissen“ im Buch (S. 72/73). Die Formeln solltest du auswendig können und umstellen können.</p></div>
+  <div class="sheet">
+   <div class="card"><h3>Temperatur und Energie</h3><p>Fast alle Stoffe dehnen sich beim Erwärmen aus, Gase am stärksten (alle Gase nahezu gleich). Mehr Ausdehnung bei größerer Temperaturerhöhung und größerem Anfangsvolumen.</p><div class="f">T (in K) = ϑ (in °C) + 273,15</div><p>Absoluter Nullpunkt: −273,15 °C = 0 K</p><div class="f">ΔE = c · m · ΔT</div><p>Wasser: c = 4,2 kJ/(kg·K) · Eis schmelzen: 0,33 kJ/g</p></div>
+   <div class="card"><h3>Energie wird übertragen</h3><p>Von selbst immer von <b>warm nach kalt</b>.<br><b>Konvektion:</b> strömende Gase/Flüssigkeiten nehmen Energie mit.<br><b>Wärmeleitung:</b> im Stoff, ohne Strömung (Metalle gut, Gase schlecht).<br><b>Wärmestrahlung:</b> elektromagnetisch, ohne Materie.<br><b>Fließgleichgewicht:</b> Aufnahme = Abgabe → Energie bleibt konstant.<br><b>Verdunsten</b> kühlt (Schwitzen), auch ohne Temperaturunterschied.</p></div>
+   <div class="card"><h3>Strahlung und Erde</h3><div class="f">S = P / A</div><p>Solarkonstante S<sub>E</sub> = 1370 W/m²</p><div class="f">S = σ · T⁴</div><p>σ = 5,67 · 10⁻⁸ W/(m²·K⁴), T in Kelvin!<br>Ohne Atmosphäre −18 °C, mit Atmosphäre +15 °C = <b>natürlicher Treibhauseffekt</b>. 30 % der Sonnenstrahlung werden reflektiert.</p></div>
+   <div class="card"><h3>Klimawandel</h3><p><b>Anthropogener Treibhauseffekt:</b> Verbrennung fossiler Energieträger → CO<sub>2</sub> absorbiert Infrarot → Erwärmung um ca. 1,2 K seit 1880, Meeresspiegel +24 cm, Extremwetter. Zwei-Grad-Ziel: nur mit RCP 2.6. Weiter so (RCP 8.5): ca. +3,6 K bis 2100. Beweis über Klimamodelle (Mensch „ausgeschaltet“ → keine Erwärmung) und Eisbohrkerne.</p></div>
+   <div class="card"><h3>Irreversibel und Entropie</h3><p><b>Irreversibel:</b> läuft nie von selbst rückwärts, Energie wird <b>entwertet</b> (Reibung, Wärmeübertragung, elektrischer Widerstand). Im <b>abgeschlossenen System</b> nicht rückgängig zu machen, sonst durch Eingriffe von außen.<br><b>Entropie:</b> Nur Vorgänge, bei denen sie größer wird oder gleich bleibt. Irreversibel → Entropie wird erzeugt.</p><div class="f">ΔS = ΔE / T</div></div>
+   <div class="card"><h3>Thermische Maschinen</h3><p>Angetrieben von heiß → kalt, nur ein Teil mechanisch nutzbar, Rest Abwärme.</p><div class="f">η = ΔE<sub>mech,ab</sub> / ΔE<sub>therm,zu</sub></div><div class="f">η<sub>ideal</sub> = 1 − T₂/T₁</div><p>Stirling-Takte: Expansion, Abkühlung, Kompression, Erwärmung. Benzinmotor: Ansaugen, Verdichten, Arbeiten (Zünden), Ausstoßen. Wärmepumpe: Leistungszahl 4–5.</p></div>
+   <div class="card"><h3>Energieversorgung</h3><p>Kohle 35–40 %, GuD 60 %, Gasturbine ideal 51 %, Dampfturbine ideal 57 %. Wind: P = ½ · ρ · A · v³, theoretisch max. 59 %, real ca. 50 %. <b>Kraft-Wärme-Kopplung</b>/BHKW: bis 90 % genutzt. Regenerativ: Wind, Wasser, Sonne, Biomasse. Kohle: etwa 3× so viel CO<sub>2</sub> wie Erdgas.</p></div>
+  </div>`;
+}
+
+/* ============ Spielstand ============ */
+function renderSave(){
+  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,app:APP,state:S,profil:H.exportData()}))));}catch(e){}
+  view.innerHTML=`<div class="panel"><h2>💾 Spielstand</h2>
+   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(H.get().name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
+   <p class="muted">Dein Fortschritt wird automatisch auf diesem Gerät gespeichert. Der Speichercode enthält diese App <b>und</b> dein Hub-Profil (Name, Serie, Trophäen-Vitrine, Meta-Erfolge). Für ein anderes Gerät oder zur Sicherheit kopierst du ihn und fügst ihn dort unter „Laden“ ein.</p>
+   <h3>Speichercode</h3><textarea class="code" id="code" readonly>${code}</textarea>
+   <div class="row" style="margin-top:8px"><button class="btn blue small" id="copy">📋 Kopieren</button><span id="copymsg" class="muted"></span></div>
+   <h3 style="margin-top:20px">Laden</h3><textarea class="code" id="imp" placeholder="Speichercode hier einfügen"></textarea>
+   <div class="row" style="margin-top:8px"><button class="btn green small" id="load">Laden</button><span id="loadmsg"></span></div>
+   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Diese App zurücksetzen</button><div id="rsbox"></div></div>`;
+  $('#nmsave').onclick=()=>{H.setName($('#nm2').value.trim());updateHeader();};
+  $('#copy').onclick=()=>{const ta=$('#code');try{navigator.clipboard.writeText(ta.value).then(()=>$('#copymsg').textContent='Kopiert!',()=>{ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';});}catch(e){ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';}};
+  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(o.v===2){H.importData(o.profil);S=merge(defState(),o.state);lastRank=rankIdx(S.xp);}else if(typeof o.xp==='number'){S=merge(defState(),o);migrate(true);}else throw 0;save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
+  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Rang, Sterne und Erfolge dieser App löschen? (Meta-Erfolge im Hub bleiben erhalten.) <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
+    $('#rsyes').onclick=()=>{S=defState();const G=H.get();Object.keys(G.ach).forEach(k=>{if(k.indexOf(APP+':')===0)delete G.ach[k];});H.importData(G);lastRank=0;save();registerApp();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
+}
+
+/* ============ Start ============ */
+/* Alten Spielstand (vor dem gemeinsamen Profil) einmalig übernehmen */
+function migrate(force){const G=H.get();if(!force&&(S.migrated||!(S.xp>0)))return;
+  if(force||!G.xpByApp[APP]){G.xp+=S.xp;G.xpByApp[APP]=(G.xpByApp[APP]||0)+S.xp;}
+  if(S.name&&!G.name)G.name=S.name;
+  if(S.streak&&S.streak.days>(G.streak.days||0))G.streak=S.streak;
+  if(S.ach)ACH.forEach(([id,ic,n,d])=>{if(S.ach[id]&&!G.ach[APP+':'+id])G.ach[APP+':'+id]={t:S.ach[id],app:APP,icon:ic,name:n,desc:d};});
+  H.importData(G);S.migrated=true;save();}
+migrate(false);
+oreStrip();updateHeader();renderMap();checkAch();H.checkGlobal();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
+</script>
+</body>
+</html>
