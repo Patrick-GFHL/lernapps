@@ -207,6 +207,29 @@ td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
 .ck:disabled{filter:grayscale(1) brightness(.7)}
 .prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
 .prog span.ok,.prog span.bad{background:#2b2b33}
+.mrows{display:grid;gap:10px;margin-bottom:12px}
+.mrow{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.mrow.right{border-color:var(--green)}.mrow.wrong{border-color:var(--red)}
+.ml{font-size:18px;margin-bottom:6px}
+.mopts{display:flex;flex-wrap:wrap;gap:6px}
+.mo,.cw,.chip{font-family:inherit;font-size:16px;color:var(--text);background:#4a4a55;border:3px solid var(--line);padding:6px 10px;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.12);text-align:left}
+.mo.sel,.chip.sel{background:var(--blue)}
+.mo.corr{outline:3px solid var(--green);outline-offset:-3px}
+.mo:disabled,.cw:disabled{cursor:default}
+.cw:disabled{opacity:.35}
+.ctext{font-size:20px;line-height:2.1;background:#1d1d23;border:3px solid var(--line);padding:10px 12px;margin-bottom:12px}
+.slot{font-family:inherit;font-size:17px;min-width:110px;color:var(--text);background:#2b2b33;border:2px dashed #8a8a96;padding:2px 8px;margin:0 2px;cursor:pointer;vertical-align:middle}
+.slot.full{border-style:solid;background:#3b5e86}
+.slot.right{background:var(--green-d);border-color:var(--green)}.slot.wrong{background:#8a3328;border-color:var(--red)}
+.cpool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip.right{background:var(--green)}.chip.wrong{background:var(--red)}.chip.miss{outline:3px dashed var(--gold);outline-offset:-5px}
+.wt{width:100%;min-height:130px;font-family:inherit;font-size:18px;background:#111;color:var(--text);border:3px solid var(--line);padding:10px}
+.checkbox-panel{background:#1d1d23;border:3px solid var(--line);padding:12px;margin-top:12px}
+label.chk{display:flex;gap:10px;align-items:flex-start;font-size:17px;padding:5px 0;cursor:pointer}
+label.chk input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
+.prog span.ok,.prog span.bad{background:#2b2b33}
 textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
 .inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
 @media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
@@ -424,6 +447,8 @@ function gPType(){
 /* ---------- Welt 5: Gleichungs-Crafting ---------- */
 const EQ=[
  {r:['H2','O2'],p:['H2O'],c:[2,1,2],w:'Wasserstoff + Sauerstoff → Wasser'},
+ {r:['Al','Fe2O3'],p:['Al2O3','Fe'],c:[2,1,1,2],w:'Aluminium + Eisenoxid → Aluminiumoxid + Eisen (Thermitverfahren)'},
+ {r:['C2H6O','O2'],p:['CO2','H2O'],c:[1,3,2,3],w:'Ethanol + Sauerstoff → Kohlenstoffdioxid + Wasser'},
  {r:['N2','H2'],p:['NH3'],c:[1,3,2],w:'Stickstoff + Wasserstoff → Ammoniak'},
  {r:['Mg','O2'],p:['MgO'],c:[2,1,2],w:'Magnesium + Sauerstoff → Magnesiumoxid'},
  {r:['Na','Cl2'],p:['NaCl'],c:[2,1,2],w:'Natrium + Chlor → Natriumchlorid'},
@@ -494,6 +519,9 @@ function gMolar(){
 
 /* ---------- Welt 7: Stöchio-Turm ---------- */
 const ST=[
+ {s:[['C2H6O',1],['O2',3],['CO2',2],['H2O',3]],r:2},
+ {s:[['CuO',2],['C',1],['Cu',2],['CO2',1]],r:2},
+ {s:[['Al',2],['Fe2O3',1],['Al2O3',1],['Fe',2]],r:2},
  {s:[['H2',2],['O2',1],['H2O',2]],r:2},
  {s:[['Mg',2],['O2',1],['MgO',2]],r:2},
  {s:[['Fe',1],['S',1],['FeS',1]],r:2},
@@ -609,19 +637,70 @@ const MC_LERN=[
  {q:'Wie berechnest du die Masse aus Dichte und Volumen?',c:['m = ρ · V','m = ρ / V','m = V / ρ','m = n / M'],e:'<b>m = ρ · V</b>.'}
 ];
 const MC_UG={q:'Wie rechnest du die Masse eines Teilchens von u in g um? (musst du auswendig können)',c:['Masse in u · 1,66 · 10<sup>−24</sup> g','Masse in u · 6,022 · 10<sup>23</sup>','Masse in u : 1,66 · 10<sup>−24</sup>','Masse in u · 1000'],e:'<b>1 u = 1,66 · 10<sup>−24</sup> g</b>, also mit diesem Wert malnehmen.'};
+
+/* ---------- Redox, Synthese, Analyse, Stoffeinteilung, Ethanol (Ergänzung) ---------- */
+const norm=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function matchT(q,rows,opts,sol){return {kind:'match',q,rows,opts,sol};}
+function sortT(q,pool,n,opts,sol){return matchT(q,pickN(pool,n).map(([l,a])=>({l,a})),opts,sol);}
+function pairT(q,pairs,n,sol){const sel=pickN(pairs,n);const opts=shuffle(sel.map(p=>p[1]));return matchT(q,sel.map(p=>({l:p[0],a:opts.indexOf(p[1])})),opts,sol);}
+function writeT(q,keys,model,hint,need){return {kind:'write',q,keys,model,hint,need:need||Math.ceil(keys.length*0.6),sol:''};}
+const BEGR=[['Oxidation','Reaktion mit Sauerstoffaufnahme'],['Reduktion','Reaktion unter Sauerstoffabgabe'],['Redoxreaktion','Sauerstoffübertragungsreaktion: Oxidation und Reduktion laufen gleichzeitig ab'],['Synthese','Aufbau einer Verbindung aus den Elementen'],['Analyse','Zerlegung einer Verbindung in die Elemente'],['Reduktionsmittel','Stoff, der einem anderen den Sauerstoff entzieht (und selbst oxidiert wird)'],['Oxidationsmittel','Stoff, der Sauerstoff abgibt (und selbst reduziert wird)']];
+const gBegr=()=>pairT('Ordne jedem Fachbegriff die passende Erklärung zu.',BEGR,4,BEGR.map(b=>`<b>${b[0]}:</b> ${b[1]}`).join('<br>'));
+const RX=[
+ {eq:'2 Al + Fe<sub>2</sub>O<sub>3</sub> → Al<sub>2</sub>O<sub>3</sub> + 2 Fe',ox:'Aluminium',red:'Eisenoxid'},
+ {eq:'2 CuO + C → 2 Cu + CO<sub>2</sub>',ox:'Kohlenstoff',red:'Kupferoxid'},
+ {eq:'CuO + H<sub>2</sub> → Cu + H<sub>2</sub>O',ox:'Wasserstoff',red:'Kupferoxid'},
+ {eq:'CuO + Mg → Cu + MgO',ox:'Magnesium',red:'Kupferoxid'},
+ {eq:'Fe<sub>2</sub>O<sub>3</sub> + 3 H<sub>2</sub> → 2 Fe + 3 H<sub>2</sub>O',ox:'Wasserstoff',red:'Eisenoxid'},
+ {eq:'2 CuO + C → 2 Cu + CO<sub>2</sub>',ox:'Kohlenstoff',red:'Kupferoxid'}];
+function gRx(){const r=pick(RX);const askOx=Math.random()<.5;const all=['Aluminium','Eisenoxid','Kohlenstoff','Kupferoxid','Wasserstoff','Magnesium','Kupfer','Eisen'];
+  const right=askOx?r.ox:r.red;const wrong=pickN(all.filter(x=>x!==right&&x!==(askOx?r.red:r.ox)),2).concat([askOx?r.red:r.ox]);
+  return mc(`<span class="eq">${r.eq}</span><br>${askOx?'Welcher Stoff wird <b>oxidiert</b> (ist das <b>Reduktionsmittel</b>)?':'Welcher Stoff wird <b>reduziert</b> (ist das <b>Oxidationsmittel</b>)?'}`,[right].concat(wrong),
+   `<b>${r.ox}</b> nimmt Sauerstoff auf → wird oxidiert, ist das Reduktionsmittel.<br><b>${r.red}</b> gibt Sauerstoff ab → wird reduziert, ist das Oxidationsmittel.`);}
+const SA=[['Magnesium verbrennt zu Magnesiumoxid',0],['Eisen und Schwefel reagieren zu Eisensulfid',0],['Wasserstoff und Sauerstoff reagieren zu Wasser',0],['Wasser wird durch Elektrolyse in Wasserstoff und Sauerstoff zerlegt',1],['Silberoxid zerfällt beim Erhitzen in Silber und Sauerstoff',1],['Quecksilberoxid wird zu Quecksilber und Sauerstoff zerlegt',1]];
+const gSA=()=>sortT('Synthese oder Analyse?',SA,4,['Synthese','Analyse'],'<b>Synthese:</b> aus Elementen entsteht eine Verbindung. <b>Analyse:</b> eine Verbindung wird in ihre Elemente zerlegt.');
+const STOFF=[['Eisen',0],['Sauerstoff',0],['Helium',0],['Wasser',1],['Kohlenstoffdioxid',1],['Kochsalz (Natriumchlorid)',1],['Luft',2],['Meerwasser',2],['Granit',2]];
+const gStoff=()=>sortT('Stoffeinteilung: Element, Verbindung oder Gemisch?',STOFF,5,['Element','Verbindung','Gemisch'],'<b>Reinstoffe</b> sind Elemente (Metalle, Gase) oder Verbindungen (molekulare Stoffe, Salze). <b>Gemische</b> bestehen aus mehreren Reinstoffen.');
+const TEIL=[['Eisen, Nickel, Cobalt (Metalle)','Atome'],['Helium, Neon (Edelgase)','Atome'],['H<sub>2</sub>, O<sub>2</sub>, N<sub>2</sub> (HONClBrIF)','Moleküle'],['Wasser, Kohlenstoffdioxid („flüchtige Verbindungen“)','Moleküle'],['Salze (Metall + Nichtmetall)','Ionengruppen aus Kation und Anion']];
+const gTeil=()=>{const sel=pickN(TEIL,4);const opts=['Atome','Moleküle','Ionengruppen aus Kation und Anion'];return matchT('Was sind die kleinsten Teilchen?',sel.map(t=>({l:t[0],a:opts.indexOf(t[1])})),opts,TEIL.map(t=>`${t[0]} → <b>${t[1]}</b>`).join('<br>'));};
+const MC_RX=[
+ {q:'Welches Metall eignet sich am besten als Reduktionsmittel für Eisenoxid beim Thermitverfahren?',c:['Aluminium','Kupfer','Silber','Zink'],e:'Ein möglichst <b>unedles</b> Metall liefert die meiste Energie. Aluminium ist unedler als Zink, Kupfer und Silber.'},
+ {q:'Warum muss beim Thermitverfahren besonders viel Energie frei werden?',c:['Das entstehende Eisen muss schmelzen (Schmelzpunkt 1538 °C), um die Schienen zu verbinden','Damit es hell leuchtet','Damit das Aluminium verdampft','Damit Sauerstoff entsteht'],e:'Das flüssige Eisen füllt die Stoßfuge zwischen den Schienen.'},
+ {q:'Warum lässt sich die Schlacke beim Thermitverfahren leicht entfernen?',c:['Das Aluminiumoxid lagert sich außen um den Eisenkern und kann abgeschlagen werden','Weil sie verdampft','Weil sie magnetisch ist','Es gibt keine Schlacke'],e:'Bei anderen Metallen wären Metall und Metalloxid oft fest verbacken.'},
+ {q:'Warum ist Kohlenstoff ein so gutes Reduktionsmittel bei der Metallgewinnung?',c:['Es entsteht gasförmiges Kohlenstoffdioxid, das von selbst entweicht, man muss nichts abtrennen','Weil Kohlenstoff ein Metall ist','Weil er am meisten Energie liefert','Weil er unedel wie Aluminium ist'],e:'Das Produkt CO<sub>2</sub> ist ein <b>Gas</b> und trennt sich von allein vom Metall.'},
+ {q:'Welches Produkt entsteht neben Kupfer, wenn man Kupferoxid mit Kohlenstoff reduziert?',c:['Kohlenstoffdioxid','Kupfercarbonat','Wasser','Sauerstoff'],e:'2 CuO + C → 2 Cu + <b>CO<sub>2</sub></b>'},
+ {q:'Was gilt immer bei einer Redoxreaktion?',c:['Oxidation und Reduktion laufen gleichzeitig ab','Es läuft nur eine Oxidation ab','Es wird kein Sauerstoff übertragen','Es entsteht immer Wasser'],e:'Was ein Stoff an Sauerstoff abgibt, nimmt ein anderer auf: <b>Sauerstoffübertragung</b>.'},
+ {q:'Was ist die Verbrennung von Magnesium zu Magnesiumoxid?',c:['Eine Oxidation und zugleich eine Synthese','Eine Reduktion','Eine Analyse','Eine Destillation'],e:'Magnesium nimmt Sauerstoff auf (Oxidation), aus zwei Elementen entsteht eine Verbindung (Synthese).'},
+ {q:'Was ist ein unedles Metall?',c:['Ein Metall, das leicht mit Sauerstoff reagiert (z. B. Magnesium, Aluminium)','Ein Metall, das kaum mit Sauerstoff reagiert (z. B. Gold, Silber)','Ein billiges Metall','Ein flüssiges Metall'],e:'Unedle Metalle haben eine große „Sauerstoff-Gier“ und eignen sich als Reduktionsmittel.'}];
+const wrRx=()=>writeT('<b>Erkläre</b> am Thermitverfahren (2 Al + Fe<sub>2</sub>O<sub>3</sub> → Al<sub>2</sub>O<sub>3</sub> + 2 Fe), was eine Redoxreaktion ist. Verwende Oxidation, Reduktion, Oxidationsmittel und Reduktionsmittel.',
+ [['Aluminium nimmt Sauerstoff auf → Oxidation',['oxidation','oxidiert']],['Eisenoxid gibt Sauerstoff ab → Reduktion',['reduktion','reduziert']],['Aluminium ist das Reduktionsmittel',['reduktionsmittel']],['Eisenoxid ist das Oxidationsmittel',['oxidationsmittel']],['Redoxreaktion = Sauerstoffübertragung, beides gleichzeitig',['uebertrag','gleichzeitig','redox']],['Aluminium ist unedel, es wird viel Energie frei (Eisen schmilzt)',['unedel','energie','schmilzt','1538']]],
+ 'Bei der Reaktion wird <b>Sauerstoff übertragen</b>: Das <b>Eisenoxid gibt Sauerstoff ab</b>, es wird <b>reduziert</b> und ist das <b>Oxidationsmittel</b>. Das <b>Aluminium nimmt den Sauerstoff auf</b>, es wird <b>oxidiert</b> und ist das <b>Reduktionsmittel</b>. Oxidation und Reduktion laufen <b>gleichzeitig</b> ab, deshalb heißt das Ganze Redoxreaktion. Weil Aluminium sehr <b>unedel</b> ist, wird so viel Energie frei, dass das entstehende Eisen schmilzt (1538 °C).',
+ 'Stichworte: Sauerstoffabgabe/-aufnahme, reduziert/oxidiert, Oxidations-/Reduktionsmittel, gleichzeitig, unedel.',4);
+const RXEQ=new Set();EQ.forEach((e,i)=>{if(/Thermit|Kupferoxid \+ Kohlenstoff|Eisenoxid \+ Wasserstoff/.test(e.w))RXEQ.add(i);});
+function gBalRx(){let t;do{t=gBal();}while(!RXEQ.has(t.eqi));return t;}
+/* Ethanol (Aufgabe aus dem Unterricht): C2H6O + 3 O2 → 2 CO2 + 3 H2O, ρ = 0,79 g/cm³ */
+function gEth(){const m=pick([4.6,9.2,13.8,23,46]);const n=m/46;const v=Math.floor(Math.random()*3);
+  const head=`Ethanol (C<sub>2</sub>H<sub>6</sub>O) wird im Spiritusbrenner verbrannt. Es werden <b>${fmt(m,1)} g</b> Ethanol vollständig verbrannt (ρ = 0,79 g/cm³).<br>`;
+  if(v===0)return num(head+'Berechne die <b>Stoffmenge</b> des verbrannten Ethanols.',n,'mol',`M(C<sub>2</sub>H<sub>6</sub>O) = 2·12 + 6·1 + 16 = 46 g/mol<br>n = m / M = ${fmt(m,1)} g : 46 g/mol = <b>${fmt(n,2)} mol</b>`,'n = m / M, M aus dem Periodensystem zusammenrechnen.');
+  if(v===1)return sciT(head+'Bestimme die <b>Anzahl der Ethanolmoleküle</b>.',n*NA,'Moleküle',`n = ${fmt(m,1)} g : 46 g/mol = ${fmt(n,2)} mol<br>N = n · N<sub>A</sub> = ${fmt(n,2)} mol · 6,022 · 10<sup>23</sup> 1/mol = <b>${sci(n*NA)}</b>`,'Erst n = m / M, dann N = n · N_A.');
+  return num(head+'Berechne das <b>Volumen</b> der eingesetzten Ethanolprobe.',m/0.79,'cm³',`V = m / ρ = ${fmt(m,1)} g : 0,79 g/cm³ = <b>${fmt(m/0.79,2)} cm³</b>`,'V = m / ρ');}
+function gEthCO2(){const m=pick([4.6,9.2,13.8,23]);const n=m/46,nc=2*n,mc=nc*44;
+  return num(`<span class="eq">C<sub>2</sub>H<sub>6</sub>O + 3 O<sub>2</sub> → 2 CO<sub>2</sub> + 3 H<sub>2</sub>O</span><br><b>${fmt(m,1)} g</b> Ethanol werden vollständig verbrannt. Berechne die <b>Masse an Kohlenstoffdioxid</b>, die entsteht.`,mc,'g',
+   `<ol><li>n(Ethanol) = ${fmt(m,1)} g : 46 g/mol = ${fmt(n,2)} mol</li><li>n(CO<sub>2</sub>) : n(Ethanol) = 2 : 1 → n(CO<sub>2</sub>) = ${fmt(nc,2)} mol</li><li>m(CO<sub>2</sub>) = ${fmt(nc,2)} mol · 44 g/mol = <b>${fmt(mc,1)} g</b></li></ol>`,'Schema: Gleichung → n = m/M → Verhältnis aus den Koeffizienten (2 : 1) → m = n · M');}
 /* ============ Welten ============ */
 const W=[
- {id:'basis',name:'Rohstofflager',icon:'📦',topic:'Grundlagen aus Klasse 8 · HONClBrIF',build:()=>[gHonc()].concat(pickN(MC_BASIS,5).map(poolMC))},
+ {id:'basis',name:'Rohstofflager',icon:'📦',topic:'Grundlagen aus Klasse 8 · HONClBrIF · Stoffeinteilung',build:()=>[gHonc(),gStoff(),gTeil()].concat(pickN(MC_BASIS,3).map(poolMC))},
  {id:'masse',name:'Waagen-Halle',icon:'⚖️',topic:'Erhaltung der Masse · konstante Massenverhältnisse · Dalton & Demokrit',build:()=>shuffle([gCons(),gCons(),gRatio(),gLeft()].concat(pickN(MC_DALTON,2).map(poolMC)))},
  {id:'atom',name:'Atom-Labor',icon:'🔬',topic:'atomare Masseneinheit u · Umrechnung u → g',build:()=>shuffle([gMassU(),gMassU(),gU2G(),gU2G(),gG2El(),poolMC(pick(MC_U.concat([MC_UG])))])},
  {id:'formel',name:'Formel-Druckerei',icon:'🖨️',topic:'Verhältnisformeln · Molekülformeln · Atome zählen · Stoffdiagramm',build:()=>shuffle([gVerh(),gVerh(),gCount(),gCount(),gFType(),gPType()])},
  {id:'gleichung',name:'Reaktor-Halle',icon:'⚗️',topic:'Vom Reaktionsschema zur Reaktionsgleichung',build:()=>{const out=[],used=new Set();while(out.length<5){const t=gBal();if(!used.has(t.eqi)){used.add(t.eqi);out.push(t);}}return out;}},
  {id:'mol',name:'Mol-Zählwerk',icon:'🔢',topic:'Teilchenzahl N · Stoffmenge n · molare Masse M · Avogadro-Konstante',build:()=>shuffle([poolMC(pick(MC_UMST)),gMn(),gNm(),gNN(),gNfromN(),gMN()])},
- {id:'stoich',name:'Dosier-Anlage',icon:'🧮',topic:'Rechnen mit Reaktionsgleichungen (Schema)',build:()=>shuffle([gStoich(),gStoich(),gStoich(),gStoich(),poolMC(pick(MC_ST))])},
+ {id:'stoich',name:'Dosier-Anlage',icon:'🧮',topic:'Rechnen mit Reaktionsgleichungen (Schema)',build:()=>shuffle([gStoich(),gStoich(),gEthCO2(),gEth(),poolMC(pick(MC_ST))])},
+ {id:'redox',name:'Redox-Hochofen',icon:'🔥',topic:'Oxidation · Reduktion · Redoxreaktion · Synthese · Analyse · Thermitverfahren',build:()=>shuffle([gBegr(),gRx(),gSA(),gBalRx(),poolMC(pick(MC_RX))]).concat([wrRx()])},
  {id:'dichte',name:'Tank-Lager',icon:'🛢️',topic:'Rechnen mit der Dichte · Masse ↔ Volumen ↔ Stoffmenge',build:()=>shuffle([gDens(),poolMC(pick(MC_LERN)),gDensId(),gDensMol(),gDensGas()])},
 ];
 function bossBuild(){
-  const g=[[gCons,'masse'],[pick([gRatio,gLeft]),'masse'],[pick([gMassU,gU2G]),'atom'],[gVerh,'formel'],[()=>gBal(true),'gleichung'],[()=>gBal(true),'gleichung'],[pick([gMn,gNm]),'mol'],[pick([gNN,gMN]),'mol'],[gStoich,'stoich'],[gStoich,'stoich'],[pick([gDensGas,gDensMol]),'dichte']];
+  const g=[[gRx,'redox'],[gEthCO2,'stoich'],[gCons,'masse'],[pick([gRatio,gLeft]),'masse'],[pick([gMassU,gU2G]),'atom'],[gVerh,'formel'],[()=>gBal(true),'gleichung'],[()=>gBal(true),'gleichung'],[pick([gMn,gNm]),'mol'],[pick([gNN,gMN]),'mol'],[gStoich,'stoich'],[gStoich,'stoich'],[pick([gDensGas,gDensMol]),'dichte']];
   return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
 }
 
@@ -648,7 +727,8 @@ const ACH=[
  ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
  ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
  ['s10','⭐','Sternensammler','10 Sterne gesammelt.',()=>starsTotal()>=10],
- ['s24','🌟','Alle Sterne','Alle 24 Sterne gesammelt.',()=>starsTotal()>=24],
+ ['s27','🌟','Alle Sterne','Alle 27 Sterne gesammelt.',()=>starsTotal()>=27],
+ ['redox','🔥','Hochofen-Meister','Redox-Hochofen mit 3 Sternen.',()=>(S.stars.redox||0)>=3],
  ['all','🏭','Fabrik komplett','In jeder Anlage mindestens 1 Stern.',()=>worldsDone()>=W.length],
  ['iron','🛡️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
  ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
@@ -705,7 +785,7 @@ function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn
 H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
 let lastRank=rankIdx(S.xp);
 function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
-function registerApp(){H.registerApp({id:APP,name:'Chemie-Fabrik',icon:'🏭',fach:'Chemie',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
+function registerApp(){H.registerApp({id:APP,name:'Chemie-Fabrik',icon:'🏭',fach:'Chemie',klasse:9,achTotal:ACH.length,maxStars:27,stars:starsTotal()});}
 
 /* ============ Karte ============ */
 function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
@@ -720,7 +800,7 @@ function renderMap(){
   <p class="muted">Tipp: Nimm die Anlagen ungefähr der Reihe nach in Betrieb. Wenn 6 Anlagen mindestens einen Stern haben, kommt es zum Störfall im Reaktor.</p></div>
   <div class="worlds">`;
   W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">ANLAGE ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
-  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🚨</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Störfall-Reaktor</div><div class="tp">${unlocked?'11 gemischte Aufgaben, 3 Herzen. Bekommst du den Reaktor wieder in den Griff?':`🔒 Noch ${6-worldsDone()} Anlage(n) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">🚨</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Der Störfall-Reaktor</div><div class="tp">${unlocked?'13 gemischte Aufgaben, 3 Herzen. Bekommst du den Reaktor wieder in den Griff?':`🔒 Noch ${6-worldsDone()} Anlage(n) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
   view.innerHTML=h;
   view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
   $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
@@ -843,6 +923,39 @@ function calcPad(t,el,isSci,check){
   draw();
 }
 const INPUT={
+  match(t,el){const sel=t.rows.map(()=>-1);
+    el.innerHTML=`<div class="mrows">${t.rows.map((r,i)=>`<div class="mrow" data-r="${i}"><div class="ml">${r.l}</div><div class="mopts">${t.opts.map((o,j)=>`<button type="button" class="mo" data-r="${i}" data-o="${j}">${o}</button>`).join('')}</div></div>`).join('')}</div><button class="btn green" id="chk" disabled>Prüfen</button>`;
+    el.querySelectorAll('.mo').forEach(b=>b.onclick=()=>{if(P.answered)return;const r=+b.dataset.r,o=+b.dataset.o;sel[r]=o;el.querySelectorAll(`.mo[data-r="${r}"]`).forEach(x=>x.classList.toggle('sel',+x.dataset.o===o));$('#chk').disabled=sel.includes(-1);});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=true;t.rows.forEach((r,i)=>{const good=sel[i]===r.a;if(!good)ok=false;el.querySelector(`.mrow[data-r="${i}"]`).classList.add(good?'right':'wrong');
+      el.querySelectorAll(`.mo[data-r="${i}"]`).forEach(x=>{x.disabled=true;if(+x.dataset.o===r.a)x.classList.add('corr');});});$('#chk').disabled=true;answer(ok,ok?'':'Grün umrandet = richtige Zuordnung.');};},
+  cloze(t,el){const fill=t.ans.map(()=>null);
+    function draw(){let k=0;const txt=t.text.replace(/\[[^\]]+\]/g,()=>{const i=k++;const v=fill[i];return `<button type="button" class="slot ${v!==null?'full':''}" data-s="${i}">${v!==null?t.pool[v]:'&nbsp;'}</button>`;});
+      el.innerHTML=`<div class="ctext">${txt}</div><div class="cpool">${t.pool.map((w,i)=>`<button type="button" class="cw" data-w="${i}" ${fill.includes(i)?'disabled':''}>${w}</button>`).join('')}</div><button class="btn green" id="chk" ${fill.includes(null)?'disabled':''}>Prüfen</button>`;
+      el.querySelectorAll('.cw').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=fill.indexOf(null);if(i<0)return;fill[i]=+b.dataset.w;draw();});
+      el.querySelectorAll('.slot').forEach(b=>b.onclick=()=>{if(P.answered)return;fill[+b.dataset.s]=null;draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;let ok=true;el.querySelectorAll('.slot').forEach(b=>{const i=+b.dataset.s;const good=t.pool[fill[i]]===t.ans[i];if(!good)ok=false;b.classList.add(good?'right':'wrong');b.disabled=true;});
+        el.querySelectorAll('.cw').forEach(b=>b.disabled=true);$('#chk').disabled=true;let k2=0;const full=t.text.replace(/\[([^\]]+)\]/g,(_,w)=>`<b>${w}</b>`);answer(ok,'');P.tasks[P.i].sol=(ok?'':'Richtig heißt es: ')+full;$('#fb .sol').innerHTML=(ok?'':'Richtig heißt es: ')+full;};}
+    draw();},
+  curve(t,el){el.innerHTML=`<div class="curvebox">${curveSvg(null,true)}</div><div class="muted" style="font-size:15px">Tippe auf den passenden Abschnitt der Kurve (die gestrichelten Bereiche).</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');el.querySelector('.curvebox').innerHTML=curveSvg({sel:v,corr:t.zone},false);answer(v===t.zone,`Du hast ${ZNAME[v]} angetippt.`);}));},
+  multi(t,el){const sel=new Set();
+    el.innerHTML=`<div class="chips">${t.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;sel.has(i)?sel.delete(i):sel.add(i);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;const ok=sel.size===t.ans.length&&t.ans.every(a=>sel.has(a));
+      el.querySelectorAll('.chip').forEach(b=>{const i=+b.dataset.i,inA=t.ans.includes(i);b.classList.remove('sel');if(sel.has(i))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = hat gefehlt, rot = passt nicht.');};},
+  write(t,el){el.innerHTML=`<textarea id="wt" class="wt" placeholder="Schreib deine Antwort hier – oder auf ein Blatt Papier, wie in der Klassenarbeit."></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn blue" id="show">Musterlösung zeigen</button></div><div id="wres"></div>`;
+    $('#show').onclick=()=>{if(P.answered)return;const txt=' '+norm($('#wt').value)+' ';$('#show').disabled=true;$('#wt').readOnly=true;
+      const hits=t.keys.map(([l,kws])=>kws.some(k=>txt.includes(norm(k))));
+      $('#wres').innerHTML=`<div class="sol" style="margin-top:12px"><b>Musterlösung:</b><br>${t.model}</div>
+        <div class="checkbox-panel"><b>Was hattest du?</b><div class="muted" style="font-size:15px;margin-bottom:6px">Hake ehrlich ab, was in deiner Antwort vorkommt${$('#wt').value.trim()?' (erkannte Begriffe sind schon angehakt, bitte prüfen)':''}. Ab <b>${t.need} von ${t.keys.length}</b> Punkten ist die Aufgabe geschafft.</div>
+        ${t.keys.map(([l],i)=>`<label class="chk"><input type="checkbox" data-wk="${i}" ${hits[i]?'checked':''}> ${l}</label>`).join('')}
+        <button class="btn green" id="eval" style="margin-top:10px">Auswerten</button></div>`;
+      $('#eval').onclick=()=>{if(P.answered)return;const n=[...el.querySelectorAll('input[data-wk]')].filter(x=>x.checked).length;el.querySelectorAll('input[data-wk]').forEach(x=>x.disabled=true);$('#eval').disabled=true;
+        t.sol=`Du hattest <b>${n} von ${t.keys.length}</b> Schlüsselpunkten.`+(n>=t.need?' Stark, so gibt es in der Klassenarbeit Punkte!':` Für „geschafft“ brauchst du ${t.need}. Lies die Musterlösung noch einmal und merk dir die fehlenden Punkte.`);
+        answer(n>=t.need,'');};};},
+
   num(t,el){calcPad(t,el,false,v=>[numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`]);},
   sci(t,el){calcPad(t,el,true,v=>[Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`]);},
   mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
