@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Eis &amp; Feuer – NWT Wärmelehre</title>
+<title>Eis &amp; Feuer – Physik Wärmelehre</title>
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -290,7 +290,7 @@ function sciT(q,ans,unit,sol,hint,o){return Object.assign({kind:'sci',q,ans,unit
 function mc(q,choices,e,o){const idx=shuffle(choices.map((_,i)=>i));return Object.assign({kind:'mc',q,choices:idx.map(i=>choices[i]),correct:idx.indexOf(0),sol:e},o||{});}
 const poolMC=p=>mc(p.q,p.c,p.e);
 
-/* ============ NWT-Inhalte: Wärmelehre (Buch S. 6–73) ============ */
+/* ============ Physik-Inhalte: Wärmelehre (Buch S. 6–73) ============ */
 const norm=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
 function tfT(q,a,e){return {kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e};}
 function matchT(q,rows,opts,sol,o){return Object.assign({kind:'match',q,rows,opts,sol},o||{});}
@@ -607,7 +607,7 @@ function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn
 H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
 let lastRank=rankIdx(S.xp);
 function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
-function registerApp(){H.registerApp({id:APP,name:'Eis & Feuer',icon:'🌡️',fach:'NWT',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
+function registerApp(){H.registerApp({id:APP,name:'Eis & Feuer',icon:'🌡️',fach:'Physik',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
 
 /* ============ Karte ============ */
 function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
@@ -617,7 +617,7 @@ function renderMap(){
   if(!H.get().name){
     h+=`<div class="panel"><h2>Willkommen, Überlebender!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
   }
-  h+=`<div class="panel intro"><h2>NWT Kl. 9 · Wärmelehre</h2>
+  h+=`<div class="panel intro"><h2>Physik Kl. 9 · Wärmelehre</h2>
   <p>Überlebe vom ewigen Eis bis zum Vulkan! Jede Welt ist ein Kapitel aus dem Buch (S. 6–73). Viele Aufgaben sind <b>Rechenaufgaben mit dem Taschenrechner</b>, die letzte Aufgabe jeder Runde ist eine <b>Schreibaufgabe</b> wie in der Klassenarbeit.</p>
   <p class="muted">Wenn du in 6 Welten mindestens einen Stern hast, erwacht der Glutfrost-Golem.</p></div>
   <div class="worlds">`;
