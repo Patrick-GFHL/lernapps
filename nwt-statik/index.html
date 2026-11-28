@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statik-Baustelle – NWT Klasse 9</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lern-Hub">
+<meta name="theme-color" content="#17171c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#17171c; --panel:#2b2b33; --panel2:#35353f; --line:#0b0b0e;
+  --text:#f1efe6; --muted:#a9a7a0; --green:#5fbf3a; --green-d:#3c8a20;
+  --gold:#f2c94c; --red:#e05a47; --blue:#4fa3e0; --dia:#4ee6e0; --stone:#7d7d7d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:'Atkinson Hyperlegible',ui-monospace,Menlo,Consolas,monospace;font-size:19px;line-height:1.45;
+  background-image:linear-gradient(rgba(255,255,255,.025) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.025) 2px,transparent 2px);
+  background-size:32px 32px;min-height:100vh}
+h1,h2,h3,.pix{font-family:'Press Start 2P',ui-monospace,monospace;font-weight:400;letter-spacing:.5px}
+h1{font-size:18px;margin:0;line-height:1.5}
+h2{font-size:15px;margin:0 0 14px;line-height:1.6}
+h3{font-size:12px;margin:0 0 8px;line-height:1.6}
+sub,sup{font-size:.7em;line-height:0}
+button{font-family:inherit;font-size:18px;color:var(--text);cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 14px 60px}
+
+/* ore strip */
+.ores{display:flex;overflow:hidden;height:44px;border-bottom:4px solid var(--line)}
+.ore{flex:0 0 44px;height:44px;position:relative;background:#6f6f6f;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.28),inset 4px 4px 0 rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:rgba(0,0,0,.55)}
+.ore i{position:absolute;width:8px;height:8px}
+/* header */
+header.top{background:#202027;border-bottom:4px solid var(--line)}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;max-width:980px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;background:var(--green);box-shadow:inset -4px -4px 0 var(--green-d),inset 4px 4px 0 rgba(255,255,255,.3);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px}
+.player{display:flex;align-items:center;gap:12px;flex:1;min-width:260px}
+.rank{display:flex;align-items:center;gap:8px;font-weight:700}
+.rankblock{width:22px;height:22px;border:3px solid var(--line);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.35)}
+.xpbar{flex:1;min-width:120px;height:18px;background:#111;border:3px solid var(--line);position:relative}
+.xpbar>div{height:100%;background:linear-gradient(#8ff05a,#5fbf3a);box-shadow:inset 0 -4px 0 rgba(0,0,0,.25);transition:width .5s}
+.xptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-shadow:1px 1px 0 #000}
+.streak{font-weight:700;white-space:nowrap}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;max-width:980px;margin:0 auto}
+
+/* buttons */
+.btn{background:#6d6d78;border:3px solid var(--line);padding:9px 16px;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.22);text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{box-shadow:inset 4px 4px 0 rgba(0,0,0,.35)}
+.btn:disabled{filter:grayscale(1) brightness(.7);cursor:default}
+.btn.green{background:var(--green)}
+.btn.gold{background:#c99a1e}
+.btn.red{background:#b6412f}
+.btn.blue{background:#3b7fb8}
+.btn.small{font-size:16px;padding:6px 12px}
+.btn.on{background:var(--green)}
+
+/* panels */
+.panel{background:var(--panel);border:4px solid var(--line);box-shadow:inset -4px -4px 0 rgba(0,0,0,.3),inset 4px 4px 0 rgba(255,255,255,.07);padding:18px;margin:16px 0}
+.muted{color:var(--muted)}
+.intro p{margin:6px 0}
+
+/* world map */
+.worlds{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.world{background:var(--panel2);border:4px solid var(--line);padding:14px;text-align:left;display:flex;gap:12px;align-items:flex-start;
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.08);transition:transform .1s}
+.world:hover{transform:translateY(-3px)}
+.world .ic{font-size:36px;line-height:1;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line);flex:0 0 52px}
+.world .nm{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.6;margin-bottom:4px}
+.world .tp{font-size:15px;color:var(--muted);line-height:1.3}
+.stars{color:var(--gold);font-size:20px;letter-spacing:2px;margin-top:6px}
+.stars .off{color:#55545c}
+.world.boss{grid-column:1/-1;background:#3a2346}
+.world.locked{filter:grayscale(.8);opacity:.75}
+.num-badge{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--muted)}
+.tag{display:inline-block;font-size:13px;background:#5a4a1e;border:2px solid var(--line);padding:0 6px;margin-top:4px}
+
+/* play */
+.playtop{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.prog{flex:1;display:flex;gap:4px;min-width:180px}
+.prog span{flex:1;height:16px;background:#111;border:3px solid var(--line)}
+.prog span.ok{background:var(--green)}
+.prog span.bad{background:var(--red)}
+.prog span.cur{background:#777}
+.hearts{font-size:22px;letter-spacing:2px}
+.combo{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--gold)}
+.q{font-size:21px;margin:6px 0 16px}
+.q .eq{display:inline-block;background:#1d1d23;border:3px solid var(--line);padding:6px 12px;margin:8px 0;font-size:22px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input.in{font-family:inherit;font-size:22px;width:170px;padding:8px 10px;background:#111;color:var(--text);border:3px solid var(--line);box-shadow:inset 3px 3px 0 rgba(0,0,0,.6)}
+input.in.exp{width:80px}
+input.in:focus{outline:3px solid var(--blue)}
+.unit{font-size:21px}
+.choices{display:grid;gap:10px}
+.choices .btn{text-align:left;font-size:18px;padding:12px 14px;background:#4a4a55}
+.choices .btn.right{background:var(--green)}
+.choices .btn.wrong{background:var(--red)}
+.fb{margin-top:16px}
+.fb .ok,.fb .bad{font-family:'Press Start 2P',monospace;font-size:12px;padding:10px 12px;border:3px solid var(--line);margin-bottom:10px;line-height:1.6}
+.fb .ok{background:var(--green-d)}
+.fb .bad{background:#8a3328}
+.sol{background:#1d1d23;border:3px solid var(--line);padding:12px 14px;font-size:18px}
+.sol ol{margin:4px 0;padding-left:22px}
+.hintbox{margin-top:12px;background:#4a3f1c;border:3px solid var(--line);padding:10px 12px;font-size:17px}
+.taskhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.taskhead .pix{font-size:10px;color:var(--muted)}
+
+/* element grid */
+.elgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:14px}
+.el{height:64px;font-family:'Press Start 2P',monospace;font-size:15px;background:#5b5b66;border:3px solid var(--line);
+  box-shadow:inset -4px -4px 0 rgba(0,0,0,.35),inset 4px 4px 0 rgba(255,255,255,.2)}
+.el.sel{background:var(--blue)}
+.el.right{background:var(--green)}
+.el.wrong{background:var(--red)}
+.el.miss{outline:4px dashed var(--gold);outline-offset:-8px}
+
+/* balance */
+.bal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:24px;margin:6px 0 14px}
+.sp{display:flex;align-items:center;gap:6px;background:#1d1d23;border:3px solid var(--line);padding:6px 8px}
+.sp .co{font-family:'Press Start 2P',monospace;font-size:16px;min-width:26px;text-align:center;color:var(--gold)}
+.sp .st{display:flex;flex-direction:column;gap:3px}
+.sp .st button{width:34px;height:26px;padding:0;font-size:16px;line-height:1;background:#5b5b66;border:2px solid var(--line)}
+.op{font-size:26px;color:var(--muted)}
+table.atoms{border-collapse:collapse;width:100%;font-size:17px;margin-bottom:12px}
+table.atoms td,table.atoms th{border:3px solid var(--line);padding:5px 8px;text-align:left;vertical-align:middle}
+table.atoms th{background:#1d1d23;font-weight:600}
+.blk{display:inline-block;width:13px;height:13px;margin:1px;border:2px solid rgba(0,0,0,.6)}
+.cnt{font-weight:700;margin-right:6px}
+td.okc{background:rgba(95,191,58,.25)} td.badc{background:rgba(224,90,71,.25)}
+
+/* order */
+.orderpool,.orderlist{display:grid;gap:8px;margin-bottom:12px}
+.orderlist .item{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.orderlist .item b{color:var(--gold);margin-right:8px}
+
+/* result */
+.result{text-align:center}
+.bigstars{font-size:58px;color:var(--gold);letter-spacing:6px;margin:10px 0}
+.bigstars .off{color:#4d4c55}
+.bigstars span{display:inline-block;animation:pop .45s both}
+.bigstars span:nth-child(2){animation-delay:.25s}.bigstars span:nth-child(3){animation-delay:.5s}
+@keyframes pop{0%{transform:scale(0) rotate(-30deg)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.boss-art{display:flex;justify-content:center;margin:6px 0 4px}
+
+/* achievements */
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ach{display:flex;gap:12px;align-items:center;background:var(--panel2);border:4px solid var(--line);padding:10px 12px}
+.ach .ai{font-size:30px;width:50px;height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:center;background:#1d1d23;border:3px solid var(--line)}
+.ach .an{font-weight:700;font-size:18px}
+.ach .ad{font-size:15px;color:var(--muted);line-height:1.3}
+.ach.locked .ai{filter:grayscale(1) brightness(.5)}
+.ach.locked .an{color:var(--muted)}
+.ach.got{background:#2f3a28}
+
+/* cheat sheet */
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:#f3ead2;color:#2a2418;border:4px solid var(--line);padding:14px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.12)}
+.card h3{color:#5a3d12}
+.card .f{font-size:21px;margin:4px 0}
+.card table{border-collapse:collapse;width:100%;font-size:16px}
+.card td{border:2px solid #b9a77a;padding:2px 6px}
+
+/* toast */
+#toasts{position:fixed;top:12px;right:12px;display:flex;flex-direction:column;gap:10px;z-index:50;pointer-events:none}
+.toast{background:#212126;border:4px solid var(--line);box-shadow:0 0 0 3px #6d6d78;padding:10px 14px;display:flex;gap:12px;align-items:center;min-width:260px;max-width:340px;animation:tin .4s both}
+.toast .ti{font-size:30px}
+.toast .tt{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);line-height:1.6}
+.toast .tn{font-weight:700}
+.toast.out{animation:tout .4s both}
+@keyframes tin{from{transform:translateX(120%)}to{transform:none}}
+@keyframes tout{to{transform:translateX(130%)}}
+.confetti{position:fixed;top:-20px;width:12px;height:12px;z-index:40;pointer-events:none;border:2px solid rgba(0,0,0,.5);animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+
+.calc{max-width:420px}
+.cdisp{background:#a9b89c;color:#14180f;border:6px solid #1c1c1f;border-radius:6px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.22);padding:8px 12px;min-height:76px;font-size:30px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;margin-bottom:12px;word-break:break-all;display:flex;flex-direction:column;justify-content:space-between}
+.cdisp .cline{text-align:left;min-height:1.2em;letter-spacing:.5px}
+.cdisp .ce{font-size:.78em;margin:0 1px}
+.cdisp .cneg{font-size:.8em;position:relative;top:-.12em;margin-right:1px}
+.cdisp .cunit{text-align:right;font-size:.55em;color:#3b4630}
+.cdisp .cur{display:inline-block;width:.5em;height:.95em;margin-left:2px;background:#2a3320;vertical-align:-.1em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.calc .ckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;background:#141416;border:4px solid var(--line);border-radius:10px;padding:12px}
+.ck{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:600;height:54px;color:#fff;background:#2a2a2e;border:none;border-radius:9px;box-shadow:0 4px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);cursor:pointer;touch-action:manipulation}
+.ck:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+.ck.dg{background:#e9e9ec;color:#111}
+.ck.fn{background:#1f1f22;font-size:19px}
+.ck.w2{grid-column:span 2}
+.ck.op{background:#6f8796;font-size:24px}
+.cdisp .cres{text-align:right;font-size:.95em;min-height:1.1em}
+.cdisp .cop{margin:0 3px}
+.ck.ok{background:#6f8796;font-size:19px}
+.ck.op{background:#3a3d44;font-size:24px}
+.ck.go{background:var(--green);font-size:19px}
+.ck.wide{grid-column:span 2}
+.cdisp .cres{text-align:right;font-size:1em;min-height:1.15em;font-weight:700}
+.cdisp .cline{font-size:.8em;word-break:break-all}
+.ck:disabled{filter:grayscale(1) brightness(.7)}
+
+.curvebox{background:#1d1d23;border:3px solid var(--line);padding:6px;margin:8px 0;max-width:520px}
+.curvebox svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.mrows{display:grid;gap:10px;margin-bottom:12px}
+.mrow{background:#1d1d23;border:3px solid var(--line);padding:8px 10px}
+.mrow.right{border-color:var(--green)}.mrow.wrong{border-color:var(--red)}
+.ml{font-size:18px;margin-bottom:6px}
+.mopts{display:flex;flex-wrap:wrap;gap:6px}
+.mo,.cw,.chip{font-family:inherit;font-size:16px;color:var(--text);background:#4a4a55;border:3px solid var(--line);padding:6px 10px;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.3),inset 3px 3px 0 rgba(255,255,255,.12);text-align:left}
+.mo.sel,.chip.sel{background:var(--blue)}
+.mo.corr{outline:3px solid var(--green);outline-offset:-3px}
+.mo:disabled,.cw:disabled{cursor:default}
+.cw:disabled{opacity:.35}
+.ctext{font-size:20px;line-height:2.1;background:#1d1d23;border:3px solid var(--line);padding:10px 12px;margin-bottom:12px}
+.slot{font-family:inherit;font-size:17px;min-width:110px;color:var(--text);background:#2b2b33;border:2px dashed #8a8a96;padding:2px 8px;margin:0 2px;cursor:pointer;vertical-align:middle}
+.slot.full{border-style:solid;background:#3b5e86}
+.slot.right{background:var(--green-d);border-color:var(--green)}.slot.wrong{background:#8a3328;border-color:var(--red)}
+.cpool{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip.right{background:var(--green)}.chip.wrong{background:var(--red)}.chip.miss{outline:3px dashed var(--gold);outline-offset:-5px}
+.wt{width:100%;min-height:130px;font-family:inherit;font-size:18px;background:#111;color:var(--text);border:3px solid var(--line);padding:10px}
+.checkbox-panel{background:#1d1d23;border:3px solid var(--line);padding:12px;margin-top:12px}
+label.chk{display:flex;gap:10px;align-items:flex-start;font-size:17px;padding:5px 0;cursor:pointer}
+label.chk input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.prog span{display:flex;align-items:center;justify-content:center;font-size:13px;height:24px;line-height:1}
+.prog span.ok,.prog span.bad{background:#2b2b33}
+textarea.code{width:100%;min-height:80px;font-family:ui-monospace,monospace;font-size:13px;background:#111;color:var(--text);border:3px solid var(--line);padding:8px}
+.inline-confirm{margin-top:10px;background:#4a1f1a;border:3px solid var(--line);padding:10px}
+@media (max-width:560px){body{font-size:17px}.q{font-size:19px}h1{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="ores" id="ores"></div>
+<header class="top">
+  <div class="hrow">
+    <div class="brand"><a href="../" class="btn small" id="hublink" style="text-decoration:none">◀ Hub</a><div class="logo">🏗</div><h1>Statik-Baustelle</h1></div>
+    <div class="player">
+      <div class="rank" id="rank"></div>
+      <div class="xpbar"><div id="xpfill" style="width:0"></div><div class="xptxt" id="xptxt"></div></div>
+      <div class="streak" id="streak"></div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="btn small" data-nav="map">🗺 Karte</button>
+    <button class="btn small" data-nav="ach" id="navach">🏆 Erfolge</button>
+    <button class="btn small" data-nav="sheet">📜 Lernzettel</button>
+    <button class="btn small" data-nav="save">💾 Spielstand</button>
+  </nav>
+</header>
+<main class="wrap" id="view"></main>
+<div id="toasts"></div>
+
+<script src="../shared/profil.js"></script>
+<script>
+"use strict";
+/* ============ Daten ============ */
+const KEY='nwtStatik_v1';
+const A={H:1,C:12,N:14,O:16,Na:23,Mg:24,Al:27,S:32,Cl:35.5,Ca:40,Fe:56,Cu:63.5,Zn:65};
+const EN={H:'Wasserstoff',C:'Kohlenstoff',N:'Stickstoff',O:'Sauerstoff',Na:'Natrium',Mg:'Magnesium',Al:'Aluminium',S:'Schwefel',Cl:'Chlor',Ca:'Calcium',Fe:'Eisen',Cu:'Kupfer',Zn:'Zink'};
+const NAMES={H2O:'Wasser',CO2:'Kohlenstoffdioxid',O2:'Sauerstoff',H2:'Wasserstoff',N2:'Stickstoff',Cl2:'Chlor',NaCl:'Natriumchlorid',CH4:'Methan',NH3:'Ammoniak',MgO:'Magnesiumoxid',FeS:'Eisensulfid',HCl:'Chlorwasserstoff',H2SO4:'Schwefelsäure',CaCO3:'Calciumcarbonat',Al2O3:'Aluminiumoxid',Fe2O3:'Eisenoxid',CuO:'Kupferoxid',C2H6O:'Ethanol',ZnCl2:'Zinkchlorid',Cu2S:'Kupfersulfid',C3H8:'Propan',AlCl3:'Aluminiumchlorid',FeCl3:'Eisenchlorid',MgCl2:'Magnesiumchlorid',NaOH:'Natriumhydroxid',CO:'Kohlenstoffmonooxid',Cu2O:'rotes Kupferoxid',Na2O:'Natriumoxid',CaCl2:'Calciumchlorid',Fe:'Eisen',Mg:'Magnesium',C:'Kohlenstoff',Cu:'Kupfer',Al:'Aluminium',S:'Schwefel',Zn:'Zink',Na:'Natrium'};
+const ECOL={H:'#f4f4f4',O:'#e0473a',C:'#3a3a3a',N:'#3f7be0',Cl:'#56c24a',Na:'#9b59d0',Mg:'#c9c9d6',Al:'#a9b4bf',S:'#f2d23c',Ca:'#e8e2c8',Fe:'#b8693a',Cu:'#d9813f',Zn:'#7f97a8'};
+const NA=6.022e23, U=1.66e-24;
+
+/* ============ Helfer ============ */
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pickN=(a,n)=>shuffle(a).slice(0,n);
+const r2=x=>Math.round(x*100)/100;
+function fmt(x,d=2){const p=Math.pow(10,d);return (Math.round(x*p)/p).toLocaleString('de-DE',{maximumFractionDigits:d});}
+function sci(x){let e=Math.floor(Math.log10(Math.abs(x)));let m=x/Math.pow(10,e);m=Math.round(m*100)/100;if(m>=10){m=m/10;e++;}return fmt(m,2)+' · 10<sup>'+e+'</sup>';}
+const fx=f=>f.replace(/(\d+)/g,'<sub>$1</sub>');
+const nm=f=>NAMES[f]||f;
+function parseF(f){const c={};f.replace(/([A-Z][a-z]?)(\d*)/g,(_,e,n)=>{c[e]=(c[e]||0)+(n?+n:1);return '';});return c;}
+function molar(f){const c=parseF(f);let s=0;for(const e in c)s+=A[e]*c[e];return Math.round(s*10)/10;}
+function breakdown(f){const c=parseF(f);return Object.keys(c).map(e=>(c[e]>1?c[e]+' · ':'')+fmt(A[e],1)+' u').join(' + ');}
+function coefHtml(c,f){return (c>1?c+' ':'')+fx(f);}
+function eqHtml(sp,nr){const l=sp.slice(0,nr).map(s=>coefHtml(s[1],s[0])).join(' + ');const r=sp.slice(nr).map(s=>coefHtml(s[1],s[0])).join(' + ');return l+' → '+r;}
+function gcd(a,b){return b?gcd(b,a%b):a;}
+
+/* ============ Aufgaben-Bausteine ============ */
+function num(q,ans,unit,sol,hint,o){return Object.assign({kind:'num',q,ans,unit,sol,hint},o||{});}
+function sciT(q,ans,unit,sol,hint,o){return Object.assign({kind:'sci',q,ans,unit,sol,hint},o||{});}
+function mc(q,choices,e,o){const idx=shuffle(choices.map((_,i)=>i));return Object.assign({kind:'mc',q,choices:idx.map(i=>choices[i]),correct:idx.indexOf(0),sol:e},o||{});}
+const poolMC=p=>mc(p.q,p.c,p.e);
+
+/* ============ NWT-Inhalte: Statik (KA-Themen von der Tafel) ============ */
+const norm=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function tfT(q,a,e){return {kind:'tf',q:`<b>Wahr oder falsch?</b><br>${q}`,ans:a,sol:e};}
+function matchT(q,rows,opts,sol,o){return Object.assign({kind:'match',q,rows,opts,sol},o||{});}
+function sortT(q,pool,n,opts,sol){const rows=pickN(pool,n).map(([l,a])=>({l,a}));return matchT(q,rows,opts,sol);}
+function pairT(q,pairs,n,sol){const sel=pickN(pairs,n);const opts=shuffle(sel.map(p=>p[1]));return matchT(q,sel.map(p=>({l:p[0],a:opts.indexOf(p[1])})),opts,sol);}
+function clozeT(q,text,distract,sol,o){const ans=[];text.replace(/\[([^\]]+)\]/g,(_,w)=>{ans.push(w);return '';});return Object.assign({kind:'cloze',q,text,ans,pool:shuffle(ans.concat(distract)),sol},o||{});}
+function orderT(q,steps,sol){return {kind:'order',q,steps,sol:sol||'<ol>'+steps.map(s=>'<li>'+s+'</li>').join('')+'</ol>'};}
+function writeT(q,keys,model,hint,need){return {kind:'write',q,keys,model,hint,need:need||Math.ceil(keys.length*0.6),sol:''};}
+function multiT(q,opts,ans,sol){const idx=shuffle(opts.map((_,i)=>i));return {kind:'multi',q,opts:idx.map(i=>opts[i]),ans:ans.map(a=>idx.indexOf(a)),sol};}
+const CL_HINT='Tippe auf ein Wort, es wandert in die nächste freie Lücke. Tippe auf eine Lücke, um sie wieder zu leeren.';
+const de=(x,d)=>fmt(x,d===undefined?2:d);
+const G10='(g = 10 N/kg)';
+
+/* ---------- Zeichnungen ---------- */
+const SV=(h,body)=>`<svg viewBox="0 0 340 ${h}" class="diag" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="${h}" fill="#1d1d23"/>${body}</svg>`;
+const T=(x,y,s,o)=>`<text x="${x}" y="${y}" font-size="${(o&&o.fs)||13}" text-anchor="${(o&&o.a)||'middle'}" fill="${(o&&o.c)||'#f0f0f0'}" font-weight="${(o&&o.b)?700:400}">${s}</text>`;
+function arrowDown(x,y1,y2,c,lab){return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2-8}" stroke="${c}" stroke-width="4"/><polygon points="${x-7},${y2-10} ${x+7},${y2-10} ${x},${y2}" fill="${c}"/>${lab?T(x,y1-6,lab,{c,b:1}):''}`;}
+function arrowUp(x,y1,y2,c,lab){return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2+8}" stroke="${c}" stroke-width="4"/><polygon points="${x-7},${y2+10} ${x+7},${y2+10} ${x},${y2}" fill="${c}"/>${lab?T(x,y1+18,lab,{c,b:1}):''}`;}
+/* Zweiseitiger Hebel: Drehpunkt in der Mitte, links F1 im Abstand a1, rechts F2 im Abstand a2 (Werte in Text, ? für gesucht) */
+function hebelSvg(a1,F1,a2,F2,maxA,n1,n2){const cx=170,sc=130/maxA;const x1=cx-n1*sc,x2=cx+n2*sc;
+  return SV(170,`<rect x="25" y="88" width="290" height="10" fill="#c9a26b"/><polygon points="${cx},98 ${cx-16},128 ${cx+16},128" fill="#8a8a96"/>${T(cx,145,'Drehpunkt',{fs:11,c:'#bbb'})}
+   ${arrowDown(x1,36,86,'#ff8a6b','F₁ = '+F1)}${arrowDown(x2,36,86,'#6bc7ff','F₂ = '+F2)}
+   <line x1="${x1}" y1="112" x2="${cx}" y2="112" stroke="#f2c94c" stroke-dasharray="4 3"/>${T((x1+cx)/2,126,'a₁ = '+a1,{fs:12,c:'#f2c94c'})}
+   <line x1="${cx}" y1="112" x2="${x2}" y2="112" stroke="#f2c94c" stroke-dasharray="4 3"/>${T((x2+cx)/2,126,'a₂ = '+a2,{fs:12,c:'#f2c94c'})}`);}
+/* Balken auf zwei Lagern A (links) und B (rechts), Länge l, Last F im Abstand a von A */
+function lagerSvg(l,a,F){const x0=40,x1=300,xa=x0+(x1-x0)*parseFloat(a)/parseFloat(l);
+  return SV(180,`<rect x="${x0}" y="80" width="${x1-x0}" height="12" fill="#c9a26b"/>
+   <polygon points="${x0},92 ${x0-14},118 ${x0+14},118" fill="#8a8a96"/><polygon points="${x1},92 ${x1-14},118 ${x1+14},118" fill="#8a8a96"/><line x1="${x1-16}" y1="122" x2="${x1+16}" y2="122" stroke="#8a8a96" stroke-width="3"/>
+   ${T(x0,135,'A',{b:1})}${T(x1,135,'B',{b:1})}${arrowDown(xa,28,78,'#ff8a6b','F = '+F)}
+   <line x1="${x0}" y1="152" x2="${xa}" y2="152" stroke="#f2c94c"/>${T((x0+xa)/2,168,'a = '+a,{fs:12,c:'#f2c94c'})}
+   <line x1="${x0}" y1="60" x2="${x1}" y2="60" stroke="#bbb" stroke-dasharray="3 3"/>${T((x0+x1)/2,54,'l = '+l,{fs:12,c:'#bbb'})}`);}
+/* Zwei Kräfte im rechten Winkel mit Kräfteparallelogramm (Maßstab) */
+function paraSvg(Fx,Fy,scale){const s=Math.min(26,200/(Fx/scale),120/(Fy/scale)),ox=115,oy=150,ex=ox+Fx/scale*s,ey=oy-Fy/scale*s;
+  return SV(175,`<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${oy}" stroke="#ff8a6b" stroke-width="4"/><polygon points="${ex},${oy} ${ex-10},${oy-6} ${ex-10},${oy+6}" fill="#ff8a6b"/>${T((ox+ex)/2,oy+18,'F₁ = '+Fx+' N',{c:'#ff8a6b',fs:12})}
+   <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${ey}" stroke="#6bc7ff" stroke-width="4"/><polygon points="${ox},${ey} ${ox-6},${ey+10} ${ox+6},${ey+10}" fill="#6bc7ff"/>${T(ox-8,(oy+ey)/2,'F₂ = '+Fy+' N',{c:'#6bc7ff',fs:12,a:'end'})}
+   <line x1="${ex}" y1="${oy}" x2="${ex}" y2="${ey}" stroke="#777" stroke-dasharray="4 3"/><line x1="${ox}" y1="${ey}" x2="${ex}" y2="${ey}" stroke="#777" stroke-dasharray="4 3"/>
+   <line x1="${ox}" y1="${oy}" x2="${ex}" y2="${ey}" stroke="#f2c94c" stroke-width="4"/>${T((ox+ex)/2+10,(oy+ey)/2+22,'F<tspan font-size="9">R</tspan> = ?',{c:'#f2c94c',b:1,a:'start'})}
+   ${T(330,20,'1 cm ≙ '+scale+' N',{a:'end',fs:12,c:'#bbb'})}`);}
+/* Flaschenzug mit n tragenden Seilstücken */
+function seilSvg(n){let r='';const top=20;const k=Math.ceil(n/2),xs=[];for(let i=0;i<n;i++)xs.push(110+i*24);
+  r+=`<rect x="80" y="${top}" width="${40+n*24}" height="10" fill="#8a8a96"/>`;
+  xs.forEach((x,i)=>{r+=`<line x1="${x}" y1="${top+10}" x2="${x}" y2="120" stroke="#e8d9a8" stroke-width="2.5"/>`;});
+  r+=`<rect x="${xs[0]-8}" y="120" width="${xs[n-1]-xs[0]+16}" height="16" rx="6" fill="#5a5a62"/><line x1="${(xs[0]+xs[n-1])/2}" y1="136" x2="${(xs[0]+xs[n-1])/2}" y2="148" stroke="#999" stroke-width="3"/><rect x="${(xs[0]+xs[n-1])/2-22}" y="148" width="44" height="24" fill="#c4502a"/>${T((xs[0]+xs[n-1])/2,165,'Last',{fs:11})}`;
+  const xz=xs[n-1]+40;r+=`<line x1="${xs[n-1]}" y1="${top+10}" x2="${xz}" y2="${top+10}" stroke="#e8d9a8" stroke-width="2.5"/><line x1="${xz}" y1="${top+10}" x2="${xz}" y2="100" stroke="#e8d9a8" stroke-width="2.5"/>${arrowDown(xz,100,140,'#ff8a6b','')}${T(xz+8,150,'F',{a:'start',c:'#ff8a6b',b:1})}`;
+  r+=T(30,80,n+' tragende',{a:'start',fs:12,c:'#bbb'})+T(30,96,'Seilstücke',{a:'start',fs:12,c:'#bbb'});
+  return SV(180,r);}
+/* Profil-Querschnitte */
+function profSvg(t){const P={
+  I:'<polygon points="10,8 50,8 50,16 34,16 34,44 50,44 50,52 10,52 10,44 26,44 26,16 10,16" fill="#a9b4bf"/>',
+  T:'<polygon points="8,8 52,8 52,16 34,16 34,52 26,52 26,16 8,16" fill="#a9b4bf"/>',
+  U:'<polygon points="12,8 48,8 48,16 22,16 22,44 48,44 48,52 12,52" fill="#a9b4bf"/>',
+  L:'<polygon points="14,8 22,8 22,44 50,44 50,52 14,52" fill="#a9b4bf"/>',
+  O:'<circle cx="30" cy="30" r="22" fill="#a9b4bf"/><circle cx="30" cy="30" r="15" fill="#1d1d23"/>',
+  Q:'<rect x="10" y="8" width="40" height="44" fill="#a9b4bf"/><rect x="17" y="15" width="26" height="30" fill="#1d1d23"/>',
+  V:'<rect x="14" y="8" width="32" height="44" fill="#a9b4bf"/>'}[t];
+  return `<svg viewBox="0 0 60 60" width="56" height="56" style="vertical-align:middle;background:#1d1d23;border:2px solid #555">${P}</svg>`;}
+
+/* ---------- Tippbare Schaubilder: Biegebalken ---------- */
+function shape(z,extra){const [id,,fill,sh]=z;return `<polygon data-z="${id}" points="${sh}" fill="${fill}" ${extra}/>`;}
+function drawDiag(zones,deco,st){
+  let s=`<svg viewBox="0 0 340 200" class="diag" xmlns="http://www.w3.org/2000/svg"><rect width="340" height="200" fill="#1d1d23"/>`+(deco.pre||'');
+  zones.forEach(z=>{let ex='stroke="rgba(0,0,0,.6)" stroke-width="1" style="cursor:pointer"';
+    if(st){if(z[0]===st.corr)ex='stroke="#5fbf3a" stroke-width="4"';else if(z[0]===st.sel)ex='stroke="#e05a47" stroke-width="4"';else ex='stroke="rgba(0,0,0,.6)" stroke-width="1"';}
+    s+=shape(z,ex);});
+  s+=(deco.post||'');
+  if(st)zones.forEach(z=>{const [x,y]=z[4];const hi=z[0]===st.corr;s+=`<text x="${x}" y="${y}" font-size="${hi?13:11}" font-weight="${hi?700:400}" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke" style="pointer-events:none">${z[1]}</text>`;});
+  return s+'</svg>';
+}
+const DIAG={
+ einfeld:{zones:[['o','oben (Druck: wird gestaucht)','#b9894f','40,80 300,80 300,98 40,98',[170,70]],['n','Mitte (neutrale Faser)','#d8b27a','40,98 300,98 300,104 40,104',[170,102]],['u','unten (Zug: wird gedehnt)','#9c6f3a','40,104 300,104 300,122 40,122',[170,138]]],
+  deco:{pre:'',post:`<polygon points="40,122 26,148 54,148" fill="#8a8a96"/><polygon points="300,122 286,148 314,148" fill="#8a8a96"/>${arrowDown(170,22,78,'#ff8a6b','F')}<path d="M40 165 Q170 190 300 165" stroke="#777" fill="none" stroke-dasharray="4 3"/>${T(170,196,'so biegt er sich durch',{fs:10,c:'#999'})}`}},
+ krag:{zones:[['o','oben (Zug: wird gedehnt)','#9c6f3a','60,80 310,80 310,98 60,98',[185,70]],['n','Mitte (neutrale Faser)','#d8b27a','60,98 310,98 310,104 60,104',[185,102]],['u','unten (Druck: wird gestaucht)','#b9894f','60,104 310,104 310,122 60,122',[185,138]]],
+  deco:{pre:`<rect x="20" y="40" width="40" height="130" fill="#6d6d78"/><line x1="20" y1="40" x2="60" y2="80" stroke="#555"/><line x1="20" y1="80" x2="60" y2="120" stroke="#555"/><line x1="20" y1="120" x2="60" y2="160" stroke="#555"/>`,post:`${arrowDown(300,22,78,'#ff8a6b','F')}${T(40,190,'Wand (fest eingespannt)',{fs:10,c:'#999',a:'start'})}<path d="M60 160 Q200 160 310 182" stroke="#777" fill="none" stroke-dasharray="4 3"/>`}}};
+function tapT(d,zone,q,sol){return {kind:'tap',diagram:d,zone,q,sol};}
+const TAP_B=[
+ ['einfeld','u','<b>Balken auf zwei Stützen</b>, Last in der Mitte: Tippe auf den Bereich, der auf <b>Zug</b> belastet (gedehnt) wird.','Der Balken biegt sich nach unten durch: Die <b>Unterseite wird gedehnt (Zug)</b>, die Oberseite gestaucht (Druck).'],
+ ['einfeld','o','<b>Balken auf zwei Stützen</b>, Last in der Mitte: Tippe auf den Bereich, der auf <b>Druck</b> belastet (gestaucht) wird.','Beim Durchbiegen wird die <b>Oberseite gestaucht (Druck)</b>, die Unterseite gedehnt (Zug).'],
+ ['einfeld','n','<b>Balken auf zwei Stützen</b>: Wo wird das Material beim Biegen <b>weder gedehnt noch gestaucht</b>?','In der <b>neutralen Faser</b> (Mitte) gibt es keine Zug- oder Druckspannung. Hier kann man Material einsparen, deshalb haben Träger z. B. ein I-Profil.'],
+ ['krag','o','<b>Kragträger</b> (in der Wand eingespannt, Last am Ende): Tippe auf den Bereich mit <b>Zug</b>.','Beim Kragträger ist es umgekehrt: Die <b>Oberseite wird gedehnt (Zug)</b>, die Unterseite gestaucht (Druck).'],
+ ['krag','u','<b>Kragträger</b> (in der Wand eingespannt, Last am Ende): Tippe auf den Bereich mit <b>Druck</b>.','Beim Kragträger wird die <b>Unterseite gestaucht (Druck)</b>, die Oberseite gedehnt (Zug).']];
+const gTapB=()=>{const [d,z,q,e]=pick(TAP_B);return tapT(d,z,q,e);};
+
+/* ---------- Welt 1: Fundament (Statik, Kraft, Gewichtskraft) ---------- */
+function gFG(){const v=Math.random();
+  if(v<.5){const m=pick([0.5,2,5,12,25,60,75,250,1200]);return num(`Berechne die <b>Gewichtskraft</b> eines Körpers mit der Masse <b>${de(m)} kg</b>. ${G10}`,m*10,'N',`F<sub>G</sub> = m · g = ${de(m)} kg · 10 N/kg = <b>${de(m*10)} N</b>`,'F_G = m · g');}
+  const F=pick([30,150,400,800,2500,12000]);return num(`Ein Körper hat die Gewichtskraft <b>${de(F)} N</b>. Wie groß ist seine <b>Masse</b>? ${G10}`,F/10,'kg',`m = F<sub>G</sub> / g = ${de(F)} N : 10 N/kg = <b>${de(F/10)} kg</b>`,'F_G = m · g nach m umstellen.');}
+const MC_ST=[
+ {q:'Womit beschäftigt sich die <b>Statik</b>?',c:['Mit Kräften an ruhenden Körpern, die im Gleichgewicht sind (z. B. Gebäude, Brücken)','Mit der Bewegung von Fahrzeugen','Mit elektrischer Ladung','Mit der Wärmeübertragung'],e:'Statik ist die Lehre vom <b>Gleichgewicht der Kräfte</b> an ruhenden Körpern. Ein Bauwerk steht, wenn sich alle Kräfte und Drehmomente gegenseitig aufheben.'},
+ {q:'Durch welche drei Angaben ist eine Kraft vollständig bestimmt?',c:['Betrag (Größe), Richtung und Angriffspunkt','Masse, Volumen und Dichte','Länge, Breite und Höhe','Geschwindigkeit, Zeit und Weg'],e:'Eine Kraft ist eine <b>gerichtete Größe</b>. Man zeichnet sie als Pfeil: Länge = Betrag, Pfeilspitze = Richtung, Anfang = Angriffspunkt.'},
+ {q:'In welcher Einheit misst man Kräfte?',c:['Newton (N)','Kilogramm (kg)','Joule (J)','Pascal (Pa)'],e:'Die Einheit der Kraft ist <b>1 Newton (N)</b>. Ein 100-g-Tafel Schokolade wiegt etwa 1 N.'},
+ {q:'Wann befindet sich ein Körper im <b>Gleichgewicht</b>?',c:['Wenn sich alle Kräfte und alle Drehmomente gegenseitig aufheben','Wenn nur eine Kraft wirkt','Wenn er möglichst schwer ist','Wenn er sich gleichmäßig dreht'],e:'Gleichgewicht: Summe aller Kräfte = 0 <b>und</b> Summe aller Drehmomente = 0. Dann bleibt der Körper in Ruhe.'},
+ {q:'Was ist der Unterschied zwischen <b>Masse</b> und <b>Gewichtskraft</b>?',c:['Die Masse (kg) ist überall gleich, die Gewichtskraft (N) hängt vom Ort ab (z. B. Mond)','Das ist dasselbe','Die Masse hängt vom Ort ab, die Gewichtskraft nicht','Die Gewichtskraft misst man in kg'],e:'Auf dem Mond hast du dieselbe Masse, aber nur etwa 1/6 der Gewichtskraft.'},
+ {q:'Wie misst man Kräfte im Unterricht?',c:['Mit einem Federkraftmesser','Mit einer Balkenwaage in kg','Mit einem Thermometer','Mit dem Lineal'],e:'Im <b>Federkraftmesser</b> dehnt sich eine Feder proportional zur Kraft.'}];
+const CL_ST=()=>clozeT(CL_HINT,'Die Statik ist die Lehre vom [Gleichgewicht] der Kräfte an [ruhenden] Körpern. Eine Kraft wird als [Pfeil] dargestellt. Seine Länge gibt den [Betrag] an, die Spitze die [Richtung]. Die Einheit der Kraft ist das [Newton].',['bewegten','Kilogramm'],'');
+const wrST=()=>writeT('<b>Erkläre</b>, was man unter Statik versteht und wann ein Bauwerk im Gleichgewicht ist.',
+ [['Lehre von den Kräften an ruhenden Körpern',['ruhend','ruhe']],['Gleichgewicht der Kräfte',['gleichgewicht']],['Summe der Kräfte = 0 / Kräfte heben sich auf',['aufheben','heben sich','summe','null','0']],['auch Drehmomente heben sich auf',['drehmoment','moment','drehen','kippen']],['Beispiel: Brücke, Gebäude, Kran',['bruecke','gebaeude','haus','kran','turm','bau']]],
+ 'Die <b>Statik</b> beschäftigt sich mit den Kräften an <b>ruhenden</b> Körpern, z. B. an <b>Brücken, Gebäuden oder Kränen</b>. Ein Bauwerk ist im <b>Gleichgewicht</b>, wenn sich alle Kräfte gegenseitig <b>aufheben</b> (Summe der Kräfte = 0) und es sich auch nicht dreht oder kippt (Summe der <b>Drehmomente</b> = 0). Nur dann bleibt es stehen.',
+ 'Was untersucht die Statik? Was heißt Gleichgewicht? Ein Beispiel.',3);
+
+/* ---------- Welt 2: Hebel-Werkstatt (Hebelgesetz) ---------- */
+function gHebel(){const combos=[[2,300,3,200],[1,600,3,200],[4,150,2,300],[3,400,4,300],[5,120,2,300],[2,250,5,100],[0.5,800,2,200],[1.5,400,3,200]];
+  let [a1,F1,a2,F2]=pick(combos);if(Math.random()<.5)[a1,F1,a2,F2]=[a2,F2,a1,F1];
+  const ask=pick(['F2','a2','F1']);const A=x=>de(x)+' m',N=x=>de(x)+' N';
+  if(ask==='F2')return num(`<b>Hebelgesetz:</b> Der Hebel ist im Gleichgewicht. Berechne <b>F₂</b>.<br>${hebelSvg(A(a1),N(F1),A(a2),'?',Math.max(a1,a2),a1,a2)}`,F2,'N',`F₁ · a₁ = F₂ · a₂ → F₂ = F₁ · a₁ / a₂ = ${de(F1)} N · ${de(a1)} m : ${de(a2)} m = <b>${de(F2)} N</b>`,'Kraft mal Kraftarm = Last mal Lastarm: F₁ · a₁ = F₂ · a₂');
+  if(ask==='a2')return num(`<b>Hebelgesetz:</b> Der Hebel ist im Gleichgewicht. Wie lang ist der Hebelarm <b>a₂</b>?<br>${hebelSvg(A(a1),N(F1),'?',N(F2),Math.max(a1,a2),a1,a2)}`,a2,'m',`a₂ = F₁ · a₁ / F₂ = ${de(F1)} N · ${de(a1)} m : ${de(F2)} N = <b>${de(a2)} m</b>`,'F₁ · a₁ = F₂ · a₂ nach a₂ umstellen.');
+  return num(`<b>Hebelgesetz:</b> Der Hebel ist im Gleichgewicht. Berechne <b>F₁</b>.<br>${hebelSvg(A(a1),'?',A(a2),N(F2),Math.max(a1,a2),a1,a2)}`,F1,'N',`F₁ = F₂ · a₂ / a₁ = ${de(F2)} N · ${de(a2)} m : ${de(a1)} m = <b>${de(F1)} N</b>`,'F₁ · a₁ = F₂ · a₂ nach F₁ umstellen.');}
+function gMoment(){const F=pick([20,50,80,120,250]),a=pick([0.2,0.25,0.4,0.5,1.5,2]);
+  if(Math.random()<.6)return num(`Eine Kraft von <b>${F} N</b> greift im Abstand <b>${de(a)} m</b> vom Drehpunkt an (senkrecht zum Hebel). Wie groß ist das <b>Drehmoment</b>?`,F*a,'Nm',`M = F · a = ${F} N · ${de(a)} m = <b>${de(F*a)} Nm</b>`,'M = F · a');
+  return num(`Eine Schraube wird mit einem Drehmoment von <b>${de(F*a)} Nm</b> angezogen. Der Schraubenschlüssel ist <b>${de(a)} m</b> lang. Mit welcher Kraft musst du am Ende drücken?`,F,'N',`F = M / a = ${de(F*a)} Nm : ${de(a)} m = <b>${F} N</b>`,'M = F · a nach F umstellen.');}
+const HEB=[['Wippe',1],['Schere',1],['Zange',1],['Balkenwaage',1],['Brechstange (über einen Stein gelegt)',1],['Schubkarre',0],['Nussknacker',0],['Flaschenöffner',0],['Pinzette',0],['Unterarm (Ellenbogen als Drehpunkt)',0]];
+const gHebArt=()=>sortT('Ist das ein <b>einseitiger</b> oder ein <b>zweiseitiger</b> Hebel?',HEB,5,['einseitiger Hebel','zweiseitiger Hebel'],'<b>Zweiseitig:</b> Der Drehpunkt liegt <b>zwischen</b> Kraft und Last (Wippe, Schere, Zange). <b>Einseitig:</b> Kraft und Last greifen auf <b>derselben Seite</b> des Drehpunkts an (Schubkarre, Nussknacker, Pinzette).');
+const MC_HE=[
+ {q:'Wie lautet das <b>Hebelgesetz</b>?',c:['F₁ · a₁ = F₂ · a₂ (Kraft mal Kraftarm = Last mal Lastarm)','F₁ + a₁ = F₂ + a₂','F₁ : a₁ = F₂ : a₂','F₁ · F₂ = a₁ · a₂'],e:'Gleichgewicht herrscht, wenn die Drehmomente links und rechts gleich groß sind.'},
+ {q:'Du willst mit möglichst wenig Kraft eine schwere Last heben. Was machst du?',c:['Den Kraftarm möglichst lang machen','Den Kraftarm möglichst kurz machen','Den Lastarm möglichst lang machen','Das spielt keine Rolle'],e:'Doppelter Kraftarm = halbe Kraft. Deshalb haben Schraubenschlüssel und Brechstangen lange Griffe.'},
+ {q:'Was ist der <b>Hebelarm</b> (Kraftarm)?',c:['Der senkrechte Abstand zwischen Drehpunkt und Wirkungslinie der Kraft','Die Länge des ganzen Hebels','Die Masse des Hebels','Der Abstand zwischen den beiden Kräften'],e:'Gemessen wird vom <b>Drehpunkt</b> bis zur Kraft, und zwar senkrecht zur Kraftrichtung.'},
+ {q:'Was gibt das <b>Drehmoment</b> an?',c:['Wie stark eine Kraft einen Körper um einen Drehpunkt drehen will: M = F · a','Wie schnell sich etwas dreht','Wie schwer ein Hebel ist','Die Zeit für eine Umdrehung'],e:'Einheit: <b>Newtonmeter (Nm)</b>.'},
+ {q:'An einer Wippe sitzt ein Kind mit 300 N im Abstand 2 m. Wo muss ein Kind mit 600 N sitzen?',c:['1 m vom Drehpunkt auf der anderen Seite','4 m vom Drehpunkt','2 m vom Drehpunkt','3 m vom Drehpunkt'],e:'300 N · 2 m = 600 N · a₂ → a₂ = <b>1 m</b>. Doppelte Kraft, halber Abstand.'}];
+const wrHE=()=>writeT('<b>Erkläre</b> mit dem Hebelgesetz, warum man eine festsitzende Schraube mit einem langen Schraubenschlüssel leichter lösen kann.',
+ [['Hebelgesetz F₁ · a₁ = F₂ · a₂ bzw. Drehmoment M = F · a',['f1','f₁','m = f','f · a','f*a','drehmoment','hebelgesetz']],['Benötigtes Drehmoment bleibt gleich',['gleich','benoetigt','noetig']],['Längerer Hebelarm (Kraftarm)',['laeng','hebelarm','kraftarm','lang']],['Kleinere Kraft nötig',['weniger','kleiner','geringer']]],
+ 'Um die Schraube zu lösen, braucht man ein bestimmtes <b>Drehmoment</b> M = F · a. Dieses Drehmoment bleibt <b>gleich</b>. Mit einem <b>längeren Schraubenschlüssel</b> wird der Hebelarm a größer. Deshalb braucht man eine <b>kleinere Kraft</b> F: Doppelte Länge bedeutet halbe Kraft (Hebelgesetz F₁ · a₁ = F₂ · a₂).',
+ 'Drehmoment, Hebelarm länger, Kraft kleiner.',3);
+
+/* ---------- Welt 3: Zeichenbüro (Kräfte zeichnerisch) ---------- */
+function gMassstab(){const sc=pick([5,10,20,50,100]);const L=pick([2,2.5,3,4,4.5,6,7]);
+  if(Math.random()<.5)return num(`Kräftemaßstab: <b>1 cm ≙ ${sc} N</b>. Ein Kraftpfeil ist <b>${de(L)} cm</b> lang. Wie groß ist die Kraft?`,L*sc,'N',`${de(L)} · ${sc} N = <b>${de(L*sc)} N</b>`,'Pfeillänge in cm mal Maßstab.');
+  return num(`Kräftemaßstab: <b>1 cm ≙ ${sc} N</b>. Wie lang musst du einen Pfeil für <b>${de(L*sc)} N</b> zeichnen?`,L,'cm',`${de(L*sc)} N : ${sc} N/cm = <b>${de(L)} cm</b>`,'Kraft durch Maßstab.');}
+function gKolinear(){const F1=pick([30,40,60,80,120]),F2=pick([20,50,70,90]);
+  if(Math.random()<.5)return num(`Zwei Kräfte <b>${F1} N</b> und <b>${F2} N</b> greifen am selben Punkt in <b>dieselbe Richtung</b> an. Wie groß ist die resultierende Kraft?`,F1+F2,'N',`Gleiche Richtung: Kräfte addieren. F<sub>R</sub> = ${F1} N + ${F2} N = <b>${F1+F2} N</b>`,'Pfeile aneinanderhängen.');
+  return num(`Zwei Kräfte <b>${F1} N</b> und <b>${F2} N</b> greifen am selben Punkt in <b>entgegengesetzte Richtungen</b> an. Wie groß ist die resultierende Kraft (Betrag)?`,Math.abs(F1-F2),'N',`Entgegengesetzt: Kräfte subtrahieren. F<sub>R</sub> = |${F1} N − ${F2} N| = <b>${Math.abs(F1-F2)} N</b> in Richtung der größeren Kraft`,'Größere minus kleinere Kraft.');}
+function gPara(){const tri=pick([[3,4,5],[6,8,10],[5,12,13],[4,3,5],[8,6,10]]);const sc=pick([10,20,50]);const Fx=tri[0]*sc,Fy=tri[1]*sc,FR=tri[2]*sc;
+  if(Math.random()<.5)return num(`Zwei Kräfte stehen <b>senkrecht</b> aufeinander. Bestimme die resultierende Kraft mit dem Kräfteparallelogramm (oder mit dem Satz des Pythagoras).<br>${paraSvg(Fx,Fy,sc)}`,FR,'N',`Die Diagonale des Parallelogramms ist die Resultierende. Gezeichnet ist sie ${tri[2]} cm lang → ${tri[2]} · ${sc} N = <b>${FR} N</b>.<br>Rechnerisch: F<sub>R</sub> = √(${Fx}² + ${Fy}²) = <b>${FR} N</b>`,'Pythagoras: F_R = √(F₁² + F₂²)');
+  return num(`Maßstab <b>1 cm ≙ ${sc} N</b>. Im Kräfteparallelogramm ist F₁ = ${Fx} N und F₂ = ${Fy} N (senkrecht zueinander). Wie lang (in cm) wird der Pfeil der Resultierenden?<br>${paraSvg(Fx,Fy,sc)}`,tri[2],'cm',`F₁ → ${tri[0]} cm, F₂ → ${tri[1]} cm. Diagonale: √(${tri[0]}² + ${tri[1]}²) = <b>${tri[2]} cm</b> (≙ ${FR} N)`,'Erst beide Kräfte in cm umrechnen, dann Pythagoras.');}
+const ORD_PARA=['Kräftemaßstab festlegen (z. B. 1 cm ≙ 10 N)','Beide Kräfte maßstabsgetreu vom gemeinsamen Angriffspunkt aus zeichnen','Parallelen zu beiden Kräften durch die Pfeilspitzen zeichnen','Diagonale vom Angriffspunkt zum Schnittpunkt der Parallelen zeichnen = Resultierende','Länge der Diagonale messen und mit dem Maßstab in N umrechnen'];
+const gOrdPara=()=>orderT('<b>Kräfteparallelogramm:</b> Bring die Schritte in die richtige Reihenfolge.',ORD_PARA);
+const MC_ZE=[
+ {q:'Was ist die <b>Resultierende</b>?',c:['Die eine Kraft, die genau dieselbe Wirkung hat wie mehrere Kräfte zusammen','Die größte der Kräfte','Die Summe der Beträge, egal welche Richtung','Die Gegenkraft'],e:'Die Resultierende <b>ersetzt</b> mehrere Kräfte mit derselben Wirkung.'},
+ {q:'Woran erkennt man im <b>Krafteck</b>, dass Gleichgewicht herrscht?',c:['Die aneinandergehängten Kraftpfeile ergeben eine geschlossene Figur','Alle Pfeile zeigen in dieselbe Richtung','Ein Pfeil ist doppelt so lang','Die Pfeile kreuzen sich nicht'],e:'Hängt man alle Kräfte Spitze an Ende aneinander und landet wieder am Anfang, ist die Resultierende <b>null</b>: Gleichgewicht.'},
+ {q:'Was bedeutet „Kraftzerlegung“?',c:['Eine Kraft wird in zwei Teilkräfte in vorgegebene Richtungen aufgeteilt','Eine Kraft wird halbiert','Zwei Kräfte werden addiert','Eine Kraft wird gemessen'],e:'Man zeichnet das Parallelogramm „rückwärts“: Die gegebene Kraft ist die Diagonale, die Seiten sind die Teilkräfte. Beispiel: Hangabtriebskraft und Normalkraft.'},
+ {q:'Zwei gleich große Kräfte ziehen in entgegengesetzte Richtungen am selben Punkt. Was passiert?',c:['Sie heben sich auf, die Resultierende ist 0 N','Die Resultierende ist doppelt so groß','Der Körper dreht sich immer','Der Körper bewegt sich schneller'],e:'Gleich groß und entgegengesetzt → <b>Gleichgewicht</b>.'},
+ {q:'Zwei Kräfte von je 50 N wirken im Winkel von 90° zueinander. Die Resultierende ist …',c:['kleiner als 100 N (etwa 71 N)','genau 100 N','genau 50 N','0 N'],e:'Nur bei gleicher Richtung addieren sich die Beträge. Bei 90°: √(50² + 50²) ≈ <b>71 N</b>.'}];
+const wrZE=()=>writeT('<b>Beschreibe</b>, wie du die resultierende Kraft zweier Kräfte, die in verschiedene Richtungen wirken, zeichnerisch bestimmst.',
+ [['Kräftemaßstab festlegen',['massstab','1 cm']],['Kräfte als Pfeile vom gemeinsamen Angriffspunkt zeichnen',['pfeil','angriffspunkt','zeichn']],['Parallelogramm ergänzen (Parallelen)',['parallel']],['Diagonale = Resultierende',['diagonale']],['Länge messen und umrechnen',['mess','umrechn','laenge']]],
+ 'Zuerst lege ich einen <b>Kräftemaßstab</b> fest, z. B. 1 cm ≙ 10 N. Dann zeichne ich beide Kräfte als <b>Pfeile</b> vom gemeinsamen <b>Angriffspunkt</b> aus. Durch die Pfeilspitzen zeichne ich jeweils eine <b>Parallele</b> zur anderen Kraft, so entsteht ein Parallelogramm. Die <b>Diagonale</b> vom Angriffspunkt zur gegenüberliegenden Ecke ist die Resultierende. Ihre <b>Länge messe</b> ich und rechne sie mit dem Maßstab in Newton um.',
+ 'Maßstab, Pfeile, Parallelen, Diagonale, messen.',3);
+
+/* ---------- Welt 4: Rechenbüro (Kräfte rechnerisch, Lagerkräfte) ---------- */
+function gLager(){const l=pick([4,5,6,8,10]);let a=pick([1,2,3,4,5,6,7].filter(x=>x<l));const F=pick([200,400,600,1000,1200,2000]);
+  const FB=F*a/l,FA=F-FB;const ask=Math.random()<.5?'B':'A';
+  const bB=ask==='B'?`<b>${de(FB)} N</b>`:`${de(FB)} N`,bA=ask==='A'?`<b>${de(FA)} N</b>`:`${de(FA)} N`;
+  const sol=`Momentengleichgewicht um Lager A: F · a = F<sub>B</sub> · l → F<sub>B</sub> = ${F} N · ${a} m : ${l} m = ${bB}`+(ask==='A'?`<br>Kräftegleichgewicht: F<sub>A</sub> = F − F<sub>B</sub> = ${F} N − ${de(FB)} N = ${bA}`:'');
+  return num(`Ein Balken liegt auf zwei Lagern A und B. Eine Last F wirkt auf ihn. Berechne die <b>Lagerkraft F<sub>${ask}</sub></b>.<br>${lagerSvg(l+' m',a+' m',F+' N')}`,ask==='B'?FB:FA,'N',sol,'Drehpunkt in ein Lager legen: F · a = F_B · l. Danach F_A + F_B = F.');}
+function gLagerMitte(){const F=pick([500,800,1200,3000]);return num(`Eine Last von <b>${F} N</b> steht genau in der <b>Mitte</b> eines Balkens auf zwei Lagern. Wie groß ist die Kraft auf <b>jedes</b> Lager?`,F/2,'N',`Symmetrisch: Jedes Lager trägt die Hälfte: ${F} N : 2 = <b>${F/2} N</b>`,'Gleiche Abstände, gleiche Lagerkräfte.');}
+function gResRech(){const Fs=pickN([120,80,50,200,30,150],3);const dirs=Fs.map(()=>pick([1,-1]));if(dirs.every(d=>d===dirs[0]))dirs[2]*=-1;
+  const R=Fs.reduce((s,f,i)=>s+f*dirs[i],0);const txt=Fs.map((f,i)=>`${f} N nach ${dirs[i]>0?'rechts':'links'}`).join(', ');
+  return num(`An einem Körper ziehen drei Kräfte auf einer Linie: ${txt}. Wie groß ist die <b>resultierende Kraft</b> (Betrag)?`,Math.abs(R),'N',`Rechts positiv, links negativ: ${Fs.map((f,i)=>(dirs[i]>0?'+':'−')+' '+f).join(' ')} = ${R} N → <b>${Math.abs(R)} N</b> nach ${R>=0?'rechts':'links'}`,'Eine Richtung positiv, die andere negativ zählen.');}
+function gPyth(){const tri=pick([[30,40,50],[60,80,100],[90,120,150],[50,120,130]]);return num(`Zwei Seile ziehen im <b>rechten Winkel</b> an einem Haken: ${tri[0]} N und ${tri[1]} N. Wie groß ist die resultierende Kraft?`,tri[2],'N',`F<sub>R</sub> = √(${tri[0]}² + ${tri[1]}²) = √${tri[0]**2+tri[1]**2} = <b>${tri[2]} N</b>`,'Satz des Pythagoras');}
+const MC_RE=[
+ {q:'Welche Bedingungen müssen für das Gleichgewicht eines Balkens erfüllt sein?',c:['Summe der senkrechten Kräfte = 0, Summe der waagrechten Kräfte = 0 und Summe der Drehmomente = 0','Nur die Summe der Kräfte = 0','Die Lagerkräfte müssen gleich groß sein','Die Last muss in der Mitte stehen'],e:'Drei Gleichgewichtsbedingungen: ΣF<sub>senkrecht</sub> = 0, ΣF<sub>waagrecht</sub> = 0, ΣM = 0.'},
+ {q:'Warum legt man den Drehpunkt bei der Berechnung von Lagerkräften in ein Lager?',c:['Dann hat die Kraft in diesem Lager keinen Hebelarm und fällt aus der Gleichung','Weil der Balken dort bricht','Weil das Lager am schwersten ist','Das macht man nicht'],e:'Kraft im Drehpunkt → Hebelarm 0 → Drehmoment 0. So bleibt nur <b>eine</b> Unbekannte übrig.'},
+ {q:'Eine Last steht näher an Lager A als an Lager B. Welches Lager trägt mehr?',c:['Lager A','Lager B','Beide gleich viel','Keins, die Last trägt sich selbst'],e:'Das <b>nähere</b> Lager trägt den größeren Anteil.'},
+ {q:'Wie groß ist die Summe der beiden Lagerkräfte F<sub>A</sub> + F<sub>B</sub>?',c:['Genau so groß wie die Last (Eigengewicht vernachlässigt)','Doppelt so groß wie die Last','Halb so groß wie die Last','Das hängt von der Balkenlänge ab'],e:'Kräftegleichgewicht: Was nach unten drückt, muss von den Lagern nach oben getragen werden.'}];
+const wrRE=()=>writeT('<b>Erkläre</b> Schritt für Schritt, wie man die beiden Lagerkräfte eines Balkens mit einer Einzellast berechnet.',
+ [['Drehpunkt in ein Lager legen',['drehpunkt','lager a','in ein lager']],['Momentengleichgewicht: F · a = F_B · l',['moment','f · a','hebel']],['Nach der unbekannten Lagerkraft auflösen',['aufloes','umstell','berechn']],['Kräftegleichgewicht: F_A + F_B = F / F_A = F − F_B',['f − f','f - f','summe','kraeftegleichgewicht','zusammen']]],
+ 'Zuerst lege ich den <b>Drehpunkt in Lager A</b>. Dann stelle ich das <b>Momentengleichgewicht</b> auf: Last mal Abstand zu A = F<sub>B</sub> mal Balkenlänge (F · a = F<sub>B</sub> · l). Daraus <b>berechne</b> ich F<sub>B</sub>. Mit dem <b>Kräftegleichgewicht</b> F<sub>A</sub> + F<sub>B</sub> = F bekomme ich F<sub>A</sub> = F − F<sub>B</sub>.',
+ 'Drehpunkt, Momente, umstellen, Kräftegleichgewicht.',3);
+
+/* ---------- Welt 5: Prüfstand (Belastungsarten) ---------- */
+const BEL=[['Das Seil eines Krans, an dem eine Last hängt',0],['Die Kette einer Schaukel',0],['Eine Säule, die ein Dach trägt',1],['Die Beine eines Tischs',1],['Ein Sprungbrett, auf dem jemand steht',2],['Ein Regalbrett mit Büchern',2],['Eine Antriebswelle im Auto',3],['Ein Schraubendreher beim Eindrehen',3],['Eine Schraube zwischen zwei Blechen, die gegeneinander verschoben werden',4],['Papier beim Schneiden mit der Schere',4],['Ein langer, dünner Stab, der von oben zusammengedrückt wird und seitlich ausweicht',5]];
+const gBel=()=>sortT('Welche <b>Belastungsart</b> liegt vor?',BEL,5,['Zug','Druck','Biegung','Torsion (Verdrehung)','Scherung (Abscherung)','Knickung'],'<b>Zug:</b> auseinanderziehen. <b>Druck:</b> zusammendrücken. <b>Biegung:</b> durchbiegen. <b>Torsion:</b> verdrehen. <b>Scherung:</b> zwei Kräfte knapp nebeneinander gegeneinander. <b>Knickung:</b> langer, schlanker Stab unter Druck weicht seitlich aus.');
+const BDEF=[['Zug','Kräfte ziehen ein Bauteil in Längsrichtung auseinander, es wird länger'],['Druck','Kräfte drücken ein Bauteil in Längsrichtung zusammen, es wird kürzer'],['Biegung','Eine Kraft quer zum Bauteil biegt es durch'],['Torsion','Ein Bauteil wird um seine Längsachse verdreht'],['Scherung','Zwei entgegengesetzte Kräfte wirken dicht nebeneinander quer zum Bauteil'],['Knickung','Ein schlanker Stab weicht unter Druck plötzlich seitlich aus']];
+const gBdef=()=>pairT('Ordne jeder Belastungsart die passende Beschreibung zu.',BDEF,4,BDEF.map(b=>`<b>${b[0]}:</b> ${b[1]}`).join('<br>'));
+const MC_BE=[
+ {q:'Welche zwei Belastungen treten bei <b>Biegung</b> gleichzeitig im Bauteil auf?',c:['Zug auf der einen Seite und Druck auf der anderen','Nur Zug','Nur Torsion','Scherung und Knickung'],e:'Beim Durchbiegen wird eine Seite gedehnt (<b>Zug</b>) und die andere gestaucht (<b>Druck</b>).'},
+ {q:'Warum sind Seile für Druckbelastung ungeeignet?',c:['Sie können nur Zugkräfte aufnehmen, unter Druck geben sie nach','Weil sie zu schwer sind','Weil sie rosten','Weil sie zu steif sind'],e:'Ein Seil kann man nicht „schieben“. Seile und Ketten übertragen nur <b>Zug</b>.'},
+ {q:'Was hilft gegen <b>Knicken</b> einer Stütze?',c:['Kürzer oder dicker bauen bzw. ein steiferes Profil wählen','Länger und dünner bauen','Mehr Last auflegen','Ein Seil verwenden'],e:'Je <b>länger und schlanker</b> ein Druckstab, desto eher knickt er.'},
+ {q:'Welche Belastung erfährt eine Schraube, die zwei Bleche verbindet, die man gegeneinander verschieben will?',c:['Scherung (Abscherung)','Zug','Torsion','Knickung'],e:'Die Bleche wollen die Schraube quer „abschneiden“: <b>Scherung</b>.'}];
+const wrBE=()=>writeT('<b>Nenne</b> vier Belastungsarten und gib jeweils ein Beispiel aus Alltag oder Technik an.',
+ [['Zug + Beispiel (Seil, Kette)',['zug']],['Druck + Beispiel (Säule, Tischbein)',['druck']],['Biegung + Beispiel (Brett, Brücke)',['biegung','biegen']],['Torsion + Beispiel (Welle, Schraubendreher)',['torsion','verdreh']],['Scherung + Beispiel (Schere, Niete)',['scher']],['Knickung + Beispiel (dünner Stab)',['knick']]],
+ '<b>Zug:</b> Kranseil mit Last. <b>Druck:</b> Säule unter einem Dach. <b>Biegung:</b> Regalbrett mit Büchern. <b>Torsion:</b> Antriebswelle oder Schraubendreher. <b>Scherung:</b> Schere schneidet Papier, Niete zwischen zwei Blechen. <b>Knickung:</b> langer dünner Stab, der zusammengedrückt wird.',
+ 'Zug, Druck, Biegung, Torsion, Scherung, Knickung.',4);
+
+/* ---------- Welt 6: Trägerlager (Balken und Profile) ---------- */
+const PROF=[[profSvg('I')+' ','I-Profil (Doppel-T-Träger)'],[profSvg('T')+' ','T-Profil'],[profSvg('U')+' ','U-Profil'],[profSvg('L')+' ','L-Profil (Winkel)'],[profSvg('O')+' ','Rundrohr'],[profSvg('Q')+' ','Vierkantrohr']];
+const gProf=()=>pairT('Wie heißen diese <b>Profile</b> (Querschnitte)?',PROF,4,'I-, T-, U- und L-Profile sowie Rohre gibt es aus Stahl, Aluminium oder Holz.');
+function gHochkant(){const b=pick([2,3,4]),h=pick([8,10,12]);const f=(h/b)**2;
+  return num(`Die Biegesteifigkeit eines rechteckigen Bretts ist proportional zu <b>b · h³</b> (b = Breite, h = Höhe in Lastrichtung). Ein Brett ist ${h} cm breit und ${b} cm dick. Wievielmal steifer ist es <b>hochkant</b> (h = ${h} cm) als <b>flach</b> (h = ${b} cm)?`,f,'-mal',`Flach: b · h³ = ${h} · ${b}³ = ${h*b**3}. Hochkant: ${b} · ${h}³ = ${b*h**3}. Verhältnis: ${b*h**3} : ${h*b**3} = <b>${de(f)}</b>`,'Beide Werte b · h³ ausrechnen und teilen.',{unit:'-mal'});}
+const MC_BA=[
+ {q:'Warum legt man ein Brett, das eine Last tragen soll, besser <b>hochkant</b> als flach?',c:['Die Höhe in Lastrichtung geht sehr stark (hoch 3) in die Biegesteifigkeit ein','Weil es dann leichter ist','Weil es dann weniger Material braucht','Das ist egal'],e:'Biegesteifigkeit ~ b · h³: Doppelte Höhe → <b>8-fache</b> Steifigkeit.'},
+ {q:'Warum haben Stahlträger oft ein <b>I-Profil</b>?',c:['Das Material sitzt oben und unten, wo die größten Zug- und Druckspannungen auftreten. In der Mitte (neutrale Faser) spart man Material.','Weil es schöner aussieht','Damit man es leichter verschrauben kann','Weil I-Profile billiger zu walzen sind als Rohre'],e:'Viel Steifigkeit bei <b>wenig Material und Gewicht</b>.'},
+ {q:'Was ist die <b>neutrale Faser</b>?',c:['Die Schicht in der Mitte eines Biegebalkens, die weder gedehnt noch gestaucht wird','Die oberste Schicht','Ein besonders festes Material','Die Stelle, an der der Balken bricht'],e:'Oben Druck, unten Zug, dazwischen die spannungsfreie <b>neutrale Faser</b>.'},
+ {q:'Ein Balken liegt auf zwei Stützen, in der Mitte steht eine Last. Wo ist die Biegebelastung am größten?',c:['In der Mitte unter der Last','Direkt über den Stützen','An beiden Enden','Überall gleich'],e:'Das Biegemoment ist in der <b>Mitte</b> am größten, dort bricht der Balken zuerst.'},
+ {q:'Welches Profil verdreht sich unter Torsion am wenigsten (bei gleichem Material und gleicher Masse)?',c:['Geschlossenes Rohr','Offenes U-Profil','L-Winkel','Flaches Blech'],e:'<b>Geschlossene</b> Profile wie Rohre sind besonders verdrehsteif.'}];
+const wrBA=()=>writeT('<b>Erkläre</b>, welche Belastungen in einem Balken auf zwei Stützen mit Last in der Mitte auftreten und warum ein I-Profil dafür gut geeignet ist.',
+ [['Balken biegt sich durch (Biegung)',['bieg']],['Oben Druck (gestaucht)',['oben','druck']],['Unten Zug (gedehnt)',['unten','zug']],['Mitte: neutrale Faser ohne Spannung',['neutral','mitte']],['I-Profil: Material oben und unten, Material gespart',['i-profil','material','gurt','spar','leicht']]],
+ 'Der Balken wird auf <b>Biegung</b> belastet und biegt sich nach unten durch. Dabei wird die <b>Oberseite gestaucht (Druck)</b> und die <b>Unterseite gedehnt (Zug)</b>. In der Mitte liegt die <b>neutrale Faser</b>, dort ist fast keine Spannung. Ein <b>I-Profil</b> hat viel Material oben und unten, wo die großen Spannungen auftreten, und wenig in der Mitte. So ist es sehr steif und trotzdem leicht.',
+ 'Biegung, oben/unten, neutrale Faser, I-Profil.',4);
+
+/* ---------- Welt 7: Materiallabor (Steifigkeit, Festigkeit) ---------- */
+const SF=[['Widerstand gegen Verformung (wie stark gibt ein Bauteil nach?)',0],['Ein Gummiband ist hier sehr gering',0],['Hängt vom Material und von der Form (Profil) ab',0],['Glas ist hier sehr hoch: Es verbiegt sich kaum',0],['Widerstand gegen Bruch (wie viel hält ein Bauteil aus, bevor es kaputtgeht?)',1],['Wird z. B. in N/mm² angegeben (Zugfestigkeit)',1],['Ein Stahlseil reißt erst bei sehr großer Last',1],['Ein Papierstreifen reißt schon bei kleiner Kraft',1]];
+const gSF=()=>sortT('Geht es um <b>Steifigkeit</b> oder um <b>Festigkeit</b>?',SF,5,['Steifigkeit','Festigkeit'],'<b>Steifigkeit:</b> Widerstand gegen <b>Verformung</b>. <b>Festigkeit:</b> Widerstand gegen <b>Bruch</b> (bzw. bleibende Verformung). Ein Material kann steif, aber wenig fest sein (Glas) oder fest, aber wenig steif (Seil, Gummi).');
+const EP=[['Ein Lineal federt nach dem Verbiegen zurück',0],['Eine Feder wird gedehnt und zieht sich wieder zusammen',0],['Ein Gummiband nach leichtem Ziehen',0],['Eine Büroklammer bleibt verbogen',1],['Knetmasse behält jede Form',1],['Ein Alublech hat nach dem Stoß eine Delle',1]];
+const gEP=()=>sortT('Ist die Verformung <b>elastisch</b> oder <b>plastisch</b>?',EP,4,['elastisch (geht zurück)','plastisch (bleibt)'],'<b>Elastisch:</b> Das Bauteil geht nach der Belastung in seine ursprüngliche Form zurück. <b>Plastisch:</b> Die Verformung bleibt.');
+function gSpannung(){const F=pick([2000,5000,10000,12000,20000]),A=pick([10,20,25,50,100]);return num(`Ein Stahlstab mit dem Querschnitt <b>${A} mm²</b> wird mit <b>${de(F)} N</b> auf Zug belastet. Wie groß ist die Spannung σ = F / A?`,F/A,'N/mm²',`σ = F / A = ${de(F)} N : ${A} mm² = <b>${de(F/A)} N/mm²</b>`,'σ = F / A');}
+const MC_MA=[
+ {q:'Welches Material ist <b>sehr steif, aber nicht sehr fest</b> (spröde)?',c:['Glas','Gummi','Stahlseil','Knetmasse'],e:'Glas verbiegt sich kaum (steif), bricht aber schon bei einem Stoß (spröde).'},
+ {q:'Wodurch kann man ein Bauteil <b>steifer</b> machen, ohne das Material zu wechseln?',c:['Durch eine günstigere Form, z. B. Profil, Rippen oder hochkant einbauen','Durch Anmalen','Indem man es kürzer misst','Gar nicht'],e:'Steifigkeit hängt vom <b>Material</b> und von der <b>Form</b> ab. Deshalb sind Wellpappe und Profile so steif.'},
+ {q:'Was passiert, wenn ein Bauteil über seine <b>Festigkeit</b> hinaus belastet wird?',c:['Es verformt sich bleibend oder bricht','Es wird steifer','Es federt zurück','Nichts'],e:'Bis zur Elastizitätsgrenze federt es zurück, darüber bleibt die Verformung, schließlich kommt der Bruch.'},
+ {q:'Warum verwendet man für Brücken und Hochhäuser oft <b>Stahlbeton</b>?',c:['Beton nimmt gut Druck auf, der Stahl im Inneren nimmt den Zug auf','Weil Beton allein besonders gut Zug aushält','Weil Stahl allein zu teuer ist','Weil Stahlbeton leichter als Holz ist'],e:'Beton ist druckfest, aber nicht zugfest. Die <b>Stahlbewehrung</b> liegt dort, wo Zug auftritt (z. B. unten im Balken).'}];
+const wrMA=()=>writeT('<b>Erkläre</b> den Unterschied zwischen Steifigkeit und Festigkeit an einem Beispiel.',
+ [['Steifigkeit = Widerstand gegen Verformung',['verform','nachgeb','biegt']],['Festigkeit = Widerstand gegen Bruch',['bruch','bricht','reisst','kaputt']],['Beispiel steif aber nicht fest (Glas)',['glas','keramik','spröd','sproed']],['Beispiel fest aber nicht steif (Seil, Gummi)',['seil','gummi','kette']],['Steifigkeit hängt auch von der Form ab',['form','profil']]],
+ '<b>Steifigkeit</b> beschreibt, wie stark sich ein Bauteil unter Last <b>verformt</b>: Ein steifes Bauteil gibt kaum nach. <b>Festigkeit</b> beschreibt, wie viel Last ein Bauteil aushält, bevor es <b>bricht</b>. <b>Glas</b> ist steif, aber nicht sehr fest, es bricht leicht. Ein <b>Seil</b> ist sehr fest, aber gar nicht steif. Die Steifigkeit hängt außerdem von der <b>Form</b> ab (Profil).',
+ 'Verformung, Bruch, je ein Beispiel.',3);
+
+/* ---------- Welt 8: Kranhaken (Seilzüge) ---------- */
+function gSeil(){const n=pick([2,3,4,6]);const m=pick([40,60,80,120,200,300]);const FG=m*10;const h=pick([1,2,3]);const v=Math.random();
+  if(v<.45)return num(`Ein Flaschenzug hat <b>${n} tragende Seilstücke</b>. Eine Last von <b>${m} kg</b> soll gehoben werden. Mit welcher Kraft musst du ziehen? ${G10}, Reibung und Rollengewicht vernachlässigt<br>${seilSvg(n)}`,FG/n,'N',`F<sub>G</sub> = ${m} kg · 10 N/kg = ${FG} N<br>F = F<sub>G</sub> / n = ${FG} N : ${n} = <b>${de(FG/n)} N</b>`,'F = F_G / n (n = Anzahl der tragenden Seilstücke)');
+  if(v<.8)return num(`Die Last am Flaschenzug mit <b>${n} tragenden Seilstücken</b> soll um <b>${h} m</b> angehoben werden. Wie viel Seil musst du ziehen?<br>${seilSvg(n)}`,n*h,'m',`s = n · h = ${n} · ${h} m = <b>${n*h} m</b>. Was man an Kraft spart, muss man an Weg zusetzen.`,'s = n · h');
+  return num(`Mit einem Flaschenzug hebst du <b>${FG} N</b> mit einer Zugkraft von <b>${de(FG/n)} N</b>. Wie viele tragende Seilstücke hat er?`,n,'Seilstücke',`n = F<sub>G</sub> / F = ${FG} N : ${de(FG/n)} N = <b>${n}</b>`,'n = F_G / F',{tol:0});}
+const ROL=[['Feste Rolle','ändert nur die Richtung der Kraft, Kraft = Last'],['Lose Rolle','halbiert die Kraft, doppelter Seilweg'],['Flaschenzug mit 4 tragenden Seilen','Kraft = Last : 4, Seilweg = 4 · Hubhöhe'],['Goldene Regel der Mechanik','Was man an Kraft spart, muss man an Weg zusetzen']];
+const gRol=()=>pairT('Ordne richtig zu.',ROL,4,ROL.map(r=>`<b>${r[0]}:</b> ${r[1]}`).join('<br>'));
+const MC_SE=[
+ {q:'Wozu dient eine <b>feste Rolle</b>?',c:['Sie lenkt die Kraft um (z. B. nach unten ziehen statt nach oben heben), spart aber keine Kraft','Sie halbiert die Kraft','Sie verdoppelt die Kraft','Sie verkürzt den Seilweg'],e:'Bei der festen Rolle gilt F = F<sub>G</sub>. Bequemer ist nur die <b>Richtung</b>.'},
+ {q:'Was besagt die <b>Goldene Regel der Mechanik</b>?',c:['Was man an Kraft spart, muss man an Weg zusetzen','Je mehr Rollen, desto weniger Arbeit','Kraft und Weg werden beide kleiner','Mit Rollen spart man Energie'],e:'Die Arbeit W = F · s bleibt gleich. Halbe Kraft → doppelter Weg.'},
+ {q:'Wie bestimmst du bei einem Flaschenzug die Zahl n?',c:['Man zählt die Seilstücke, an denen die lose Rolle (mit der Last) hängt','Man zählt alle Rollen','Man zählt nur die festen Rollen','Man misst die Seillänge'],e:'Entscheidend sind die <b>tragenden</b> Seilstücke an der beweglichen Rolle bzw. Last.'},
+ {q:'Warum braucht man in Wirklichkeit etwas mehr Kraft als F = F<sub>G</sub> / n?',c:['Wegen Reibung in den Rollen und weil die losen Rollen selbst etwas wiegen','Weil das Seil kürzer wird','Weil die Last schwerer wird','Das stimmt nicht'],e:'Reibung und das Gewicht der losen Rollen kommen dazu.'}];
+const wrSE=()=>writeT('<b>Erkläre</b>, wie ein Flaschenzug funktioniert und warum man damit Kraft, aber keine Arbeit spart.',
+ [['Last verteilt sich auf n tragende Seilstücke',['seilstueck','seile','verteilt','tragend']],['Kraft F = F_G / n',['f_g / n','fg / n','/ n','geteilt','n-tel','kleiner']],['Seilweg s = n · h länger',['weg','laenger','s = n']],['Goldene Regel / Arbeit bleibt gleich',['goldene','arbeit','gleich']]],
+ 'Beim Flaschenzug hängt die Last an mehreren <b>tragenden Seilstücken</b>. Die Gewichtskraft <b>verteilt</b> sich auf diese n Seilstücke, deshalb braucht man nur die Kraft <b>F = F<sub>G</sub> / n</b>. Dafür muss man das Seil n-mal so <b>weit</b> ziehen (s = n · h). Nach der <b>Goldenen Regel der Mechanik</b> bleibt die Arbeit W = F · s gleich: Man spart Kraft, aber keine Arbeit.',
+ 'Seilstücke, Kraft, Weg, Goldene Regel.',3);
+
+/* ============ Welten ============ */
+const W=[
+ {id:'fundament',name:'Fundament',icon:'🧱',topic:'Definition Statik · Kraft als Pfeil · Gewichtskraft · Gleichgewicht',build:()=>shuffle([gFG(),gFG(),CL_ST(),poolMC(pick(MC_ST)),poolMC(pick(MC_ST))]).concat([wrST()])},
+ {id:'hebel',name:'Hebel-Werkstatt',icon:'⚖️',topic:'Hebelgesetz · Drehmoment · einseitiger und zweiseitiger Hebel',build:()=>shuffle([gHebel(),gHebel(),gMoment(),gHebArt(),poolMC(pick(MC_HE))]).concat([wrHE()])},
+ {id:'zeichnen',name:'Zeichenbüro',icon:'📐',topic:'Kräfte zeichnerisch bestimmen · Kräftemaßstab · Kräfteparallelogramm · Krafteck',build:()=>shuffle([gMassstab(),gKolinear(),gPara(),gOrdPara(),poolMC(pick(MC_ZE))]).concat([wrZE()])},
+ {id:'rechnen',name:'Rechenbüro',icon:'🧮',topic:'Kräfte rechnerisch bestimmen · Lagerkräfte · Gleichgewichtsbedingungen · Pythagoras',build:()=>shuffle([gLager(),gLager(),pick([gLagerMitte,gPyth])(),gResRech(),poolMC(pick(MC_RE))]).concat([wrRE()])},
+ {id:'pruef',name:'Belastungs-Prüfstand',icon:'🔩',topic:'Belastungsarten: Zug, Druck, Biegung, Torsion, Scherung, Knickung',build:()=>shuffle([gBel(),gBdef(),poolMC(pick(MC_BE)),poolMC(pick(MC_BE)),gTapB()]).concat([wrBE()])},
+ {id:'traeger',name:'Trägerlager',icon:'🏗️',topic:'Belastungen im Balken · neutrale Faser · Profile · hochkant oder flach',build:()=>shuffle([gTapB(),gTapB(),gProf(),gHochkant(),poolMC(pick(MC_BA))]).concat([wrBA()])},
+ {id:'labor',name:'Materiallabor',icon:'🧪',topic:'Materialeigenschaften: Steifigkeit und Festigkeit · elastisch und plastisch',build:()=>shuffle([gSF(),gEP(),gSpannung(),poolMC(pick(MC_MA)),poolMC(pick(MC_MA))]).concat([wrMA()])},
+ {id:'kran',name:'Kranhaken',icon:'🪝',topic:'Seilzüge: feste und lose Rolle · Flaschenzug · Goldene Regel der Mechanik',build:()=>shuffle([gSeil(),gSeil(),gRol(),poolMC(pick(MC_SE)),poolMC(pick(MC_SE))]).concat([wrSE()])}
+];
+function bossBuild(){
+  const g=[[gFG,'fundament'],[()=>poolMC(pick(MC_ST)),'fundament'],[gHebel,'hebel'],[gHebArt,'hebel'],[gPara,'zeichnen'],[gMassstab,'zeichnen'],[gLager,'rechnen'],[gResRech,'rechnen'],[gBel,'pruef'],[gTapB,'traeger'],[gProf,'traeger'],[gSF,'labor'],[gSeil,'kran'],[gRol,'kran']];
+  return shuffle(g.map(([fn,w])=>Object.assign(fn(),{w})));
+}
+
+/* ============ Ränge & Erfolge ============ */
+const H=window.LernHub, APP='nwt-statik';
+/* Rang gilt nur in dieser App – jede Lern-App startet wieder bei Holz */
+const RANKS=[['Holz',0,'#a0703c'],['Stein',250,'#8a8a8a'],['Kupfer',600,'#d07a45'],['Eisen',1200,'#d8d8d8'],['Gold',2000,'#f2c94c'],['Diamant',3200,'#4ee6e0'],['Netherit',4500,'#4d4246']];
+function rankIdx(xp){let r=0;RANKS.forEach((k,i)=>{if(xp>=k[1])r=i;});return r;}
+const starsTotal=()=>W.reduce((s,w)=>s+(S.stars[w.id]||0),0);
+const worldsDone=()=>W.filter(w=>(S.stars[w.id]||0)>0).length;
+const K=k=>S.stats['k_'+k]||0;
+const ACH=[
+ ['first','🧱','Grundstein gelegt','Die erste Aufgabe richtig gelöst.',()=>S.stats.correct>=1],
+ ['fundament','🧱','Fundament steht','Fundament mit 3 Sternen.',()=>(S.stars.fundament||0)>=3],
+ ['hebel','⚖️','Hebelmeister','Hebel-Werkstatt mit 3 Sternen.',()=>(S.stars.hebel||0)>=3],
+ ['zeichnen','📐','Technischer Zeichner','Zeichenbüro mit 3 Sternen.',()=>(S.stars.zeichnen||0)>=3],
+ ['rechnen','🧮','Statiker','Rechenbüro mit 3 Sternen.',()=>(S.stars.rechnen||0)>=3],
+ ['pruef','🔩','Belastungsprobe','Belastungs-Prüfstand geschafft (mind. 1 Stern).',()=>(S.stars.pruef||0)>=1],
+ ['traeger','🏗️','Trägerprofi','Trägerlager mit 3 Sternen.',()=>(S.stars.traeger||0)>=3],
+ ['labor','🧪','Werkstoffprüfer','Materiallabor geschafft (mind. 1 Stern).',()=>(S.stars.labor||0)>=1],
+ ['kran','🪝','Kranführer','Kranhaken mit 3 Sternen.',()=>(S.stars.kran||0)>=3],
+ ['calc5','🧮','Rechenkran','5 Rechenaufgaben richtig.',()=>K('num')>=5],
+ ['calc20','📏','Rechenkünstler','20 Rechenaufgaben richtig.',()=>K('num')>=20],
+ ['calc50','🏛️','Brückenbauer','50 Rechenaufgaben richtig.',()=>K('num')>=50],
+ ['tap','🪵','Zug oder Druck?','3 Balken-Aufgaben richtig angetippt.',()=>K('tap')>=3],
+ ['match10','🔗','Zuordnungs-Profi','10 Zuordnungsaufgaben richtig.',()=>K('match')>=10],
+ ['write3','✍️','Schreibtalent','3 Schreibaufgaben geschafft.',()=>K('write')>=3],
+ ['write10','📝','Klassenarbeits-ready','10 Schreibaufgaben geschafft.',()=>K('write')>=10],
+ ['c5','🔥','Combo ×5','5 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=5],
+ ['c10','⚡','Combo ×10','10 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=10],
+ ['c20','🌋','Combo ×20','20 richtige Antworten hintereinander.',()=>S.stats.bestCombo>=20],
+ ['nohint','🧠','Ganz ohne Tipp','Eine Runde mit 3 Sternen und ohne Tipp.',()=>S.stats.nohint>=1],
+ ['s12','⭐','Sternensammler','12 Sterne gesammelt.',()=>starsTotal()>=12],
+ ['s24','🌟','Alle Sterne','Alle 24 Sterne gesammelt.',()=>starsTotal()>=24],
+ ['all','🧭','Bauleiter','In jeder Anlage mindestens 1 Stern.',()=>worldsDone()>=W.length],
+ ['iron','⛓️','Eisenhart','Rang Eisen erreicht.',()=>rankIdx(S.xp)>=3],
+ ['dia','💎','Diamant!','Rang Diamant erreicht.',()=>rankIdx(S.xp)>=5],
+ ['neth','🔱','Netherit!','Höchsten Rang Netherit erreicht.',()=>rankIdx(S.xp)>=6],
+ ['rep','🔁','Wiederholungstäter','Eine Anlage 3-mal gespielt.',()=>Object.values(S.plays).some(v=>v>=3)],
+ ['cheat','📜','Gut vorbereitet','Den Lernzettel angeschaut.',()=>S.stats.cheat>=1],
+ ['boss','🛡️','Abrissbirne gestoppt','Den Endboss besiegt.',()=>S.stats.bossWins>=1],
+ ['bossp','👑','Statisch perfekt','Den Endboss ohne verlorenes Herz besiegt.',()=>S.stats.bossPerfect>=1]
+];
+
+/* ============ Spielstand ============ */
+function defState(){return {name:'',xp:0,stars:{},plays:{},ach:{},stats:{correct:0,byWorld:{},bestCombo:0,cheat:0,nohint:0,bossWins:0,bossPerfect:0},streak:{last:'',days:0}};}
+function merge(d,o){for(const k in o){if(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k])&&d[k]&&typeof d[k]==='object')merge(d[k],o[k]);else d[k]=o[k];}return d;}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return merge(defState(),JSON.parse(r));}catch(e){}return defState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+function todayStr(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function touchStreak(){H.touchStreak();}
+
+/* ============ UI-Grundgerüst ============ */
+const $=s=>document.querySelector(s);
+const view=$('#view');
+function oreStrip(){
+  let h='';for(let i=0;i<40;i++){const f=i/39;
+    const c=f<.35?(i%2?'#9a9a9a':'#8a8a8a'):f<.7?(i%2?'#f2c94c':'#2b2b33'):(i%2?'#b07a45':'#9c6a3a');
+    const d=f<.35?`<i style="left:10px;top:12px;background:#b5b5b5"></i><i style="left:26px;top:26px;background:#707070"></i>`:f>=.7?`<i style="left:6px;top:18px;width:30px;height:3px;background:#7a5230"></i>`:'';
+    h+=`<div class="ore" style="background:${c}">${d}</div>`;}
+  $('#ores').innerHTML=h;
+}
+function updateHeader(){
+  const G=H.get(),r=rankIdx(S.xp),cur=RANKS[r],nxt=RANKS[r+1];
+  $('#rank').innerHTML=`<span class="rankblock" style="background:${cur[2]}"></span><span>${G.name?G.name+' · ':''}${cur[0]}</span>`;
+  const pct=nxt?((S.xp-cur[1])/(nxt[1]-cur[1]))*100:100;
+  $('#xpfill').style.width=Math.min(100,pct)+'%';
+  $('#xptxt').textContent=nxt?`${S.xp} / ${nxt[1]} XP → ${nxt[0]}`:`${S.xp} XP · Höchster Rang!`;
+  $('#streak').textContent=`🔥 ${G.streak.days||0} ${G.streak.days===1?'Tag':'Tage'}`;
+  $('#navach').textContent=`🏆 Erfolge ${H.countApp(APP)}/${ACH.length}`;
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{P=null;go(b.dataset.nav);}));
+function go(v){window.scrollTo(0,0);({map:renderMap,ach:renderAch,sheet:renderSheet,save:renderSave})[v]();}
+
+/* Toasts & Konfetti */
+const tq=[];let tBusy=0;
+function toast(icon,title,name){tq.push([icon,title,name]);if(!tBusy)nextToast();}
+function nextToast(){const t=tq.shift();if(!t){tBusy=0;return;}tBusy=1;const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<div class="ti">${t[0]}</div><div><div class="tt">${t[1]}</div><div class="tn">${t[2]}</div></div>`;$('#toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>{el.remove();nextToast();},400);},2600);}
+function confetti(n){const cols=['#5fbf3a','#f2c94c','#4ee6e0','#e0473a','#3f7be0','#d9813f'];
+  for(let i=0;i<(n||40);i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),3800);}}
+function checkAch(){registerApp();let any=false;ACH.forEach(([id,ic,name,desc,fn])=>{if(!H.has(APP,id)&&fn()){H.unlock(APP,id,ic,name,desc);toast(ic,'Erfolg freigeschaltet!',name);any=true;}});if(any)confetti(30);updateHeader();}
+H.on(ev=>{if(ev.type==='ach'){toast(ev.ach.icon,'Meta-Erfolg freigeschaltet!',ev.ach.name);confetti(30);}});
+let lastRank=rankIdx(S.xp);
+function gainXP(n){S.xp+=n;const r=rankIdx(S.xp);if(r>lastRank){lastRank=r;toast('⬆️','Neuer Rang!',RANKS[r][0]);confetti(60);}H.addXP(APP,n);}
+function registerApp(){H.registerApp({id:APP,name:'Statik-Baustelle',icon:'🏗️',fach:'NWT',klasse:9,achTotal:ACH.length,maxStars:24,stars:starsTotal()});}
+
+/* ============ Karte ============ */
+function starHtml(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
+function renderMap(){
+  const unlocked=worldsDone()>=6;
+  let h='';
+  if(!H.get().name){
+    h+=`<div class="panel"><h2>Willkommen auf der Baustelle!</h2><p>Wie heißt du?</p><div class="row"><input class="in" id="nm" maxlength="16" placeholder="Name" style="width:220px"><button class="btn green" id="nmok">Los geht's</button></div></div>`;
+  }
+  h+=`<div class="panel intro"><h2>NWT Kl. 9 · Statik</h2>
+  <p>Auf der Baustelle muss alles halten! Jede Anlage ist ein Thema der Klassenarbeit (Tafelbild). Viele Aufgaben sind <b>Rechenaufgaben mit dem Taschenrechner</b>, die letzte Aufgabe jeder Runde ist eine <b>Schreibaufgabe</b> wie in der KA. Gerechnet wird mit <b>g = 10 N/kg</b>, falls nicht anders angegeben.</p>
+  <p class="muted">Wenn du in 6 Anlagen mindestens einen Stern hast, schwingt die Abrissbirne heran.</p></div>
+  <div class="worlds">`;
+  W.forEach((w,i)=>{const s=S.stars[w.id]||0;h+=`<button class="world" data-w="${w.id}"><div class="ic">${w.icon}</div><div><div class="num-badge">ANLAGE ${i+1}</div><div class="nm">${w.name}</div><div class="tp">${w.topic}</div>${w.note?`<div class="tag">${w.note}</div>`:''}<div class="stars">${starHtml(s)}</div></div></button>`;});
+  h+=`<button class="world boss ${unlocked?'':'locked'}" id="bossbtn"><div class="ic">💣</div><div><div class="num-badge">ENDBOSS</div><div class="nm">Die Abrissbirne</div><div class="tp">${unlocked?'14 gemischte Aufgaben, 3 Herzen. Hält dein Bauwerk stand?':`🔒 Noch ${6-worldsDone()} Anlage(n) mit mindestens 1 Stern nötig`}</div>${S.stats.bossWins?`<div class="stars">👑 ${S.stats.bossWins}× besiegt</div>`:''}</div></button></div>`;
+  view.innerHTML=h;
+  view.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>startWorld(b.dataset.w));
+  $('#bossbtn').onclick=()=>{if(unlocked)startBoss();};
+  const nmok=$('#nmok');if(nmok){const doIt=()=>{const v=$('#nm').value.trim();if(v){H.setName(v);updateHeader();renderMap();}};nmok.onclick=doIt;$('#nm').onkeydown=e=>{if(e.key==='Enter')doIt();};}
+}
+
+/* ============ Spiel ============ */
+let P=null;
+function startWorld(id){const w=W.find(x=>x.id===id);const tasks=w.build().map(t=>Object.assign({w:id},t));P={world:id,name:w.name,icon:w.icon,tasks,i:0,res:[],combo:(S.curCombo||0),hints:0,boss:false,secs:0};renderTask();}
+function startBoss(){P={world:'boss',name:'Die Abrissbirne',icon:'💣',tasks:bossBuild(),i:0,res:[],combo:(S.curCombo||0),hints:0,boss:true,hearts:3,secs:0};renderTask();}
+function bossSvg(hp){
+  const ball=hp>0?'#3a3a42':'#777',sh=hp>0?'#5b5b66':'#999',eye=hp>0?'#ff5a3a':'#555';
+  return `<svg width="116" height="116" viewBox="0 0 28 28" shape-rendering="crispEdges">
+   <rect x="2" y="1" width="24" height="2" fill="#f2c94c"/><rect x="13" y="3" width="2" height="2" fill="#aaa"/><rect x="13" y="6" width="2" height="2" fill="#aaa"/><rect x="13" y="9" width="2" height="2" fill="#aaa"/>
+   <rect x="9" y="11" width="10" height="2" fill="${ball}"/><rect x="7" y="13" width="14" height="10" fill="${ball}"/><rect x="9" y="23" width="10" height="2" fill="${ball}"/>
+   <rect x="8" y="13" width="3" height="3" fill="${sh}"/><rect x="10" y="16" width="3" height="2" fill="${eye}"/><rect x="15" y="16" width="3" height="2" fill="${eye}"/><rect x="11" y="20" width="6" height="1" fill="#111"/></svg>`;
+}
+function renderTask(){
+  document.onkeydown=null;const t=P.tasks[P.i];P.answered=false;P.usedHint=false;P.taskT=Date.now();
+  let prog='';P.tasks.forEach((_,k)=>{prog+=`<span class="${k<P.res.length?(P.res[k]?'ok':'bad'):(k===P.i?'cur':'')}">${k<P.res.length?(P.res[k]?'🧱':'💥'):'⬜'}</span>`;});
+  view.innerHTML=`<div class="playtop"><button class="btn small" id="quit">✕ Karte</button><div class="pix" style="font-size:11px">${P.icon} ${P.name}</div><div class="prog">${prog}</div>
+   ${P.boss?`<div class="hearts">${'❤️'.repeat(P.hearts)}${'🖤'.repeat(3-P.hearts)}</div>`:''}<div class="combo">${P.combo>=2?'COMBO ×'+P.combo:''}</div></div>
+   ${P.boss?`<div class="boss-art">${bossSvg(P.hearts)}</div>`:''}
+   <div class="panel"><div class="taskhead"><span class="pix">AUFGABE ${P.i+1} / ${P.tasks.length}</span>${t.hint?'<button class="btn small gold" id="hintb">💡 Tipp</button>':''}</div>
+   <div class="q">${t.q}</div><div id="inp"></div><div id="hintbox"></div><div class="fb" id="fb"></div></div>`;
+  $('#quit').onclick=()=>{document.onkeydown=null;logRound(false,null);P=null;renderMap();};
+  if(t.hint)$('#hintb').onclick=()=>{if(P.answered)return;P.usedHint=true;P.hints++;$('#hintbox').innerHTML=`<div class="hintbox">💡 ${t.hint}<br><span class="muted" style="font-size:14px">(Mit Tipp gibt es keinen XP-Bonus.)</span></div>`;$('#hintb').disabled=true;};
+  INPUT[t.kind](t,$('#inp'));
+}
+function parseNum(s){s=String(s).trim().replace(/\s/g,'').replace(',','.');if(s===''||isNaN(+s))return null;return +s;}
+function numOk(v,t){if(v===null)return false;if(t.tol===0)return Math.abs(v-t.ans)<1e-9;const tol=t.tol||0.02;return Math.abs(v-t.ans)<=Math.max(Math.abs(t.ans)*tol,0.005);}
+/* Zehnerpotenz-Eingabe: getrennte Felder ODER alles in einem Feld (6,02*10^23, 6,02·10^23, 6,02x10^23, 6,02e23, 10^-24) */
+function parseSci(mStr,eStr,neg){
+  let s=String(mStr||'').trim().replace(/\s/g,'').replace(/,/g,'.').replace(/[\u2212\u2013\u2014]/g,'-').replace(/[\u00b7\u00d7\u22c5xX*]/g,'*');
+  let m=s.match(/^([-+]?\d*\.?\d+)\*?10\^\(?([-+]?\d+)\)?$/)||s.match(/^([-+]?\d*\.?\d+)[eE]([-+]?\d+)$/);
+  if(m)return (+m[1])*Math.pow(10,+m[2]);
+  m=s.match(/^10\^\(?([-+]?\d+)\)?$/);if(m)return Math.pow(10,+m[1]);
+  const mant=parseNum(s);if(mant===null)return null;
+  const e=String(eStr||'').trim().replace(/\s/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(e===''||isNaN(+e))return null;
+  let ev=+e;if(neg&&ev>0)ev=-ev;
+  return mant*Math.pow(10,ev);
+}
+/* Taschenrechner wie der TI-30X Pro: + − × ÷, Klammern, EE, (–), delete, clear, enter (= ausrechnen), Prüfen */
+/* Taschenrechner wie der TI-30X Pro: Ziffern, Punkt, (–), EE, + − × ÷, Klammern, delete, clear, enter (= ausrechnen) */
+function calcEval(str){
+  // str: Zahlen mit Punkt, e für EE, ~ für Vorzeichen (–), Operatoren + - * /, Klammern
+  let i=0;const s=str;
+  function peek(){return s[i];}
+  function num(){const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e~?\d+)?/);if(!m)throw 0;i+=m[0].length;return parseFloat(m[0].replace('~','-'));}
+  function primary(){const c=peek();
+    if(c==='('){i++;const v=expr();if(peek()===')')i++;return v;}  // fehlende ")" am Ende wie beim TI ergänzen
+    return num();}
+  function factor(){if(peek()==='~'){i++;return -factor();}const b=primary();if(peek()==='^'){i++;return Math.pow(b,factor());}return b;}
+  function term(){let v=factor();while(peek()==='*'||peek()==='/'){const o=s[i++];const w=factor();v=o==='*'?v*w:v/w;}return v;}
+  function expr(){let v=term();while(peek()==='+'||peek()==='-'){const o=s[i++];const w=term();v=o==='+'?v+w:v-w;}return v;}
+  try{const v=expr();if(i!==s.length||!isFinite(v))return null;return v;}catch(e){return null;}
+}
+function calcFmt(v){if(v===0)return '0';const a=Math.abs(v);
+  if(a>=1e10||a<1e-4){let e=Math.floor(Math.log10(a));let m=v/Math.pow(10,e);m=Math.round(m*1e6)/1e6;if(Math.abs(m)>=10){m/=10;e++;}return {m:String(m),e};}
+  return {m:String(Math.round(v*1e9)/1e9),e:null};}
+function calcPad(t,el,isSci,check){
+  let tok=[],ans=null,done=false;
+  const OP={'+':'+','-':'−','*':'×','/':'÷','^':'^'};
+  const ex=isSci?'<b>6.022 EE 23</b> → 6.022E23 · <b>2.66 EE (–) 23</b> → 2.66E-23':'z. B. <b>2 × 56 + 3 × 16</b>, dann <b>enter</b>';
+  const keys=[['del','delete','fn'],['ac','clear','fn'],['^','^','op'],['sq','x²','op'],['(','(','fn'],[')',')','fn'],['exp','EE','fn'],['/','÷','op'],['7','','dg'],['8','','dg'],['9','','dg'],['*','×','op'],['4','','dg'],['5','','dg'],['6','','dg'],['-','−','op'],['1','','dg'],['2','','dg'],['3','','dg'],['+','+','op'],['0','','dg'],['.','.','dg'],['neg','(–)','dg'],['enter','enter','ok']];
+  el.innerHTML=`<div class="calc"><div class="cdisp" id="cd"></div>
+    <div class="ckeys">${keys.map(([k,l,c])=>`<button type="button" class="ck ${c||''}" data-key="${k}">${l||k}</button>`).join('')}</div>
+    <button type="button" class="btn green" id="calcok" style="width:100%;margin-top:10px;font-size:20px">✔ Ergebnis prüfen</button>
+    <div class="muted" style="font-size:15px;margin-top:8px">Rechne wie auf deinem TI-30X Pro: ${ex}. Mit <b>enter</b> rechnest du aus, mit <b>Ergebnis prüfen</b> gibst du ab. Zehnerpotenzen mit <b>EE</b>, negative Zahlen mit <b>(–)</b>, Hochzahlen mit <b>^</b> (z. B. 2^15).</div>
+    <div id="scimsg" class="hintbox" style="display:none"></div></div>`;
+  const cd=$('#cd');
+  const isOp=x=>x in OP;
+  function toStr(){return tok.map(x=>x==='E'?'e':x==='neg'?'~':x).join('');}
+  function draw(){
+    const line=tok.map(x=>x==='E'?'<span class="ce">E</span>':x==='neg'?'<span class="cneg">-</span>':isOp(x)?`<span class="cop">${OP[x]}</span>`:x).join('');
+    let res='';if(done&&ans!==null){const f=calcFmt(ans);res=f.m.replace('-','<span class="cneg">-</span>')+(f.e!==null?`<span class="ce">E</span>${f.e<0?'<span class="cneg">-</span>':''}${Math.abs(f.e)}`:'');}
+    cd.innerHTML=`<div class="cline">${line}${done?'':'<span class="cur"></span>'}</div><div class="cres">${res}<span class="cunit">${t.unit}</span></div>`;
+  }
+  function compute(){const v=calcEval(toStr());if(v===null){msg('Die Rechnung ist so nicht vollständig, prüfe Klammern und Rechenzeichen.');return false;}ans=v;done=true;return true;}
+  function msg(m){const x=$('#scimsg');x.style.display='block';x.innerHTML=m;}
+  function press(k){
+    if(!P||P.answered||!document.getElementById('cd'))return;$('#scimsg').style.display='none';
+    if(done&&k!=='enter'&&k!=='del'&&k!=='ac'){
+      if(isOp(k)){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}
+      else tok=[];
+      done=false;
+    }
+    const last=tok[tok.length-1];
+    if(/^[0-9]$/.test(k)){if(last===')')tok.push('*');tok.push(k);}
+    else if(k==='.'){if(last===')')tok.push('*');tok.push('.');}
+    else if(k==='neg'){tok.push('neg');}
+    else if(k==='exp'){if(!last||isOp(last)||last==='('||last==='neg')tok.push('1');tok.push('E');}
+    else if(isOp(k)){if(!tok.length&&ans!==null){const f=calcFmt(ans);tok=[...(f.m.startsWith('-')?['neg',...f.m.slice(1)]:f.m)];if(f.e!==null){tok.push('E');if(f.e<0)tok.push('neg');tok.push(...String(Math.abs(f.e)));}}const l2=tok[tok.length-1];if(l2&&isOp(l2))tok[tok.length-1]=k;else if(tok.length)tok.push(k);}
+    else if(k==='sq'){if(last&&/[0-9.)]/.test(last)){tok.push('^','2');}}
+    else if(k==='('){if(last&&(/[0-9.)]/.test(last)))tok.push('*');tok.push('(');}
+    else if(k===')'){tok.push(')');}
+    else if(k==='del'){if(done){done=false;}else tok.pop();}
+    else if(k==='ac'){tok=[];done=false;ans=null;}
+    else if(k==='enter'){if(!tok.length)return;if(done){submit();return;}compute();}
+    draw();
+  }
+  function submit(){
+    if(!P||P.answered)return;
+    if(!done){if(!tok.length){msg('Bitte zuerst eine Zahl oder Rechnung eintippen.');return;}if(!compute())return;draw();}
+    document.onkeydown=null;el.querySelectorAll('.ck').forEach(b=>b.disabled=true);$('#calcok').disabled=true;
+    const [ok,extra]=check(ans);answer(ok,extra);
+  }
+  el.querySelectorAll('.ck').forEach(b=>b.onclick=()=>press(b.dataset.key));
+  $('#calcok').onclick=submit;
+  document.onkeydown=e=>{if(!P||P.answered)return;const k=e.key;let m=null;
+    if(/^[0-9]$/.test(k))m=k;else if(k===','||k==='.')m='.';else if(k==='+')m='+';else if(k==='*'||k==='x'||k==='X')m='*';else if(k==='/'||k===':')m='/';
+    else if(k==='-'){const last=tok[tok.length-1];m=(!tok.length&&!done)||isOp(last)||last==='('||last==='E'?'neg':'-';}
+    else if(k==='('||k===')')m=k;else if(k==='^')m='^';else if(k==='e'||k==='E')m='exp';
+    else if(k==='Backspace')m='del';else if(k==='Escape'||k==='Delete')m='ac';else if(k==='Enter')m='enter';
+    if(m){e.preventDefault();press(m);}};
+  draw();
+}
+const INPUT={
+  tap(t,el){const D=DIAG[t.diagram];el.innerHTML=`<div class="curvebox">${drawDiag(D.zones,D.deco,null)}</div><div class="muted" style="font-size:15px">Tippe auf den richtigen Bereich im Schaubild.</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');
+      el.querySelector('.curvebox').innerHTML=drawDiag(D.zones,D.deco,{sel:v,corr:t.zone},D.overlay);const nm=(D.zones.find(q=>q[0]===v)||[])[1];answer(v===t.zone,`Du hast „${nm}“ angetippt.`);}));},
+
+  match(t,el){const sel=t.rows.map(()=>-1);
+    el.innerHTML=`<div class="mrows">${t.rows.map((r,i)=>`<div class="mrow" data-r="${i}"><div class="ml">${r.l}</div><div class="mopts">${t.opts.map((o,j)=>`<button type="button" class="mo" data-r="${i}" data-o="${j}">${o}</button>`).join('')}</div></div>`).join('')}</div><button class="btn green" id="chk" disabled>Prüfen</button>`;
+    el.querySelectorAll('.mo').forEach(b=>b.onclick=()=>{if(P.answered)return;const r=+b.dataset.r,o=+b.dataset.o;sel[r]=o;el.querySelectorAll(`.mo[data-r="${r}"]`).forEach(x=>x.classList.toggle('sel',+x.dataset.o===o));$('#chk').disabled=sel.includes(-1);});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=true;t.rows.forEach((r,i)=>{const good=sel[i]===r.a;if(!good)ok=false;el.querySelector(`.mrow[data-r="${i}"]`).classList.add(good?'right':'wrong');
+      el.querySelectorAll(`.mo[data-r="${i}"]`).forEach(x=>{x.disabled=true;if(+x.dataset.o===r.a)x.classList.add('corr');});});$('#chk').disabled=true;answer(ok,ok?'':'Grün umrandet = richtige Zuordnung.');};},
+  cloze(t,el){const fill=t.ans.map(()=>null);
+    function draw(){let k=0;const txt=t.text.replace(/\[[^\]]+\]/g,()=>{const i=k++;const v=fill[i];return `<button type="button" class="slot ${v!==null?'full':''}" data-s="${i}">${v!==null?t.pool[v]:'&nbsp;'}</button>`;});
+      el.innerHTML=`<div class="ctext">${txt}</div><div class="cpool">${t.pool.map((w,i)=>`<button type="button" class="cw" data-w="${i}" ${fill.includes(i)?'disabled':''}>${w}</button>`).join('')}</div><button class="btn green" id="chk" ${fill.includes(null)?'disabled':''}>Prüfen</button>`;
+      el.querySelectorAll('.cw').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=fill.indexOf(null);if(i<0)return;fill[i]=+b.dataset.w;draw();});
+      el.querySelectorAll('.slot').forEach(b=>b.onclick=()=>{if(P.answered)return;fill[+b.dataset.s]=null;draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;let ok=true;el.querySelectorAll('.slot').forEach(b=>{const i=+b.dataset.s;const good=t.pool[fill[i]]===t.ans[i];if(!good)ok=false;b.classList.add(good?'right':'wrong');b.disabled=true;});
+        el.querySelectorAll('.cw').forEach(b=>b.disabled=true);$('#chk').disabled=true;let k2=0;const full=t.text.replace(/\[([^\]]+)\]/g,(_,w)=>`<b>${w}</b>`);answer(ok,'');P.tasks[P.i].sol=(ok?'':'Richtig heißt es: ')+full;$('#fb .sol').innerHTML=(ok?'':'Richtig heißt es: ')+full;};}
+    draw();},
+  curve(t,el){el.innerHTML=`<div class="curvebox">${curveSvg(null,true)}</div><div class="muted" style="font-size:15px">Tippe auf den passenden Abschnitt der Kurve (die gestrichelten Bereiche).</div>`;
+    el.querySelectorAll('[data-z]').forEach(z=>z.addEventListener('click',()=>{if(P.answered)return;const v=z.getAttribute('data-z');el.querySelector('.curvebox').innerHTML=curveSvg({sel:v,corr:t.zone},false);answer(v===t.zone,`Du hast ${ZNAME[v]} angetippt.`);}));},
+  multi(t,el){const sel=new Set();
+    el.innerHTML=`<div class="chips">${t.opts.map((o,i)=>`<button type="button" class="chip" data-i="${i}">${o}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;sel.has(i)?sel.delete(i):sel.add(i);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;const ok=sel.size===t.ans.length&&t.ans.every(a=>sel.has(a));
+      el.querySelectorAll('.chip').forEach(b=>{const i=+b.dataset.i,inA=t.ans.includes(i);b.classList.remove('sel');if(sel.has(i))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = hat gefehlt, rot = passt nicht.');};},
+  write(t,el){el.innerHTML=`<textarea id="wt" class="wt" placeholder="Schreib deine Antwort hier – oder auf ein Blatt Papier, wie in der Klassenarbeit."></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn blue" id="show">Musterlösung zeigen</button></div><div id="wres"></div>`;
+    $('#show').onclick=()=>{if(P.answered)return;const txt=' '+norm($('#wt').value)+' ';$('#show').disabled=true;$('#wt').readOnly=true;
+      const hits=t.keys.map(([l,kws])=>kws.some(k=>txt.includes(norm(k))));
+      $('#wres').innerHTML=`<div class="sol" style="margin-top:12px"><b>Musterlösung:</b><br>${t.model}</div>
+        <div class="checkbox-panel"><b>Was hattest du?</b><div class="muted" style="font-size:15px;margin-bottom:6px">Hake ehrlich ab, was in deiner Antwort vorkommt${$('#wt').value.trim()?' (erkannte Begriffe sind schon angehakt, bitte prüfen)':''}. Ab <b>${t.need} von ${t.keys.length}</b> Punkten ist die Aufgabe geschafft.</div>
+        ${t.keys.map(([l],i)=>`<label class="chk"><input type="checkbox" data-wk="${i}" ${hits[i]?'checked':''}> ${l}</label>`).join('')}
+        <button class="btn green" id="eval" style="margin-top:10px">Auswerten</button></div>`;
+      $('#eval').onclick=()=>{if(P.answered)return;const n=[...el.querySelectorAll('input[data-wk]')].filter(x=>x.checked).length;el.querySelectorAll('input[data-wk]').forEach(x=>x.disabled=true);$('#eval').disabled=true;
+        t.sol=`Du hattest <b>${n} von ${t.keys.length}</b> Schlüsselpunkten.`+(n>=t.need?' Stark, so gibt es in der Klassenarbeit Punkte!':` Für „geschafft“ brauchst du ${t.need}. Lies die Musterlösung noch einmal und merk dir die fehlenden Punkte.`);
+        answer(n>=t.need,'');};};},
+
+  num(t,el){calcPad(t,el,false,v=>[numOk(v,t),`Richtig wäre: <b>${fmt(t.ans,3)} ${t.unit}</b>`]);},
+  sci(t,el){calcPad(t,el,true,v=>[Math.abs(v-t.ans)<=Math.abs(t.ans)*0.02,`Richtig wäre: <b>${sci(t.ans)} ${t.unit}</b>`]);},
+  mc(t,el){el.innerHTML=`<div class="choices">${t.choices.map((c,i)=>`<button class="btn" data-i="${i}">${c}</button>`).join('')}</div>`;
+    el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;const i=+b.dataset.i;const ok=i===t.correct;
+      el.querySelectorAll('[data-i]').forEach(x=>{x.disabled=true;if(+x.dataset.i===t.correct)x.classList.add('right');});if(!ok)b.classList.add('wrong');answer(ok,'');});},
+  tf(t,el){el.innerHTML=`<div class="row"><button class="btn green" data-v="1" style="min-width:140px">✔ Wahr</button><button class="btn red" data-v="0" style="min-width:140px">✘ Falsch</button></div>`;
+    el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(P.answered)return;const v=b.dataset.v==='1';el.querySelectorAll('[data-v]').forEach(x=>x.disabled=true);answer(v===t.ans,`Richtig ist: <b>${t.ans?'Wahr':'Falsch'}</b>`);});},
+  grid(t,el){const sel=new Set();
+    el.innerHTML=`<div class="elgrid">${t.items.map(s=>`<button class="el" data-s="${s}">${s}</button>`).join('')}</div><button class="btn green" id="chk">Prüfen</button>`;
+    el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{if(P.answered)return;const s=b.dataset.s;sel.has(s)?sel.delete(s):sel.add(s);b.classList.toggle('sel');});
+    $('#chk').onclick=()=>{if(P.answered)return;let ok=sel.size===t.ans.length&&t.ans.every(s=>sel.has(s));
+      el.querySelectorAll('[data-s]').forEach(b=>{const s=b.dataset.s,inA=t.ans.includes(s);b.classList.remove('sel');if(sel.has(s))b.classList.add(inA?'right':'wrong');else if(inA)b.classList.add('miss');b.disabled=true;});
+      $('#chk').disabled=true;answer(ok,ok?'':'Gelb gestrichelt = vergessen, rot = falsch ausgewählt.');};},
+  bal(t,el){const sp=t.r.concat(t.p);const co=sp.map(()=>1);const nr=t.r.length;
+    const elems=[];sp.forEach(f=>Object.keys(parseF(f)).forEach(e=>{if(!elems.includes(e))elems.push(e);}));
+    function counts(side){const c={};sp.forEach((f,k)=>{if((k<nr)!==(side==='L'))return;const p=parseF(f);for(const e in p)c[e]=(c[e]||0)+p[e]*co[k];});return c;}
+    function blocks(e,n){if(n>24)return `<span class="cnt">${n}</span>`;return `<span class="cnt">${n}</span>`+`<span class="blk" style="background:${ECOL[e]||'#888'}"></span>`.repeat(n);}
+    function draw(){
+      let h='<div class="bal">';sp.forEach((f,k)=>{if(k===nr)h+='<span class="op">→</span>';else if(k>0)h+='<span class="op">+</span>';
+        h+=`<div class="sp"><div class="st"><button data-k="${k}" data-d="1">▲</button><button data-k="${k}" data-d="-1">▼</button></div><span class="co">${co[k]}</span><span>${fx(f)}</span></div>`;});
+      h+='</div>';const L=counts('L'),R=counts('R');
+      h+=`<table class="atoms"><tr><th>Atom</th><th>links</th><th>rechts</th></tr>${elems.map(e=>{const ok=L[e]===R[e];const cls=t.noColor?'':(ok?'okc':'badc');return `<tr><td><b>${e}</b> <span class="muted">${EN[e]||''}</span></td><td class="${cls}">${blocks(e,L[e]||0)}</td><td class="${cls}">${blocks(e,R[e]||0)}</td></tr>`;}).join('')}</table>
+      <button class="btn green" id="chk">Prüfen</button>`;
+      el.innerHTML=h;
+      el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(P.answered)return;const k=+b.dataset.k;co[k]=Math.max(1,Math.min(9,co[k]+(+b.dataset.d)));draw();});
+      $('#chk').onclick=()=>{if(P.answered)return;const L=counts('L'),R=counts('R');const bal=elems.every(e=>L[e]===R[e]);const g=co.reduce((a,b)=>gcd(a,b));
+        el.querySelectorAll('[data-k]').forEach(b=>b.disabled=true);$('#chk').disabled=true;
+        answer(bal&&g===1,bal&&g!==1?'Ausgeglichen, aber nicht mit den <b>kleinstmöglichen</b> Zahlen. Alle Koeffizienten lassen sich noch kürzen!':(bal?'':'Noch nicht ausgeglichen. Vergleiche links und rechts in der Tabelle.'));};
+    }
+    draw();},
+  order(t,el){const pool=shuffle(t.steps.map((s,i)=>i));const chosen=[];
+    function draw(){el.innerHTML=`<div class="orderlist">${chosen.map((i,k)=>`<div class="item"><b>${k+1}.</b>${t.steps[i]}</div>`).join('')}</div>
+      <div class="orderpool">${pool.filter(i=>!chosen.includes(i)).map(i=>`<button class="btn" style="text-align:left;background:#4a4a55" data-i="${i}">${t.steps[i]}</button>`).join('')}</div>
+      <div class="row"><button class="btn small" id="rs">↺ Zurücksetzen</button>${chosen.length===t.steps.length?'<button class="btn green" id="chk">Prüfen</button>':''}</div>`;
+      el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{if(P.answered)return;chosen.push(+b.dataset.i);draw();});
+      $('#rs').onclick=()=>{if(P.answered)return;chosen.length=0;draw();};
+      const c=$('#chk');if(c)c.onclick=()=>{if(P.answered)return;const ok=chosen.every((v,k)=>v===k);c.disabled=true;$('#rs').disabled=true;answer(ok,'');};}
+    draw();}
+};
+function answer(ok,extra){
+  if(P.answered)return;P.answered=true;const t=P.tasks[P.i];let gain=0;
+  P.secs+=Math.min(Date.now()-(P.taskT||Date.now()),300000)/1000;
+  if(ok){P.combo++;S.curCombo=P.combo;S.stats.correct++;const w=t.w||P.world;S.stats.byWorld[w]=(S.stats.byWorld[w]||0)+1;
+    gain=10+(P.usedHint?0:5);if(P.combo%5===0)gain+=10;S.stats.bestCombo=Math.max(S.stats.bestCombo,P.combo);if(t.onOk)t.onOk();S.stats['k_'+t.kind]=(S.stats['k_'+t.kind]||0)+1;if(t.kind==='num'&&/curvebox/.test(t.q))S.stats.curveNum=(S.stats.curveNum||0)+1;}
+  else{P.combo=0;S.curCombo=0;if(P.boss)P.hearts--;}
+  P.res.push(ok);if(gain)gainXP(gain);
+  const last=P.i===P.tasks.length-1||(P.boss&&P.hearts<=0);
+  $('#fb').innerHTML=(ok?`<div class="ok">✔ Richtig! +${gain} XP${P.combo>=3?' · Combo ×'+P.combo:''}</div>`:`<div class="bad">✘ Leider falsch${P.boss?' · ein Herz verloren':''}</div>`)+
+    `<div class="sol">${!ok&&extra?extra+'<br>':''}${t.sol||''}</div><div class="row" style="margin-top:12px"><button class="btn ${ok?'green':'blue'}" id="next">${last?'Ergebnis ▶':'Weiter ▶'}</button></div>`;
+  const hb=$('#hintb');if(hb)hb.disabled=true;
+  save();checkAch();
+  const n=$('#next');n.onclick=()=>{if(last)finish();else{P.i++;renderTask();}};
+  setTimeout(()=>{n.scrollIntoView({behavior:'smooth',block:'center'});},60);
+  document.onkeydown=e=>{if(e.key==='Enter'&&document.activeElement.tagName!=='INPUT'&&$('#next')){e.preventDefault();$('#next').click();}};
+}
+function logRound(done,stars){if(!P||!P.res.length)return;H.logRound({app:APP,appName:'Statik-Baustelle',world:P.world,worldName:P.name,boss:P.boss,won:P.boss?P.hearts>0:null,
+  right:P.res.filter(Boolean).length,total:P.res.length,planned:P.tasks.length,stars:stars,secs:Math.round(P.secs),hints:P.hints,done:done});}
+function finish(){
+  document.onkeydown=null;const total=P.tasks.length,right=P.res.filter(Boolean).length;
+  touchStreak();
+  let h='';
+  if(P.boss){
+    const won=P.hearts>0;
+    logRound(true,null);
+    if(won){S.stats.bossWins++;if(P.hearts===3)S.stats.bossPerfect++;gainXP(100);}
+    h=`<div class="panel result"><div class="boss-art">${bossSvg(won?0:3)}</div><h2>${won?'Die Abrissbirne prallt ab, dein Bauwerk steht!':'Die Abrissbirne hat dein Bauwerk erwischt …'}</h2>
+     <p>${right} von ${P.res.length} richtig${won?' · <b style="color:var(--gold)">+100 XP</b>':''}</p>
+     <p class="muted">${won?'Stark! Das war fast schon Klassenarbeits-Niveau.':'Schau dir die Lösungswege nochmal an und trainiere die Welten, in denen es gehakt hat. Dann nochmal!'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Nochmal kämpfen</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(won)confetti(90);
+  }else{
+    const st=right===total?3:right>=total-1?2:right>=Math.ceil(total*0.6)?1:0;
+    const prev=S.stars[P.world]||0;
+    S.stars[P.world]=Math.max(prev,st);S.plays[P.world]=(S.plays[P.world]||0)+1;
+    logRound(true,st);
+    if(st===3&&P.hints===0)S.stats.nohint++;
+    if(st)gainXP(st*10);
+    h=`<div class="panel result"><h2>${P.icon} ${P.name}: Runde beendet</h2><div class="bigstars">${[0,1,2].map(i=>i<st?'<span>★</span>':'<span class="off">★</span>').join('')}</div>
+     <p>${right} von ${total} richtig${st?` · <b style="color:var(--gold)">+${st*10} XP</b> Sternbonus`:''}${st>prev&&prev>0?' · neuer Rekord!':''}</p>
+     <p class="muted">${st===3?'Perfekt! Diese Anlage hast du im Griff.':st===2?'Fast perfekt. Noch eine Runde für den dritten Stern?':st===1?'Geschafft! Mit etwas Übung holst du mehr Sterne.':'Für einen Stern brauchst du '+Math.ceil(total*0.6)+' richtige. Versuch es gleich nochmal, die Aufgaben sind jedes Mal neu.'}</p>
+     <div class="row" style="justify-content:center"><button class="btn green" id="again">Neue Runde</button><button class="btn" id="tomap">Zur Karte</button></div></div>`;
+    if(st===3)confetti(70);
+  }
+  const wid=P.world;save();checkAch();view.innerHTML=h;window.scrollTo(0,0);
+  $('#again').onclick=()=>{wid==='boss'?startBoss():startWorld(wid);};$('#tomap').onclick=()=>{P=null;renderMap();};
+}
+
+/* ============ Erfolge ============ */
+function renderAch(){
+  const got=H.countApp(APP),G=H.get();
+  view.innerHTML=`<div class="panel"><h2>🏆 Erfolge: ${got} / ${ACH.length}</h2><p class="muted">Sterne gesamt: ${starsTotal()} / 24 · Beste Combo: ${S.stats.bestCombo} · Richtige Antworten: ${S.stats.correct}</p></div>
+  <div class="achs">${ACH.map(([id,ic,n,d])=>{const g=H.has(APP,id);return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:'🔒'}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>
+  <div class="panel" style="margin-top:22px"><h2>🌍 Meta-Erfolge (über alle Lern-Apps)</h2><p class="muted">Jede Lern-App hat ihren eigenen Rang und eigene Erfolge. Diese Meta-Erfolge sammelst du über alle Apps hinweg, im Lern-Hub steht deine ganze Trophäen-Vitrine.</p></div>
+  <div class="achs">${H.globalList().map(([id,ic,n,d,,hid])=>{const g=!!G.ach['hub:'+id];if(hid&&!g){ic='❓';n='???';d='Versteckter Erfolg. Wird später enthüllt …';}return `<div class="ach ${g?'got':'locked'}"><div class="ai">${g?ic:(hid?'❓':'🔒')}</div><div><div class="an">${n}</div><div class="ad">${d}</div></div></div>`;}).join('')}</div>`;
+}
+
+/* ============ Spickzettel ============ */
+function renderSheet(){
+  if(!S.stats.cheat){S.stats.cheat=1;save();checkAch();}
+  view.innerHTML=`<div class="panel"><h2>📜 Lernzettel Statik</h2><p>Alle KA-Themen auf einen Blick. Die Formeln musst du umstellen können.</p></div>
+  <div class="sheet">
+   <div class="card"><h3>Statik und Kraft</h3><p><b>Statik:</b> Lehre vom Gleichgewicht der Kräfte an ruhenden Körpern (Bauwerke). Kraft = Betrag, Richtung, Angriffspunkt → Pfeil. Einheit: Newton (N).</p><div class="f">F<sub>G</sub> = m · g &nbsp; (g ≈ 10 N/kg)</div><p><b>Gleichgewicht:</b> Summe der Kräfte = 0 und Summe der Drehmomente = 0.</p></div>
+   <div class="card"><h3>Hebelgesetz</h3><div class="f">F₁ · a₁ = F₂ · a₂</div><div class="f">M = F · a &nbsp; (Nm)</div><p>a = senkrechter Abstand Drehpunkt – Kraft. <b>Zweiseitig:</b> Drehpunkt zwischen Kraft und Last (Wippe, Schere). <b>Einseitig:</b> beide auf einer Seite (Schubkarre, Nussknacker). Langer Kraftarm = wenig Kraft.</p></div>
+   <div class="card"><h3>Kräfte zeichnerisch</h3><p>Kräftemaßstab festlegen (z. B. 1 cm ≙ 10 N). Gleiche Richtung: addieren, entgegengesetzt: subtrahieren. Verschiedene Richtungen: <b>Kräfteparallelogramm</b>, die Diagonale ist die Resultierende. <b>Krafteck</b> geschlossen = Gleichgewicht. Kraftzerlegung = Parallelogramm rückwärts.</p></div>
+   <div class="card"><h3>Kräfte rechnerisch</h3><div class="f">F<sub>R</sub> = √(F₁² + F₂²) &nbsp; (bei 90°)</div><p><b>Lagerkräfte:</b> Drehpunkt in Lager A → F · a = F<sub>B</sub> · l → F<sub>B</sub>. Dann F<sub>A</sub> = F − F<sub>B</sub>. Das nähere Lager trägt mehr.</p></div>
+   <div class="card"><h3>Belastungsarten</h3><p><b>Zug</b> (Seil), <b>Druck</b> (Säule), <b>Biegung</b> (Regalbrett), <b>Torsion</b> (Welle), <b>Scherung</b> (Schere, Niete), <b>Knickung</b> (dünner Stab unter Druck).</p></div>
+   <div class="card"><h3>Balken und Profile</h3><p>Balken auf zwei Stützen, Last oben: <b>oben Druck, unten Zug</b>, Mitte = neutrale Faser. Kragträger: oben Zug, unten Druck. Biegesteifigkeit ~ b · h³ → <b>hochkant</b> viel steifer. I-, T-, U-, L-Profil, Rohre: Material dort, wo die Spannung groß ist.</p></div>
+   <div class="card"><h3>Material</h3><p><b>Steifigkeit:</b> Widerstand gegen Verformung (Material + Form). <b>Festigkeit:</b> Widerstand gegen Bruch (z. B. N/mm²). Glas: steif, aber spröde. Seil: fest, aber nicht steif. Elastisch = federt zurück, plastisch = bleibt verformt.</p><div class="f">σ = F / A</div></div>
+   <div class="card"><h3>Seilzüge</h3><p><b>Feste Rolle:</b> nur Richtungsänderung, F = F<sub>G</sub>. <b>Lose Rolle:</b> F = F<sub>G</sub> / 2. <b>Flaschenzug:</b></p><div class="f">F = F<sub>G</sub> / n &nbsp;·&nbsp; s = n · h</div><p>n = tragende Seilstücke. Goldene Regel: Was man an Kraft spart, muss man an Weg zusetzen.</p></div>
+  </div>`;
+}
+
+/* ============ Spielstand ============ */
+function renderSave(){
+  let code='';try{code=btoa(unescape(encodeURIComponent(JSON.stringify({v:2,app:APP,state:S,profil:H.exportData()}))));}catch(e){}
+  view.innerHTML=`<div class="panel"><h2>💾 Spielstand</h2>
+   <p>Name: <input class="in" id="nm2" maxlength="16" value="${(H.get().name||'').replace(/"/g,'&quot;')}" style="width:220px"> <button class="btn small green" id="nmsave">Speichern</button></p>
+   <p class="muted">Dein Fortschritt wird automatisch auf diesem Gerät gespeichert. Der Speichercode enthält diese App <b>und</b> dein Hub-Profil (Name, Serie, Trophäen-Vitrine, Meta-Erfolge). Für ein anderes Gerät oder zur Sicherheit kopierst du ihn und fügst ihn dort unter „Laden“ ein.</p>
+   <h3>Speichercode</h3><textarea class="code" id="code" readonly>${code}</textarea>
+   <div class="row" style="margin-top:8px"><button class="btn blue small" id="copy">📋 Kopieren</button><span id="copymsg" class="muted"></span></div>
+   <h3 style="margin-top:20px">Laden</h3><textarea class="code" id="imp" placeholder="Speichercode hier einfügen"></textarea>
+   <div class="row" style="margin-top:8px"><button class="btn green small" id="load">Laden</button><span id="loadmsg"></span></div>
+   <h3 style="margin-top:20px">Neu anfangen</h3><button class="btn red small" id="reset">Diese App zurücksetzen</button><div id="rsbox"></div></div>`;
+  $('#nmsave').onclick=()=>{H.setName($('#nm2').value.trim());updateHeader();};
+  $('#copy').onclick=()=>{const ta=$('#code');try{navigator.clipboard.writeText(ta.value).then(()=>$('#copymsg').textContent='Kopiert!',()=>{ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';});}catch(e){ta.select();$('#copymsg').textContent='Markiert, jetzt mit Strg+C kopieren.';}};
+  $('#load').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($('#imp').value.trim()))));if(o.v===2){H.importData(o.profil);S=merge(defState(),o.state);lastRank=rankIdx(S.xp);}else if(typeof o.xp==='number'){S=merge(defState(),o);migrate(true);}else throw 0;save();updateHeader();$('#loadmsg').textContent=' ✔ Geladen!';}catch(e){$('#loadmsg').textContent=' ✘ Der Code ist ungültig.';}};
+  $('#reset').onclick=()=>{$('#rsbox').innerHTML=`<div class="inline-confirm">Rang, Sterne und Erfolge dieser App löschen? (Meta-Erfolge im Hub bleiben erhalten.) <button class="btn red small" id="rsyes">Ja, löschen</button> <button class="btn small" id="rsno">Abbrechen</button></div>`;
+    $('#rsyes').onclick=()=>{S=defState();const G=H.get();Object.keys(G.ach).forEach(k=>{if(k.indexOf(APP+':')===0)delete G.ach[k];});H.importData(G);lastRank=0;save();registerApp();updateHeader();renderMap();};$('#rsno').onclick=()=>{$('#rsbox').innerHTML='';};};
+}
+
+/* ============ Start ============ */
+/* Alten Spielstand (vor dem gemeinsamen Profil) einmalig übernehmen */
+function migrate(force){const G=H.get();if(!force&&(S.migrated||!(S.xp>0)))return;
+  if(force||!G.xpByApp[APP]){G.xp+=S.xp;G.xpByApp[APP]=(G.xpByApp[APP]||0)+S.xp;}
+  if(S.name&&!G.name)G.name=S.name;
+  if(S.streak&&S.streak.days>(G.streak.days||0))G.streak=S.streak;
+  if(S.ach)ACH.forEach(([id,ic,n,d])=>{if(S.ach[id]&&!G.ach[APP+':'+id])G.ach[APP+':'+id]={t:S.ach[id],app:APP,icon:ic,name:n,desc:d};});
+  H.importData(G);S.migrated=true;save();}
+migrate(false);
+oreStrip();updateHeader();renderMap();checkAch();H.checkGlobal();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('../sw.js',{scope:'../'}).catch(()=>{});});}
+</script>
+</body>
+</html>
